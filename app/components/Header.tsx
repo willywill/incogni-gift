@@ -31,10 +31,12 @@ const Brand = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   cursor: pointer;
+  letter-spacing: -0.01em;
   
   svg {
     width: 24px;
@@ -57,10 +59,12 @@ const NavLinks = styled.div`
 const NavLink = styled.a`
   color: ${(props) => props.theme.lightMode.colors.secondary};
   text-decoration: none;
-  font-size: 0.95rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
   transition: color 0.2s ease;
+  letter-spacing: -0.01em;
 
   &:hover {
     color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -73,10 +77,12 @@ const CTAButton = styled.button`
   padding: 0.625rem 1.5rem;
   border: none;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  letter-spacing: -0.01em;
 
   &:hover {
     background: ${(props) => props.theme.lightMode.colors.gray800};
@@ -101,29 +107,35 @@ const HeroSection = styled.section`
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.08;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0 0 1.5rem 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 
   @media (max-width: 768px) {
     font-size: 2.5rem;
+    letter-spacing: -0.025em;
   }
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.25rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0 0 2.5rem 0;
-  max-width: 600px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 1.125rem;
+    line-height: 1.65;
   }
 `;
 
@@ -133,10 +145,12 @@ const HeroCTA = styled.button`
   padding: 1rem 2.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 1.1rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.0625rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  letter-spacing: -0.01em;
 
   &:hover {
     background: ${(props) => props.theme.lightMode.colors.gray800};

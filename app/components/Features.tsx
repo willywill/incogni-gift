@@ -15,26 +15,33 @@ const FeaturesSection = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
   text-align: center;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0 0 1rem 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
     font-size: 2rem;
+    letter-spacing: -0.025em;
   }
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: 1.1rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
   text-align: center;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0 0 4rem 0;
-  max-width: 600px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 `;
 
 const FeaturesGrid = styled.div`
@@ -81,17 +88,23 @@ const IconWrapper = styled.div`
 `;
 
 const FeatureTitle = styled.h3`
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
 `;
 
 const FeatureDescription = styled.p`
-  font-size: 0.95rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
-  line-height: 1.6;
+  line-height: 1.7;
   margin: 0;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 `;
 
 const features = [

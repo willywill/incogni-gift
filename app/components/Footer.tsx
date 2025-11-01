@@ -43,9 +43,11 @@ const Brand = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.white};
+  letter-spacing: -0.01em;
   
   svg {
     width: 24px;
@@ -54,11 +56,14 @@ const Brand = styled.div`
 `;
 
 const BrandTagline = styled.p`
-  font-size: 0.95rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.gray500};
-  line-height: 1.6;
+  line-height: 1.7;
   margin: 0;
   max-width: 300px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 `;
 
 const FooterColumn = styled.div`
@@ -68,6 +73,7 @@ const FooterColumn = styled.div`
 `;
 
 const ColumnTitle = styled.h4`
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.white};
@@ -79,9 +85,12 @@ const ColumnTitle = styled.h4`
 const FooterLink = styled.a`
   color: ${(props) => props.theme.lightMode.colors.gray400};
   text-decoration: none;
-  font-size: 0.95rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
   transition: color 0.2s ease;
   width: fit-content;
+  letter-spacing: -0.01em;
 
   &:hover {
     color: ${(props) => props.theme.lightMode.colors.white};
@@ -103,11 +112,19 @@ const FooterBottom = styled.div`
 `;
 
 const Copyright = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   color: ${(props) => props.theme.lightMode.colors.gray500};
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 `;
 
 const CreatedBy = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   color: ${(props) => props.theme.lightMode.colors.gray500};
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   
   a {
     color: ${(props) => props.theme.lightMode.colors.gray300};
