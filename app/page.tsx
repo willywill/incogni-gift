@@ -1,0 +1,9 @@
+import ExampleComponent from "./components/ExampleComponent";
+
+export default function Home() {
+	return (
+		<main>
+			<ExampleComponent />
+		</main>
+	);
+}
