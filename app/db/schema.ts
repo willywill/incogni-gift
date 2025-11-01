@@ -3,8 +3,6 @@ import {
 	text,
 	timestamp,
 	boolean,
-	serial,
-	integer,
 } from "drizzle-orm/pg-core";
 
 // Better Auth required tables
@@ -27,22 +25,6 @@ export const session = pgTable("session", {
 		.references(() => user.id, { onDelete: "cascade" }),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent"),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-export const account = pgTable("account", {
-	id: text("id").primaryKey(),
-	accountId: text("account_id").notNull(),
-	providerId: text("provider_id").notNull(),
-	userId: text("user_id")
-		.notNull()
-		.references(() => user.id, { onDelete: "cascade" }),
-	accessToken: text("access_token"),
-	refreshToken: text("refresh_token"),
-	idToken: text("id_token"),
-	expiresAt: timestamp("expires_at"),
-	password: text("password"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
