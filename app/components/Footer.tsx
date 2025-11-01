@@ -1,6 +1,7 @@
 "use client";
 
 import styled from "styled-components";
+import Link from "next/link";
 import { Gift } from "lucide-react";
 
 const FooterWrapper = styled.footer`
@@ -97,6 +98,21 @@ const FooterLink = styled.a`
   }
 `;
 
+const FooterLinkNext = styled(Link)`
+  color: ${(props) => props.theme.lightMode.colors.gray400};
+  text-decoration: none;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  transition: color 0.2s ease;
+  width: fit-content;
+  letter-spacing: -0.01em;
+
+  &:hover {
+    color: ${(props) => props.theme.lightMode.colors.white};
+  }
+`;
+
 const FooterBottom = styled.div`
   display: flex;
   justify-content: space-between;
@@ -159,7 +175,8 @@ export default function Footer() {
             <ColumnTitle>Product</ColumnTitle>
             <FooterLink href="#features">Features</FooterLink>
             <FooterLink href="#how-it-works">How It Works</FooterLink>
-            <FooterLink href="#about">About</FooterLink>
+            <FooterLinkNext href="/about">About</FooterLinkNext>
+            <FooterLinkNext href="/support">Support</FooterLinkNext>
           </FooterColumn>
 
           <FooterColumn>
