@@ -1,6 +1,7 @@
 "use client";
 
 import styled from "styled-components";
+import Link from "next/link";
 import { Gift } from "lucide-react";
 
 const HeaderWrapper = styled.header`
@@ -71,7 +72,7 @@ const NavLink = styled.a`
   }
 `;
 
-const CTAButton = styled.button`
+const CTAButton = styled(Link)`
   background: ${(props) => props.theme.lightMode.colors.foreground};
   color: ${(props) => props.theme.lightMode.colors.background};
   padding: 0.625rem 1.5rem;
@@ -83,6 +84,8 @@ const CTAButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
+  text-decoration: none;
+  display: inline-block;
 
   &:hover {
     background: ${(props) => props.theme.lightMode.colors.gray800};
@@ -139,7 +142,7 @@ const HeroSubtitle = styled.p`
   }
 `;
 
-const HeroCTA = styled.button`
+const HeroCTA = styled(Link)`
   background: ${(props) => props.theme.lightMode.colors.foreground};
   color: ${(props) => props.theme.lightMode.colors.background};
   padding: 1rem 2.5rem;
@@ -151,6 +154,8 @@ const HeroCTA = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
+  text-decoration: none;
+  display: inline-block;
 
   &:hover {
     background: ${(props) => props.theme.lightMode.colors.gray800};
@@ -177,7 +182,7 @@ export default function Header() {
             <NavLink href="#how-it-works">How It Works</NavLink>
             <NavLink href="#about">About</NavLink>
           </NavLinks>
-          <CTAButton>Get Started</CTAButton>
+          <CTAButton href="/auth">Get Started</CTAButton>
         </Nav>
       </HeaderWrapper>
       <HeroSection id="hero">
@@ -185,7 +190,7 @@ export default function Header() {
         <HeroSubtitle>
           Secret matches, unforgettable surprises. A little mystery. A lot of joy. 🎁✨
         </HeroSubtitle>
-        <HeroCTA>Start Your Gift Exchange</HeroCTA>
+        <HeroCTA href="/auth">Start Your Gift Exchange</HeroCTA>
       </HeroSection>
     </>
   );
