@@ -8,7 +8,11 @@
 		"start": "next start",
 		"lint": "biome check .",
 		"format": "biome format --write .",
-		"check": "biome check --write ."
+		"check": "biome check --write .",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
 		"@radix-ui/react-dialog": "^1.1.15",
@@ -16,10 +20,13 @@
 		"@radix-ui/react-select": "^2.2.6",
 		"@radix-ui/react-slot": "^1.2.3",
 		"@radix-ui/react-tooltip": "^1.2.8",
+		"@types/pg": "^8.15.6",
 		"@types/styled-components": "^5.1.35",
 		"better-auth": "^1.0.0",
+		"drizzle-orm": "^0.44.7",
 		"lucide-react": "^0.552.0",
 		"next": "^15.0.0",
+		"pg": "^8.16.3",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"styled-components": "^5.3.11"
@@ -29,6 +36,7 @@
 		"@types/node": "^22.10.5",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
+		"drizzle-kit": "^0.31.6",
 		"typescript": "^5.7.2"
 	}
 }

@@ -140,3 +140,8 @@ vite.config.ts.timestamp-*
 
 # macOS
 .DS_Store
+
+# Drizzle migrations (keep only source schema)
+drizzle/
+*.sql
+!database/*.sql

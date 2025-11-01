@@ -1,8 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 
 // Better Auth client configuration
-// This will connect to the backend API routes when they are implemented
-// For now, this is a placeholder client setup
+// Connects to the backend API routes at /api/auth
 export const authClient = createAuthClient({
 	baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "/api/auth",
 });
