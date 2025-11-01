@@ -173,8 +173,8 @@ export default function Footer() {
 
           <FooterColumn>
             <ColumnTitle>Product</ColumnTitle>
-            <FooterLink href="#features">Features</FooterLink>
-            <FooterLink href="#how-it-works">How It Works</FooterLink>
+            <FooterLinkNext href="/#features">Features</FooterLinkNext>
+            <FooterLinkNext href="/#how-it-works">How It Works</FooterLinkNext>
             <FooterLinkNext href="/about">About</FooterLinkNext>
             <FooterLinkNext href="/support">Support</FooterLinkNext>
           </FooterColumn>
