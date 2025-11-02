@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/app/lib/auth-server";
 import { db } from "@/app/db";
 import { giftExchanges, user } from "@/app/db/schema";
-import { eq, and, desc, sql, isNotNull } from "drizzle-orm";
+import { eq, and, desc, sql, isNotNull, or } from "drizzle-orm";
 import crypto from "crypto";
 
 export async function POST(request: Request) {
@@ -146,14 +146,17 @@ export async function GET(request: Request) {
 			);
 		}
 
-		// Get all active gift exchanges for this user
+		// Get all active and started gift exchanges for this user
 		const exchanges = await db
 			.select()
 			.from(giftExchanges)
 			.where(
 				and(
 					eq(giftExchanges.createdBy, session.user.id),
-					eq(giftExchanges.status, "active")
+					or(
+						eq(giftExchanges.status, "active"),
+						eq(giftExchanges.status, "started")
+					)
 				)
 			)
 			.orderBy(desc(giftExchanges.createdAt));

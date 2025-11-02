@@ -77,6 +77,7 @@ export const participants = pgTable("participants", {
 		.references(() => giftExchanges.id, { onDelete: "cascade" }),
 	firstName: text("first_name").notNull(),
 	lastName: text("last_name"),
+	visitorId: text("visitor_id"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -88,6 +89,22 @@ export const wishlistItems = pgTable("wishlist_items", {
 		.notNull()
 		.references(() => participants.id, { onDelete: "cascade" }),
 	description: text("description").notNull(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Assignments table - stores who gives to whom in a gift exchange
+export const assignments = pgTable("assignments", {
+	id: text("id").primaryKey(),
+	exchangeId: text("exchange_id")
+		.notNull()
+		.references(() => giftExchanges.id, { onDelete: "cascade" }),
+	participantId: text("participant_id")
+		.notNull()
+		.references(() => participants.id, { onDelete: "cascade" }),
+	assignedToParticipantId: text("assigned_to_participant_id")
+		.notNull()
+		.references(() => participants.id, { onDelete: "cascade" }),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

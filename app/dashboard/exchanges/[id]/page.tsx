@@ -367,20 +367,31 @@ const Button = styled.button`
 		width: 18px;
 		height: 18px;
 	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const PrimaryButton = styled(Button)`
 	background: ${(props) => props.theme.lightMode.colors.foreground};
 	color: ${(props) => props.theme.lightMode.colors.background};
 
-	&:hover {
+	&:hover:not(:disabled) {
 		background: ${(props) => props.theme.lightMode.colors.gray800};
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
 
-	&:active {
+	&:active:not(:disabled) {
 		transform: translateY(0);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		background: ${(props) => props.theme.lightMode.colors.foreground};
 	}
 `;
 
@@ -1067,6 +1078,14 @@ export default function GiftExchangeDetailPage() {
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [assignmentsList, setAssignmentsList] = useState<Array<{
+		id: string;
+		participantId: string;
+		assignedToParticipantId: string;
+		giverName: string;
+		receiverName: string;
+	}>>([]);
+	const [assignmentsLoading, setAssignmentsLoading] = useState(false);
 
 	// Generate invitation link dynamically using NEXT_PUBLIC_BASE_URL or fallback to window.location.origin
 	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
@@ -1084,12 +1103,24 @@ export default function GiftExchangeDetailPage() {
 			setEditMagicWord(exchange.magicWord || "");
 			setEditSpendingLimit(exchange.spendingLimit);
 			setEditCurrency(exchange.currency);
+			
+			// If exchange is started and we're on the invite tab, switch to activity tab
+			if (exchange.status === "started" && activeTab === "invite") {
+				setActiveTab("activity");
+			}
+			// If exchange is started and we're editing spending limit, close the edit form
+			if (exchange.status === "started" && isEditingSpendingLimit) {
+				setIsEditingSpendingLimit(false);
+			}
 		}
-	}, [exchange]);
+	}, [exchange, activeTab, isEditingSpendingLimit]);
 
 	useEffect(() => {
 		if (exchange && activeTab === "activity") {
 			fetchParticipants();
+			if (exchange.status === "started") {
+				fetchAssignments();
+			}
 		}
 	}, [exchange, activeTab]);
 
@@ -1118,6 +1149,27 @@ export default function GiftExchangeDetailPage() {
 			setParticipants([]);
 		} finally {
 			setParticipantsLoading(false);
+		}
+	};
+
+	const fetchAssignments = async () => {
+		if (!exchange) return;
+
+		try {
+			setAssignmentsLoading(true);
+			const response = await fetch(`/api/assignments?exchangeId=${exchange.id}`);
+			if (response.ok) {
+				const data = await response.json();
+				setAssignmentsList(data);
+			} else {
+				console.error("Failed to fetch assignments");
+				setAssignmentsList([]);
+			}
+		} catch (err) {
+			console.error("Error fetching assignments:", err);
+			setAssignmentsList([]);
+		} finally {
+			setAssignmentsLoading(false);
 		}
 	};
 
@@ -1384,10 +1436,46 @@ export default function GiftExchangeDetailPage() {
 		setStartExchangeModalOpen(true);
 	};
 
-	const handleConfirmStartExchange = () => {
-		// Placeholder - actual implementation will come later
-		console.log("Starting exchange:", exchange?.id);
-		setStartExchangeModalOpen(false);
+	const handleConfirmStartExchange = async () => {
+		if (!exchange || participants.length < 2) {
+			return;
+		}
+
+		try {
+			setLoading(true);
+			setError(null);
+
+			const response = await fetch(`/api/gift-exchanges/${exchange.id}/start`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to start exchange");
+			}
+
+			const result = await response.json();
+
+			// Refresh exchange data
+			await fetchExchange();
+
+			// Refresh participants data
+			await fetchParticipants();
+
+			// Refresh assignments data
+			await fetchAssignments();
+
+			// Close modal
+			setStartExchangeModalOpen(false);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred while starting the exchange");
+			console.error("Error starting exchange:", err);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	const handleRemoveParticipant = (participantId: string) => {
@@ -1447,10 +1535,12 @@ export default function GiftExchangeDetailPage() {
 
 			<TabsContainer>
 				<TabsList>
-					<TabButton $active={activeTab === "invite"} onClick={() => setActiveTab("invite")}>
-						<LinkIcon />
-						Invite
-					</TabButton>
+					{exchange?.status !== "started" && (
+						<TabButton $active={activeTab === "invite"} onClick={() => setActiveTab("invite")}>
+							<LinkIcon />
+							Invite
+						</TabButton>
+					)}
 					<TabButton $active={activeTab === "activity"} onClick={() => setActiveTab("activity")}>
 						<Users />
 						Activity
@@ -1650,50 +1740,91 @@ export default function GiftExchangeDetailPage() {
 					)}
 
 					{activeTab === "activity" && (
-						<Section>
-							<div>
-								<SectionTitle>Participants</SectionTitle>
-								<SectionDescription>See all active participants in this exchange</SectionDescription>
-							</div>
-							<Card>
-								{participantsLoading ? (
-									<ParticipantCount>Loading participants...</ParticipantCount>
-								) : (
-									<>
-										<ParticipantCount>{participants.length} Participant{participants.length !== 1 ? "s" : ""}</ParticipantCount>
-										{participants.length > 0 ? (
+						<>
+							{exchange?.status === "started" && (
+								<Section>
+									<div>
+										<SectionTitle>Gift Pairings</SectionTitle>
+										<SectionDescription>Who gives to whom in this exchange</SectionDescription>
+									</div>
+									<Card>
+										{assignmentsLoading ? (
+											<ParticipantCount>Loading pairings...</ParticipantCount>
+										) : assignmentsList.length > 0 ? (
 											<ParticipantList>
-												{participants.map((participant) => {
-													const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
-													return (
-														<ParticipantItemWithActions key={participant.id}>
-															<div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, cursor: "pointer" }} onClick={() => handleParticipantClick(participant)}>
-																<Users style={{ width: "20px", height: "20px" }} />
-																<ParticipantName>{fullName}</ParticipantName>
-															</div>
-															<RemoveParticipantButton
-																onClick={(e) => {
-																	e.stopPropagation();
-																	handleRemoveParticipant(participant.id);
-																}}
-																disabled={removingParticipantId === participant.id}
-																title="Remove participant"
-															>
-																<Trash2 />
-															</RemoveParticipantButton>
-														</ParticipantItemWithActions>
-													);
-												})}
+												{assignmentsList.map((assignment) => (
+													<div key={assignment.id} style={{ 
+													padding: "1rem", 
+													border: "1px solid", 
+													borderColor: "inherit", 
+													borderRadius: "8px", 
+													marginBottom: "0.75rem",
+													display: "flex",
+													alignItems: "center",
+													gap: "0.5rem",
+													fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
+													fontSize: "0.9375rem",
+													color: "inherit"
+												}}>
+													<span style={{ fontWeight: 600 }}>{assignment.giverName}</span>
+													<span style={{ opacity: 0.6 }}>→</span>
+													<span>{assignment.receiverName}</span>
+												</div>
+												))}
 											</ParticipantList>
 										) : (
 											<p style={{ margin: 0, color: "inherit", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem" }}>
-												No participants have joined this exchange yet.
+												No pairings found.
 											</p>
 										)}
-									</>
-								)}
-							</Card>
-						</Section>
+									</Card>
+								</Section>
+							)}
+							<Section>
+								<div>
+									<SectionTitle>Participants</SectionTitle>
+									<SectionDescription>See all active participants in this exchange</SectionDescription>
+								</div>
+								<Card>
+									{participantsLoading ? (
+										<ParticipantCount>Loading participants...</ParticipantCount>
+									) : (
+										<>
+											<ParticipantCount>{participants.length} Participant{participants.length !== 1 ? "s" : ""}</ParticipantCount>
+											{participants.length > 0 ? (
+												<ParticipantList>
+													{participants.map((participant) => {
+														const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
+														return (
+															<ParticipantItemWithActions key={participant.id}>
+																<div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, cursor: "pointer" }} onClick={() => handleParticipantClick(participant)}>
+																	<Users style={{ width: "20px", height: "20px" }} />
+																	<ParticipantName>{fullName}</ParticipantName>
+																</div>
+																<RemoveParticipantButton
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		handleRemoveParticipant(participant.id);
+																	}}
+																	disabled={removingParticipantId === participant.id}
+																	title="Remove participant"
+																>
+																	<Trash2 />
+																</RemoveParticipantButton>
+															</ParticipantItemWithActions>
+														);
+													})}
+												</ParticipantList>
+											) : (
+												<p style={{ margin: 0, color: "inherit", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem" }}>
+													No participants have joined this exchange yet.
+												</p>
+											)}
+										</>
+									)}
+								</Card>
+							</Section>
+						</>
 					)}
 
 					{activeTab === "manage" && (
@@ -1728,7 +1859,9 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Edit Spending Limit</SectionTitle>
 									<SectionDescription>
-										Update the spending limit and currency for your gift exchange
+										{exchange?.status === "started"
+											? "Spending limit cannot be changed after the exchange has started."
+											: "Update the spending limit and currency for your gift exchange"}
 									</SectionDescription>
 								</div>
 								<Card>
@@ -1749,13 +1882,42 @@ export default function GiftExchangeDetailPage() {
 													}).format(exchange?.spendingLimit || 0)}
 												</div>
 											</div>
-											<PrimaryButton onClick={() => setIsEditingSpendingLimit(true)}>
+											{exchange?.status === "started" && (
+												<div style={{
+													padding: "0.875rem 1rem",
+													borderRadius: "8px",
+													background: "rgba(0, 0, 0, 0.05)",
+													marginBottom: "1rem",
+													fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
+													fontSize: "0.875rem",
+													color: "inherit",
+												}}>
+													Spending limit cannot be changed after the exchange has started.
+												</div>
+											)}
+											<PrimaryButton
+												onClick={() => setIsEditingSpendingLimit(true)}
+												disabled={exchange?.status === "started"}
+											>
 												<Edit />
 												Edit Spending Limit
 											</PrimaryButton>
 										</>
 									) : (
 										<FormGroup>
+											{exchange?.status === "started" && (
+												<div style={{
+													padding: "0.875rem 1rem",
+													borderRadius: "8px",
+													background: "rgba(0, 0, 0, 0.05)",
+													marginBottom: "1rem",
+													fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
+													fontSize: "0.875rem",
+													color: "inherit",
+												}}>
+													Spending limit cannot be changed after the exchange has started.
+												</div>
+											)}
 											<Label htmlFor="spending-limit">Spending Limit</Label>
 											<Input
 												id="spending-limit"
@@ -1772,12 +1934,14 @@ export default function GiftExchangeDetailPage() {
 													}
 													setError(null);
 												}}
+												disabled={exchange?.status === "started"}
 											/>
 											<Label htmlFor="currency-select">Currency</Label>
 											<SelectRoot
 												value={editCurrency}
 												onValueChange={setEditCurrency}
 												defaultValue={editCurrency}
+												disabled={exchange?.status === "started"}
 											>
 												<SelectTrigger id="currency-select" aria-label="Currency">
 													<SelectValue />
@@ -1811,7 +1975,10 @@ export default function GiftExchangeDetailPage() {
 												</Select.Portal>
 											</SelectRoot>
 											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-												<PrimaryButton onClick={handleSaveSpendingLimit} disabled={saving}>
+												<PrimaryButton
+													onClick={handleSaveSpendingLimit}
+													disabled={saving || exchange?.status === "started"}
+												>
 													{saving ? "Saving..." : "Save"}
 												</PrimaryButton>
 												<Button

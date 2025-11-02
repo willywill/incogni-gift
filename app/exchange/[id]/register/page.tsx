@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import styled from "styled-components";
 import { User } from "lucide-react";
+import { getVisitorId } from "@/app/lib/fingerprint";
 
 const RegisterContainer = styled.div`
   min-height: 100vh;
@@ -188,12 +189,22 @@ export default function RegisterPage() {
     status: string;
   } | null>(null);
   const [exchangeLoading, setExchangeLoading] = useState(true);
+  const [visitorId, setVisitorId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!exchangeId) {
       router.push("/join");
       return;
     }
+
+    // Get visitor ID on mount
+    getVisitorId()
+      .then((id) => {
+        setVisitorId(id);
+      })
+      .catch((err) => {
+        console.error("Error getting visitor ID:", err);
+      });
 
     // Fetch exchange details to check status
     const fetchExchange = async () => {
@@ -243,6 +254,7 @@ export default function RegisterPage() {
           exchangeId,
           firstName: firstName.trim(),
           lastName: lastName.trim() || null,
+          visitorId: visitorId,
         }),
       });
 
