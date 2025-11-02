@@ -3,6 +3,7 @@ import {
 	text,
 	timestamp,
 	boolean,
+	integer,
 } from "drizzle-orm/pg-core";
 
 // Better Auth required tables
@@ -48,6 +49,20 @@ export const users = pgTable("users", {
 		.references(() => user.id, { onDelete: "cascade" }),
 	email: text("email").notNull().unique(),
 	// Additional columns can be added here for gift giver information
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Gift exchanges table
+export const giftExchanges = pgTable("gift_exchanges", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	spendingLimit: integer("spending_limit").notNull(),
+	currency: text("currency").notNull().default("USD"),
+	status: text("status").notNull().default("active"),
+	createdBy: text("created_by")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
