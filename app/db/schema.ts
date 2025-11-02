@@ -69,3 +69,26 @@ export const giftExchanges = pgTable("gift_exchanges", {
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Participants table
+export const participants = pgTable("participants", {
+	id: text("id").primaryKey(),
+	exchangeId: text("exchange_id")
+		.notNull()
+		.references(() => giftExchanges.id, { onDelete: "cascade" }),
+	firstName: text("first_name").notNull(),
+	lastName: text("last_name"),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Wishlist items table
+export const wishlistItems = pgTable("wishlist_items", {
+	id: text("id").primaryKey(),
+	participantId: text("participant_id")
+		.notNull()
+		.references(() => participants.id, { onDelete: "cascade" }),
+	description: text("description").notNull(),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
