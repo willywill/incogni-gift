@@ -734,7 +734,7 @@ export default function GiftExchangeDetailPage() {
 							<Section>
 								<div>
 									<SectionTitle>Invite via Link</SectionTitle>
-									<SectionDescription>Share this link to invite participants</SectionDescription>
+									<SectionDescription>Share this link to invite participants or view the link yourself to join the exchange!</SectionDescription>
 								</div>
 								<Card>
 									<InviteLinkContainer>
