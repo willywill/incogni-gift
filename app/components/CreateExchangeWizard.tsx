@@ -419,8 +419,14 @@ export default function CreateExchangeWizard({
 			});
 
 			if (!response.ok) {
-				const data = await response.json();
-				throw new Error(data.error || "Failed to create gift exchange");
+				let errorMessage = "Failed to create gift exchange";
+				try {
+					const data = await response.json();
+					errorMessage = data.error || errorMessage;
+				} catch {
+					// If response is not JSON, use default error message
+				}
+				throw new Error(errorMessage);
 			}
 
 			// Reset form
@@ -578,7 +584,7 @@ export default function CreateExchangeWizard({
 								<StepTitle>What&apos;s your magic word?</StepTitle>
 								<StepDescription>
 									Participants will use this word along with your last name to join the exchange.
-									Choose something memorable but not too obvious.
+									The combination of your last name and magic word must be unique. Choose something memorable but not too obvious.
 								</StepDescription>
 							</div>
 							<FormGroup>

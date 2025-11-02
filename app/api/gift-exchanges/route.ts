@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/app/lib/auth-server";
 import { db } from "@/app/db";
-import { giftExchanges } from "@/app/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { giftExchanges, user } from "@/app/db/schema";
+import { eq, and, desc, sql, isNotNull } from "drizzle-orm";
 import crypto from "crypto";
 
 export async function POST(request: Request) {
@@ -55,6 +55,43 @@ export async function POST(request: Request) {
 			);
 		}
 
+		// Normalize magic word
+		const normalizedMagicWord = magicWord.trim();
+
+		// Get the creator's lastName to check for duplicates
+		const [creatorData] = await db
+			.select({ lastName: user.lastName })
+			.from(user)
+			.where(eq(user.id, session.user.id))
+			.limit(1);
+
+		// Check for duplicate: same lastName + same magicWord combination
+		// This ensures uniqueness across all users (if two users have same lastName + same magicWord, it's a conflict)
+		if (creatorData?.lastName) {
+			const normalizedLastName = creatorData.lastName.trim();
+			const duplicateCheck = await db
+				.select()
+				.from(giftExchanges)
+				.innerJoin(user, eq(giftExchanges.createdBy, user.id))
+				.where(
+					and(
+						isNotNull(giftExchanges.magicWord),
+						isNotNull(user.lastName),
+						sql`${giftExchanges.magicWord} ILIKE ${normalizedMagicWord}`,
+						sql`${user.lastName} ILIKE ${normalizedLastName}`,
+						eq(giftExchanges.status, "active")
+					)
+				)
+				.limit(1);
+
+			if (duplicateCheck.length > 0) {
+				return NextResponse.json(
+					{ error: "An exchange with this magic word already exists. Please choose a different magic word." },
+					{ status: 400 }
+				);
+			}
+		}
+
 		// Create the gift exchange
 		const id = crypto.randomUUID();
 		const now = new Date();
@@ -64,7 +101,7 @@ export async function POST(request: Request) {
 			.values({
 				id,
 				name: name.trim(),
-				magicWord: magicWord.trim(),
+				magicWord: normalizedMagicWord,
 				spendingLimit,
 				currency,
 				status: "active",

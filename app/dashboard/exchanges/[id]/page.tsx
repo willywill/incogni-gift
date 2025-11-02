@@ -5,8 +5,10 @@ import { useState, useEffect } from "react";
 import { useSession } from "@/app/lib/auth";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import CreateExchangeWizard from "@/app/components/CreateExchangeWizard";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
+import { QRCodeSVG } from "qrcode.react";
 import {
 	ArrowLeft,
 	Users,
@@ -287,6 +289,13 @@ const ParticipantItem = styled.div`
 	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: ${(props) => props.theme.lightMode.colors.border};
+		transform: translateY(-1px);
+	}
 `;
 
 const ParticipantName = styled.span`
@@ -297,6 +306,19 @@ const InviteLinkContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
+`;
+
+const CopySuccessMessage = styled.div`
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.875rem;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	background: ${(props) => props.theme.lightMode.colors.muted};
+	border-left: 3px solid ${(props) => props.theme.lightMode.colors.foreground};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const LinkInputContainer = styled.div`
@@ -369,25 +391,21 @@ const QrCodeContainer = styled.div`
 	padding: 2rem;
 `;
 
-const QrCodePlaceholder = styled.div`
+const QrCodeWrapper = styled.div`
 	width: 200px;
 	height: 200px;
 	border: 2px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 8px;
-	display: grid;
-	grid-template-columns: repeat(8, 1fr);
-	grid-template-rows: repeat(8, 1fr);
-	gap: 2px;
 	padding: 8px;
 	background: ${(props) => props.theme.lightMode.colors.white};
-`;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
-const QrCodeSquare = styled.div<{ $filled: boolean }>`
-	background: ${(props) =>
-		props.$filled
-			? props.theme.lightMode.colors.foreground
-			: props.theme.lightMode.colors.white};
-	border-radius: 2px;
+	svg {
+		width: 100%;
+		height: 100%;
+	}
 `;
 
 const FormGroup = styled.div`
@@ -511,17 +529,110 @@ const QrModalTitle = styled(Dialog.Title)`
 	text-align: center;
 `;
 
-const QrCodeLarge = styled.div`
+const ParticipantModalOverlay = styled(Dialog.Overlay)`
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+`;
+
+const ParticipantModalContent = styled(Dialog.Content)`
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: ${(props) => props.theme.lightMode.colors.background};
+	border-radius: 16px;
+	padding: 2rem;
+	z-index: 1001;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	max-width: 600px;
+	width: 90vw;
+	max-height: 80vh;
+	overflow-y: auto;
+
+	@media (max-width: 768px) {
+		padding: 1.5rem;
+	}
+`;
+
+const ParticipantModalCloseButton = styled(Dialog.Close)`
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: transparent;
+	border: none;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: ${(props) => props.theme.lightMode.colors.muted};
+		color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+`;
+
+const ParticipantModalTitle = styled(Dialog.Title)`
+	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	margin: 0;
+	letter-spacing: -0.02em;
+`;
+
+const WishlistItemsList = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+`;
+
+const WishlistItem = styled.div`
+	padding: 1rem;
+	background: ${(props) => props.theme.lightMode.colors.muted};
+	border-radius: 8px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	line-height: 1.6;
+`;
+
+const EmptyWishlistText = styled.p`
+	margin: 0;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	text-align: center;
+	padding: 2rem;
+`;
+
+const QrCodeLargeWrapper = styled.div`
 	width: 300px;
 	height: 300px;
 	border: 3px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 12px;
-	display: grid;
-	grid-template-columns: repeat(8, 1fr);
-	grid-template-rows: repeat(8, 1fr);
-	gap: 3px;
 	padding: 12px;
 	background: ${(props) => props.theme.lightMode.colors.white};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
 
 	@media (max-width: 768px) {
 		width: 280px;
@@ -633,6 +744,15 @@ interface GiftExchange {
 	updatedAt: string;
 }
 
+interface Participant {
+	id: string;
+	exchangeId: string;
+	firstName: string;
+	lastName: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
 type TabType = "activity" | "invite" | "manage";
 
 export default function GiftExchangeDetailPage() {
@@ -648,32 +768,25 @@ export default function GiftExchangeDetailPage() {
 	const [editName, setEditName] = useState("");
 	const [editMagicWord, setEditMagicWord] = useState("");
 	const [isEditingMagicWord, setIsEditingMagicWord] = useState(false);
+	const [magicWordError, setMagicWordError] = useState<string | null>(null);
 	const [editSpendingLimit, setEditSpendingLimit] = useState(25);
 	const [editCurrency, setEditCurrency] = useState("USD");
 	const [isEditingSpendingLimit, setIsEditingSpendingLimit] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [qrModalOpen, setQrModalOpen] = useState(false);
+	const [participants, setParticipants] = useState<Participant[]>([]);
+	const [participantsLoading, setParticipantsLoading] = useState(false);
+	const [participantModalOpen, setParticipantModalOpen] = useState(false);
+	const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+	const [wishlistItems, setWishlistItems] = useState<{ id: string; description: string }[]>([]);
+	const [wishlistLoading, setWishlistLoading] = useState(false);
+	const [wizardOpen, setWizardOpen] = useState(false);
+	const [copySuccess, setCopySuccess] = useState(false);
+	const [qrCodeGenerated, setQrCodeGenerated] = useState(false);
 
-	// Generate QR code pattern (mock) - use useState to prevent regeneration on each render
-	const [qrPattern] = useState(() => {
-		const pattern = [];
-		for (let i = 0; i < 64; i++) {
-			pattern.push(Math.random() > 0.5);
-		}
-		return pattern;
-	});
-
-	// Mock participants data
-	const mockParticipants = [
-		{ id: "1", name: "John Doe" },
-		{ id: "2", name: "Jane Smith" },
-		{ id: "3", name: "Mike Johnson" },
-		{ id: "4", name: "Sarah Williams" },
-		{ id: "5", name: "David Brown" },
-	];
-
-	// Mock invitation link
-	const mockInviteLink = `https://incognigift.com/join/${id}`;
+	// Generate invitation link dynamically using NEXT_PUBLIC_BASE_URL or fallback to window.location.origin
+	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+	const inviteLink = id ? `${baseUrl}/exchange/${id}/register` : "";
 
 	useEffect(() => {
 		if (id) {
@@ -689,6 +802,63 @@ export default function GiftExchangeDetailPage() {
 			setEditCurrency(exchange.currency);
 		}
 	}, [exchange]);
+
+	useEffect(() => {
+		if (exchange && activeTab === "activity") {
+			fetchParticipants();
+		}
+	}, [exchange, activeTab]);
+
+	// Generate QR code when modal opens if not already generated
+	useEffect(() => {
+		if (qrModalOpen && !qrCodeGenerated && inviteLink) {
+			setQrCodeGenerated(true);
+		}
+	}, [qrModalOpen, qrCodeGenerated, inviteLink]);
+
+	const fetchParticipants = async () => {
+		if (!exchange) return;
+
+		try {
+			setParticipantsLoading(true);
+			const response = await fetch(`/api/participants?exchangeId=${exchange.id}`);
+			if (response.ok) {
+				const data = await response.json();
+				setParticipants(data);
+			} else {
+				console.error("Failed to fetch participants");
+				setParticipants([]);
+			}
+		} catch (err) {
+			console.error("Error fetching participants:", err);
+			setParticipants([]);
+		} finally {
+			setParticipantsLoading(false);
+		}
+	};
+
+	const handleParticipantClick = async (participant: Participant) => {
+		setSelectedParticipant(participant);
+		setParticipantModalOpen(true);
+		setWishlistLoading(true);
+		setWishlistItems([]);
+
+		try {
+			const response = await fetch(`/api/participants/${participant.id}/wishlist`);
+			if (response.ok) {
+				const items = await response.json();
+				setWishlistItems(items);
+			} else {
+				console.error("Failed to fetch wishlist items");
+				setWishlistItems([]);
+			}
+		} catch (err) {
+			console.error("Error fetching wishlist items:", err);
+			setWishlistItems([]);
+		} finally {
+			setWishlistLoading(false);
+		}
+	};
 
 	const fetchExchange = async () => {
 		try {
@@ -749,7 +919,7 @@ export default function GiftExchangeDetailPage() {
 
 	if (isPending || loading) {
 		return (
-			<DashboardLayout>
+			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<LoadingContainer>
 					<LoadingText>Loading...</LoadingText>
 				</LoadingContainer>
@@ -759,7 +929,7 @@ export default function GiftExchangeDetailPage() {
 
 	if (!session?.user) {
 		return (
-			<DashboardLayout>
+			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<AccessDeniedContainer>
 					<AccessDeniedCard>
 						<AccessDeniedTitle>Access Denied</AccessDeniedTitle>
@@ -772,7 +942,7 @@ export default function GiftExchangeDetailPage() {
 
 	if (error) {
 		return (
-			<DashboardLayout>
+			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<ErrorState>
 					<ErrorTitle>Error</ErrorTitle>
 					<ErrorText>{error}</ErrorText>
@@ -783,7 +953,7 @@ export default function GiftExchangeDetailPage() {
 
 	if (!exchange) {
 		return (
-			<DashboardLayout>
+			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<ErrorState>
 					<ErrorTitle>Exchange Not Found</ErrorTitle>
 					<ErrorText>The gift exchange you're looking for doesn't exist.</ErrorText>
@@ -792,26 +962,22 @@ export default function GiftExchangeDetailPage() {
 		);
 	}
 
-	const handleCopyLink = () => {
-		// Mock functionality
-		navigator.clipboard.writeText(mockInviteLink).catch(() => {
+	const handleCopyLink = async () => {
+		try {
+			await navigator.clipboard.writeText(inviteLink);
+			setCopySuccess(true);
+			setTimeout(() => {
+				setCopySuccess(false);
+			}, 3000);
+		} catch (err) {
 			// Fallback if clipboard API fails
-		});
+			console.error("Failed to copy link:", err);
+		}
 	};
 
-	const handleSaveName = () => {
-		// Mock functionality
-		console.log("Saving name:", editName);
-	};
-
-	const handleDeleteExchange = () => {
-		// Mock functionality
-		console.log("Deleting exchange:", exchange?.id);
-	};
-
-	const handleSaveMagicWord = async () => {
-		if (!editMagicWord.trim() || editMagicWord.trim().length < 3) {
-			setError("Magic word must be at least 3 characters long");
+	const handleSaveName = async () => {
+		if (!editName.trim()) {
+			setError("Exchange name cannot be empty");
 			return;
 		}
 
@@ -825,20 +991,66 @@ export default function GiftExchangeDetailPage() {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					magicWord: editMagicWord.trim(),
+					name: editName.trim(),
 				}),
 			});
 
 			if (!response.ok) {
 				const data = await response.json();
-				throw new Error(data.error || "Failed to update magic word");
+				throw new Error(data.error || "Failed to update exchange name");
+			}
+
+			const updated = await response.json();
+			setExchange(updated);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleDeleteExchange = () => {
+		// Mock functionality
+		console.log("Deleting exchange:", exchange?.id);
+	};
+
+	const handleSaveMagicWord = async () => {
+		if (!editMagicWord.trim() || editMagicWord.trim().length < 3) {
+			setMagicWordError("Magic word must be at least 3 characters long");
+			return;
+		}
+
+		try {
+			setSaving(true);
+			setMagicWordError(null);
+
+			const response = await fetch(`/api/gift-exchanges/${id}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					magicWord: editMagicWord.trim(),
+				}),
+			});
+
+			if (!response.ok) {
+				let errorMessage = "Failed to update magic word";
+				try {
+					const data = await response.json();
+					errorMessage = data.error || errorMessage;
+				} catch {
+					// If response is not JSON, use default error message
+				}
+				throw new Error(errorMessage);
 			}
 
 			const updated = await response.json();
 			setExchange(updated);
 			setIsEditingMagicWord(false);
+			setMagicWordError(null);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "An error occurred");
+			setMagicWordError(err instanceof Error ? err.message : "An error occurred");
 		} finally {
 			setSaving(false);
 		}
@@ -881,7 +1093,7 @@ export default function GiftExchangeDetailPage() {
 	};
 
 	return (
-		<DashboardLayout>
+		<DashboardLayout onCreateClick={() => setWizardOpen(true)}>
 			<BackButton onClick={() => router.push("/dashboard")}>
 				<ArrowLeft />
 				Back to Exchanges
@@ -921,7 +1133,7 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Magic Word</SectionTitle>
 									<SectionDescription>
-										Exchangers will use this word along with your last name to join. Make sure to share
+										Exchangers will use this word along with your last name to join. The combination of your last name and magic word must be unique. Make sure to share
 										this with participants.
 									</SectionDescription>
 								</div>
@@ -951,16 +1163,39 @@ export default function GiftExchangeDetailPage() {
 									) : (
 										<FormGroup>
 											<Label htmlFor="magic-word">Magic Word</Label>
+											<div style={{ 
+												fontSize: "0.8125rem", 
+												color: "inherit", 
+												opacity: 0.7,
+												marginTop: "-0.5rem",
+												marginBottom: "0.5rem"
+											}}>
+												The combination of your last name and magic word must be unique.
+											</div>
 											<Input
 												id="magic-word"
 												type="text"
 												value={editMagicWord}
 												onChange={(e) => {
 													setEditMagicWord(e.target.value);
-													setError(null);
+													setMagicWordError(null);
 												}}
 												placeholder="e.g., Snowflake"
 											/>
+											{magicWordError && (
+												<div style={{
+													fontSize: "0.875rem",
+													color: "inherit",
+													padding: "0.75rem 1rem",
+													background: "rgba(0, 0, 0, 0.05)",
+													borderRadius: "8px",
+													borderLeft: "3px solid",
+													borderLeftColor: "inherit",
+													marginTop: "0.5rem"
+												}}>
+													{magicWordError}
+												</div>
+											)}
 											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
 												<PrimaryButton onClick={handleSaveMagicWord} disabled={saving}>
 													{saving ? "Saving..." : "Save"}
@@ -969,7 +1204,7 @@ export default function GiftExchangeDetailPage() {
 													onClick={() => {
 														setIsEditingMagicWord(false);
 														setEditMagicWord(exchange?.magicWord || "");
-														setError(null);
+														setMagicWordError(null);
 													}}
 													disabled={saving}
 												>
@@ -988,14 +1223,30 @@ export default function GiftExchangeDetailPage() {
 								</div>
 								<Card>
 									<QrCodeContainer>
-										<QrCodePlaceholder>
-											{qrPattern.map((filled, index) => (
-												<QrCodeSquare key={index} $filled={filled} />
-											))}
-										</QrCodePlaceholder>
-										<PrimaryButton onClick={() => setQrModalOpen(true)}>
+										{qrCodeGenerated ? (
+											<QrCodeWrapper>
+												<QRCodeSVG
+													value={inviteLink}
+													size={184}
+													level="M"
+													includeMargin={false}
+												/>
+											</QrCodeWrapper>
+										) : (
+											<QrCodeWrapper style={{ background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+												<QrCode style={{ width: "64px", height: "64px", opacity: 0.3 }} />
+											</QrCodeWrapper>
+										)}
+										<PrimaryButton
+											onClick={() => {
+												if (!qrCodeGenerated) {
+													setQrCodeGenerated(true);
+												}
+												setQrModalOpen(true);
+											}}
+										>
 											<Maximize2 />
-											Expand
+											{qrCodeGenerated ? "Expand" : "Show QR Code"}
 										</PrimaryButton>
 									</QrCodeContainer>
 								</Card>
@@ -1008,11 +1259,20 @@ export default function GiftExchangeDetailPage() {
 											</button>
 										</QrModalCloseButton>
 										<QrModalTitle>Scan to Join</QrModalTitle>
-										<QrCodeLarge>
-											{qrPattern.map((filled, index) => (
-												<QrCodeSquare key={index} $filled={filled} />
-											))}
-										</QrCodeLarge>
+										{qrCodeGenerated && inviteLink ? (
+											<QrCodeLargeWrapper>
+												<QRCodeSVG
+													value={inviteLink}
+													size={276}
+													level="M"
+													includeMargin={false}
+												/>
+											</QrCodeLargeWrapper>
+										) : (
+											<QrCodeLargeWrapper style={{ background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+												<QrCode style={{ width: "96px", height: "96px", opacity: 0.3 }} />
+											</QrCodeLargeWrapper>
+										)}
 									</QrModalContent>
 								</Dialog.Root>
 							</Section>
@@ -1028,12 +1288,18 @@ export default function GiftExchangeDetailPage() {
 								<Card>
 									<InviteLinkContainer>
 										<LinkInputContainer>
-											<LinkInput type="text" value={mockInviteLink} readOnly />
+											<LinkInput type="text" value={inviteLink} readOnly />
 											<PrimaryButton onClick={handleCopyLink}>
 												<Copy />
 												Copy Link
 											</PrimaryButton>
 										</LinkInputContainer>
+										{copySuccess && (
+											<CopySuccessMessage>
+												<Check />
+												Link copied to clipboard!
+											</CopySuccessMessage>
+										)}
 									</InviteLinkContainer>
 								</Card>
 							</Section>
@@ -1047,15 +1313,30 @@ export default function GiftExchangeDetailPage() {
 								<SectionDescription>See all active participants in this exchange</SectionDescription>
 							</div>
 							<Card>
-								<ParticipantCount>{mockParticipants.length} Participants</ParticipantCount>
-								<ParticipantList>
-									{mockParticipants.map((participant) => (
-										<ParticipantItem key={participant.id}>
-											<Users style={{ width: "20px", height: "20px" }} />
-											<ParticipantName>{participant.name}</ParticipantName>
-										</ParticipantItem>
-									))}
-								</ParticipantList>
+								{participantsLoading ? (
+									<ParticipantCount>Loading participants...</ParticipantCount>
+								) : (
+									<>
+										<ParticipantCount>{participants.length} Participant{participants.length !== 1 ? "s" : ""}</ParticipantCount>
+										{participants.length > 0 ? (
+											<ParticipantList>
+												{participants.map((participant) => {
+													const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
+													return (
+														<ParticipantItem key={participant.id} onClick={() => handleParticipantClick(participant)}>
+															<Users style={{ width: "20px", height: "20px" }} />
+															<ParticipantName>{fullName}</ParticipantName>
+														</ParticipantItem>
+													);
+												})}
+											</ParticipantList>
+										) : (
+											<p style={{ margin: 0, color: "inherit", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem" }}>
+												No participants have joined this exchange yet.
+											</p>
+										)}
+									</>
+								)}
 							</Card>
 						</Section>
 					)}
@@ -1074,12 +1355,15 @@ export default function GiftExchangeDetailPage() {
 											id="exchange-name"
 											type="text"
 											value={editName}
-											onChange={(e) => setEditName(e.target.value)}
+											onChange={(e) => {
+												setEditName(e.target.value);
+												setError(null);
+											}}
 											placeholder="Enter exchange name"
 										/>
-										<PrimaryButton onClick={handleSaveName}>
+										<PrimaryButton onClick={handleSaveName} disabled={saving}>
 											<Edit />
-											Save Changes
+											{saving ? "Saving..." : "Save Changes"}
 										</PrimaryButton>
 									</FormGroup>
 								</Card>
@@ -1216,6 +1500,46 @@ export default function GiftExchangeDetailPage() {
 					)}
 				</TabContent>
 			</TabsContainer>
+
+			<Dialog.Root open={participantModalOpen} onOpenChange={setParticipantModalOpen}>
+				<ParticipantModalOverlay />
+				<ParticipantModalContent>
+					<ParticipantModalCloseButton asChild>
+						<button>
+							<X />
+						</button>
+					</ParticipantModalCloseButton>
+					{selectedParticipant && (
+						<>
+							<ParticipantModalTitle>
+								{`${selectedParticipant.firstName} ${selectedParticipant.lastName || ""}`.trim()}'s Gift Ideas
+							</ParticipantModalTitle>
+							{wishlistLoading ? (
+								<EmptyWishlistText>Loading wishlist items...</EmptyWishlistText>
+							) : wishlistItems.length > 0 ? (
+								<WishlistItemsList>
+									{wishlistItems.map((item) => (
+										<WishlistItem key={item.id}>{item.description}</WishlistItem>
+									))}
+								</WishlistItemsList>
+							) : (
+								<EmptyWishlistText>
+									This participant hasn't submitted any gift ideas yet.
+								</EmptyWishlistText>
+							)}
+						</>
+					)}
+				</ParticipantModalContent>
+			</Dialog.Root>
+
+			<CreateExchangeWizard
+				open={wizardOpen}
+				onOpenChange={setWizardOpen}
+				onSuccess={() => {
+					// Navigate to dashboard after creating exchange
+					router.push("/dashboard");
+				}}
+			/>
 		</DashboardLayout>
 	);
 }
