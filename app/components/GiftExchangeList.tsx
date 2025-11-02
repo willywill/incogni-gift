@@ -3,6 +3,7 @@
 import styled from "styled-components";
 import { Gift, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const ListContainer = styled.div`
 	display: flex;
@@ -166,6 +167,7 @@ interface GiftExchangeListProps {
 }
 
 export default function GiftExchangeList({ onCreateClick, refreshTrigger }: GiftExchangeListProps) {
+	const router = useRouter();
 	const [exchanges, setExchanges] = useState<GiftExchange[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -243,7 +245,10 @@ export default function GiftExchangeList({ onCreateClick, refreshTrigger }: Gift
 	return (
 		<ListContainer>
 			{exchanges.map((exchange) => (
-				<ExchangeCard key={exchange.id}>
+				<ExchangeCard
+					key={exchange.id}
+					onClick={() => router.push(`/dashboard/exchanges/${exchange.id}`)}
+				>
 					<ExchangeHeader>
 						<ExchangeName>{exchange.name}</ExchangeName>
 					</ExchangeHeader>

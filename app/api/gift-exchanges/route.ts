@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/app/lib/auth-server";
+import { getSession } from "@/app/lib/auth-server";
 import { db } from "@/app/db";
 import { giftExchanges } from "@/app/db/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -8,7 +8,7 @@ import crypto from "crypto";
 export async function POST(request: Request) {
 	try {
 		// Get the current session
-		const session = await auth.api.getSession({ headers: request.headers });
+		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
 			return NextResponse.json(
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
 	try {
 		// Get the current session
-		const session = await auth.api.getSession({ headers: request.headers });
+		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
 			return NextResponse.json(
