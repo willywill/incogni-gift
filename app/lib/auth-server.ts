@@ -244,3 +244,12 @@ function buildSessionResponse(userData: any, sessionData: any) {
 	};
 }
 
+export async function getSession(params: { headers: Headers | Record<string, string> }) {
+	if (isAuthBypassEnabled()) {
+		const { response } = await createBypassSession();
+		return response;
+	}
+	
+	return await auth.api.getSession(params);
+}
+
