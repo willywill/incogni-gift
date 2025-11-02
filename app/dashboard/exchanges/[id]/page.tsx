@@ -641,6 +641,109 @@ const QrCodeLargeWrapper = styled.div`
 	}
 `;
 
+const DeleteConfirmModalOverlay = styled(Dialog.Overlay)`
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(4px);
+	z-index: 1000;
+`;
+
+const DeleteConfirmModalContent = styled(Dialog.Content)`
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 90vw;
+	max-width: 500px;
+	background: ${(props) => props.theme.lightMode.colors.background};
+	border-radius: 12px;
+	padding: 2rem;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	z-index: 1001;
+
+	@media (max-width: 768px) {
+		width: 95vw;
+		padding: 1.5rem;
+	}
+`;
+
+const DeleteConfirmModalCloseButton = styled(Dialog.Close)`
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: transparent;
+	border: none;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: ${(props) => props.theme.lightMode.colors.muted};
+		color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+
+	svg {
+		width: 20px;
+		height: 20px;
+	}
+`;
+
+const DeleteConfirmModalTitle = styled(Dialog.Title)`
+	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	margin: 0 0 1rem 0;
+	letter-spacing: -0.02em;
+`;
+
+const DeleteConfirmModalDescription = styled(Dialog.Description)`
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	margin: 0 0 1.5rem 0;
+	line-height: 1.6;
+`;
+
+const DeleteConfirmError = styled.div`
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.875rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	margin: 0 0 1rem 0;
+	padding: 0.75rem 1rem;
+	background: ${(props) => props.theme.lightMode.colors.muted};
+	border-radius: 8px;
+	border-left: 3px solid ${(props) => props.theme.lightMode.colors.foreground};
+`;
+
+const DeleteConfirmButtonContainer = styled.div`
+	display: flex;
+	gap: 0.75rem;
+	justify-content: flex-end;
+	margin-top: 0.5rem;
+
+	@media (max-width: 768px) {
+		flex-direction: column-reverse;
+	}
+`;
+
+const SecondaryButton = styled(Button)`
+	background: transparent;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+
+	&:hover:not(:disabled) {
+		background: ${(props) => props.theme.lightMode.colors.muted};
+		color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+`;
+
 const SelectRoot = styled(Select.Root)`
 	width: 100%;
 `;
@@ -961,6 +1064,9 @@ export default function GiftExchangeDetailPage() {
 	const [qrCodeGenerated, setQrCodeGenerated] = useState(false);
 	const [startExchangeModalOpen, setStartExchangeModalOpen] = useState(false);
 	const [removingParticipantId, setRemovingParticipantId] = useState<string | null>(null);
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+	const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
 
 	// Generate invitation link dynamically using NEXT_PUBLIC_BASE_URL or fallback to window.location.origin
 	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
@@ -1284,15 +1390,40 @@ export default function GiftExchangeDetailPage() {
 		setStartExchangeModalOpen(false);
 	};
 
-	const handleRemoveParticipant = async (participantId: string) => {
-		// Placeholder - actual implementation will come later
-		console.log("Removing participant:", participantId);
-		setRemovingParticipantId(participantId);
-		// For now, just remove from local state as UI placeholder
-		setTimeout(() => {
-			setParticipants(participants.filter((p) => p.id !== participantId));
+	const handleRemoveParticipant = (participantId: string) => {
+		const participant = participants.find((p) => p.id === participantId);
+		if (participant) {
+			setParticipantToDelete(participant);
+			setDeleteError(null);
+			setDeleteConfirmOpen(true);
+		}
+	};
+
+	const handleConfirmDeleteParticipant = async () => {
+		if (!participantToDelete) return;
+
+		try {
+			setDeleteError(null);
+			setRemovingParticipantId(participantToDelete.id);
+
+			const response = await fetch(`/api/participants/${participantToDelete.id}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to delete participant");
+			}
+
+			// Close modal and refetch participants
+			setDeleteConfirmOpen(false);
+			setParticipantToDelete(null);
+			await fetchParticipants();
+		} catch (err) {
+			setDeleteError(err instanceof Error ? err.message : "An error occurred while deleting the participant");
+		} finally {
 			setRemovingParticipantId(null);
-		}, 500);
+		}
 	};
 
 	return (
@@ -1862,6 +1993,55 @@ export default function GiftExchangeDetailPage() {
 						)}
 					</StartExchangeButtonContainer>
 				</StartExchangeModalContent>
+			</Dialog.Root>
+
+			<Dialog.Root
+				open={deleteConfirmOpen}
+				onOpenChange={(open) => {
+					setDeleteConfirmOpen(open);
+					if (!open) {
+						setParticipantToDelete(null);
+						setDeleteError(null);
+					}
+				}}
+			>
+				<DeleteConfirmModalOverlay />
+				<DeleteConfirmModalContent>
+					<DeleteConfirmModalCloseButton asChild>
+						<button>
+							<X />
+						</button>
+					</DeleteConfirmModalCloseButton>
+					<DeleteConfirmModalTitle>Remove Participant</DeleteConfirmModalTitle>
+					<DeleteConfirmModalDescription>
+						Are you sure you want to remove{" "}
+						<strong>
+							{participantToDelete
+								? `${participantToDelete.firstName} ${participantToDelete.lastName || ""}`.trim()
+								: "this participant"}
+						</strong>
+						? This action cannot be undone and will permanently delete the participant and all their wishlist items.
+					</DeleteConfirmModalDescription>
+					{deleteError && <DeleteConfirmError>{deleteError}</DeleteConfirmError>}
+					<DeleteConfirmButtonContainer>
+						<SecondaryButton
+							onClick={() => {
+								setDeleteConfirmOpen(false);
+								setParticipantToDelete(null);
+								setDeleteError(null);
+							}}
+							disabled={removingParticipantId !== null}
+						>
+							Cancel
+						</SecondaryButton>
+						<DangerButton
+							onClick={handleConfirmDeleteParticipant}
+							disabled={removingParticipantId !== null}
+						>
+							{removingParticipantId !== null ? "Removing..." : "Remove Participant"}
+						</DangerButton>
+					</DeleteConfirmButtonContainer>
+				</DeleteConfirmModalContent>
 			</Dialog.Root>
 
 			<CreateExchangeWizard
