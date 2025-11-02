@@ -4,6 +4,42 @@ import { participants, giftExchanges } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getSession } from "@/app/lib/auth-server";
 
+export async function GET(
+	request: Request,
+	{ params }: { params: Promise<{ id: string }> }
+) {
+	try {
+		const { id: participantId } = await params;
+
+		// Verify participant exists
+		const [participant] = await db
+			.select()
+			.from(participants)
+			.where(eq(participants.id, participantId))
+			.limit(1);
+
+		if (!participant) {
+			return NextResponse.json(
+				{ error: "Participant not found" },
+				{ status: 404 }
+			);
+		}
+
+		return NextResponse.json({
+			id: participant.id,
+			exchangeId: participant.exchangeId,
+			firstName: participant.firstName,
+			lastName: participant.lastName,
+		});
+	} catch (error) {
+		console.error("Error fetching participant:", error);
+		return NextResponse.json(
+			{ error: "Internal server error" },
+			{ status: 500 }
+		);
+	}
+}
+
 export async function DELETE(
 	request: Request,
 	{ params }: { params: Promise<{ id: string }> }

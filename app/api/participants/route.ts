@@ -26,6 +26,13 @@ export async function POST(request: Request) {
 			);
 		}
 
+		if (!lastName || typeof lastName !== "string" || lastName.trim().length === 0) {
+			return NextResponse.json(
+				{ error: "Last name is required" },
+				{ status: 400 }
+			);
+		}
+
 		// Verify exchange exists
 		const [exchange] = await db
 			.select()
@@ -40,6 +47,18 @@ export async function POST(request: Request) {
 			);
 		}
 
+		// Normalize visitor ID if provided
+		const normalizedVisitorId = visitorId && typeof visitorId === "string" ? visitorId.trim() : null;
+
+		// If visitor ID is provided, clear it from all previous participant records
+		// This ensures only the most recent participant is associated with that visitor ID
+		if (normalizedVisitorId && normalizedVisitorId.length > 0) {
+			await db
+				.update(participants)
+				.set({ visitorId: null })
+				.where(eq(participants.visitorId, normalizedVisitorId));
+		}
+
 		// Create participant record
 		const id = crypto.randomUUID();
 		const now = new Date();
@@ -50,8 +69,8 @@ export async function POST(request: Request) {
 				id,
 				exchangeId,
 				firstName: firstName.trim(),
-				lastName: lastName ? lastName.trim() : null,
-				visitorId: visitorId && typeof visitorId === "string" ? visitorId.trim() : null,
+				lastName: lastName.trim(),
+				visitorId: normalizedVisitorId,
 				createdAt: now,
 				updatedAt: now,
 			})

@@ -1,17 +1,81 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import styled from "styled-components";
-import { Gift } from "lucide-react";
+import { Gift, Home } from "lucide-react";
 
 const ExchangeContainer = styled.div`
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: ${(props) => props.theme.lightMode.colors.background};
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
+`;
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    padding: 0;
+    max-width: 100%;
+  }
+`;
+
+const HeaderSection = styled.div`
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  border-bottom: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  background: ${(props) => props.theme.lightMode.colors.background};
+  gap: 1.5rem;
+
+  @media (min-width: 769px) {
+    padding: 1.5rem 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    gap: 1rem;
+    border-left: none;
+    border-right: none;
+  }
+`;
+
+const HeaderInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+`;
+
+const HeaderLabel = styled.span`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const HeaderValue = styled.span`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
 `;
 
 const ExchangeCard = styled.div`
@@ -25,7 +89,10 @@ const ExchangeCard = styled.div`
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    max-width: 100%;
   }
 `;
 
@@ -115,7 +182,45 @@ const ErrorMessage = styled.div`
   border: 1px solid ${(props) => props.theme.lightMode.colors.errorBorder || "#fecaca"};
 `;
 
+const BottomNav = styled.nav`
+  width: 100%;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  border-top: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  padding: 2rem 1rem;
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const HomeButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => props.theme.lightMode.colors.muted};
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
 export default function ExchangePage() {
+  const router = useRouter();
   const params = useParams();
   const exchangeId = params?.id as string;
 
@@ -158,11 +263,13 @@ export default function ExchangePage() {
   if (loading) {
     return (
       <ExchangeContainer>
-        <ExchangeCard>
-          <ExchangeHeader>
-            <LoadingText>Loading...</LoadingText>
-          </ExchangeHeader>
-        </ExchangeCard>
+        <ContentWrapper>
+          <ExchangeCard>
+            <ExchangeHeader>
+              <LoadingText>Loading...</LoadingText>
+            </ExchangeHeader>
+          </ExchangeCard>
+        </ContentWrapper>
       </ExchangeContainer>
     );
   }
@@ -170,38 +277,58 @@ export default function ExchangePage() {
   if (error || !exchange) {
     return (
       <ExchangeContainer>
-        <ExchangeCard>
-          <ExchangeHeader>
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-            {!error && <ErrorMessage>Exchange not found</ErrorMessage>}
-          </ExchangeHeader>
-        </ExchangeCard>
+        <ContentWrapper>
+          <ExchangeCard>
+            <ExchangeHeader>
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+              {!error && <ErrorMessage>Exchange not found</ErrorMessage>}
+            </ExchangeHeader>
+          </ExchangeCard>
+        </ContentWrapper>
       </ExchangeContainer>
     );
   }
 
   return (
     <ExchangeContainer>
-      <ExchangeCard>
-        <ExchangeHeader>
-          <ExchangeTitle>
-            <Gift />
-            {exchange.name}
-          </ExchangeTitle>
-          <ExchangeSubtitle>
-            You have successfully joined this gift exchange
-          </ExchangeSubtitle>
-        </ExchangeHeader>
+      <HeaderSection>
+        {exchange.name && (
+          <HeaderInfo>
+            <HeaderLabel>Gift Exchange</HeaderLabel>
+            <HeaderValue>{exchange.name}</HeaderValue>
+          </HeaderInfo>
+        )}
+      </HeaderSection>
 
-        <InfoSection>
-          <InfoItem>
-            <InfoLabel>Spending Limit</InfoLabel>
-            <InfoValue>
-              {exchange.currency} {exchange.spendingLimit}
-            </InfoValue>
-          </InfoItem>
-        </InfoSection>
-      </ExchangeCard>
+      <ContentWrapper>
+        <ExchangeCard>
+          <ExchangeHeader>
+            <ExchangeTitle>
+              <Gift />
+              {exchange.name}
+            </ExchangeTitle>
+            <ExchangeSubtitle>
+              You have successfully joined this gift exchange. We&apos;re waiting for the organizer to start the gift exchange.
+            </ExchangeSubtitle>
+          </ExchangeHeader>
+
+          <InfoSection>
+            <InfoItem>
+              <InfoLabel>Spending Limit</InfoLabel>
+              <InfoValue>
+                {exchange.currency} {exchange.spendingLimit}
+              </InfoValue>
+            </InfoItem>
+          </InfoSection>
+        </ExchangeCard>
+      </ContentWrapper>
+
+      <BottomNav>
+        <HomeButton onClick={() => router.push("/")}>
+          <Home />
+          Home
+        </HomeButton>
+      </BottomNav>
     </ExchangeContainer>
   );
 }

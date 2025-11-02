@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/db";
 import { giftExchanges, user } from "@/app/db/schema";
-import { sql, and, eq, isNotNull } from "drizzle-orm";
+import { sql, and, eq, isNotNull, or } from "drizzle-orm";
 
 export async function POST(request: Request) {
 	try {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 					isNotNull(user.lastName),
 					sql`${giftExchanges.magicWord} ILIKE ${normalizedMagicWord}`,
 					sql`${user.lastName} ILIKE ${normalizedLastName}`,
-					eq(giftExchanges.status, "active")
+					or(eq(giftExchanges.status, "active"), eq(giftExchanges.status, "started"))
 				)
 			)
 			.limit(1);

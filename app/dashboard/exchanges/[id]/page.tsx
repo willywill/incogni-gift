@@ -1078,6 +1078,9 @@ export default function GiftExchangeDetailPage() {
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [deleteExchangeConfirmOpen, setDeleteExchangeConfirmOpen] = useState(false);
+	const [deleteExchangeError, setDeleteExchangeError] = useState<string | null>(null);
+	const [deletingExchange, setDeletingExchange] = useState(false);
 	const [assignmentsList, setAssignmentsList] = useState<Array<{
 		id: string;
 		participantId: string;
@@ -1346,8 +1349,35 @@ export default function GiftExchangeDetailPage() {
 	};
 
 	const handleDeleteExchange = () => {
-		// Mock functionality
-		console.log("Deleting exchange:", exchange?.id);
+		if (exchange) {
+			setDeleteExchangeError(null);
+			setDeleteExchangeConfirmOpen(true);
+		}
+	};
+
+	const handleConfirmDeleteExchange = async () => {
+		if (!exchange) return;
+
+		try {
+			setDeleteExchangeError(null);
+			setDeletingExchange(true);
+
+			const response = await fetch(`/api/gift-exchanges/${exchange.id}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to delete exchange");
+			}
+
+			// Redirect to dashboard on success
+			router.push("/dashboard");
+		} catch (err) {
+			setDeleteExchangeError(err instanceof Error ? err.message : "An error occurred while deleting the exchange");
+		} finally {
+			setDeletingExchange(false);
+		}
 	};
 
 	const handleSaveMagicWord = async () => {
@@ -1754,22 +1784,22 @@ export default function GiftExchangeDetailPage() {
 											<ParticipantList>
 												{assignmentsList.map((assignment) => (
 													<div key={assignment.id} style={{ 
-													padding: "1rem", 
-													border: "1px solid", 
-													borderColor: "inherit", 
-													borderRadius: "8px", 
-													marginBottom: "0.75rem",
-													display: "flex",
-													alignItems: "center",
-													gap: "0.5rem",
-													fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
-													fontSize: "0.9375rem",
-													color: "inherit"
-												}}>
-													<span style={{ fontWeight: 600 }}>{assignment.giverName}</span>
-													<span style={{ opacity: 0.6 }}>→</span>
-													<span>{assignment.receiverName}</span>
-												</div>
+														padding: "1rem", 
+														border: "1px solid", 
+														borderColor: "inherit", 
+														borderRadius: "8px", 
+														marginBottom: "0.75rem",
+														display: "flex",
+														alignItems: "center",
+														gap: "0.5rem",
+														fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
+														fontSize: "0.9375rem",
+														color: "inherit"
+													}}>
+														<span style={{ fontWeight: 600 }}>{assignment.giverName}</span>
+														<span style={{ opacity: 0.6, fontSize: "1.2rem" }}>↔</span>
+														<span style={{ fontWeight: 600 }}>{assignment.receiverName}</span>
+													</div>
 												))}
 											</ParticipantList>
 										) : (
@@ -2206,6 +2236,49 @@ export default function GiftExchangeDetailPage() {
 							disabled={removingParticipantId !== null}
 						>
 							{removingParticipantId !== null ? "Removing..." : "Remove Participant"}
+						</DangerButton>
+					</DeleteConfirmButtonContainer>
+				</DeleteConfirmModalContent>
+			</Dialog.Root>
+
+			<Dialog.Root
+				open={deleteExchangeConfirmOpen}
+				onOpenChange={(open) => {
+					setDeleteExchangeConfirmOpen(open);
+					if (!open) {
+						setDeleteExchangeError(null);
+					}
+				}}
+			>
+				<DeleteConfirmModalOverlay />
+				<DeleteConfirmModalContent>
+					<DeleteConfirmModalCloseButton asChild>
+						<button>
+							<X />
+						</button>
+					</DeleteConfirmModalCloseButton>
+					<DeleteConfirmModalTitle>Delete Exchange</DeleteConfirmModalTitle>
+					<DeleteConfirmModalDescription>
+						Are you sure you want to delete{" "}
+						<strong>{exchange?.name || "this exchange"}</strong>
+						? This action cannot be undone and will permanently delete the exchange, all participants, assignments, and wishlist items.
+					</DeleteConfirmModalDescription>
+					{deleteExchangeError && <DeleteConfirmError>{deleteExchangeError}</DeleteConfirmError>}
+					<DeleteConfirmButtonContainer>
+						<SecondaryButton
+							onClick={() => {
+								setDeleteExchangeConfirmOpen(false);
+								setDeleteExchangeError(null);
+							}}
+							disabled={deletingExchange}
+						>
+							Cancel
+						</SecondaryButton>
+						<DangerButton
+							onClick={handleConfirmDeleteExchange}
+							disabled={deletingExchange}
+						>
+							{deletingExchange ? "Deleting..." : "Delete Exchange"}
 						</DangerButton>
 					</DeleteConfirmButtonContainer>
 				</DeleteConfirmModalContent>

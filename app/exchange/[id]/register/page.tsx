@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import styled from "styled-components";
-import { User } from "lucide-react";
+import { User, ArrowLeft } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
+import ExchangeStepper from "@/app/components/ExchangeStepper";
 
 const RegisterContainer = styled.div`
   min-height: 100vh;
@@ -13,6 +14,10 @@ const RegisterContainer = styled.div`
   justify-content: center;
   padding: 2rem;
   background: ${(props) => props.theme.lightMode.colors.background};
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const RegisterCard = styled.div`
@@ -26,7 +31,41 @@ const RegisterCard = styled.div`
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    max-width: 100%;
+  }
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => props.theme.lightMode.colors.muted};
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -235,9 +274,44 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Prevent submission if exchange has started
+    // If exchange has started, use participant lookup instead
     if (exchange?.status === "started") {
-      setError("This exchange has already started. Registration is closed.");
+      setError(null);
+      setLoading(true);
+
+      try {
+        const response = await fetch("/api/participants/lookup-by-name", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            exchangeId,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          setError(data.error || "No participant found with that name");
+          setLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+        if (data.found && data.participant) {
+          // Redirect to match page
+          router.push(`/exchange/${exchangeId}/match?participantId=${data.participant.id}`);
+        } else {
+          setError("No participant found with that name");
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error looking up participant:", error);
+        setError("An error occurred while looking up the participant. Please try again.");
+        setLoading(false);
+      }
       return;
     }
 
@@ -253,7 +327,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           exchangeId,
           firstName: firstName.trim(),
-          lastName: lastName.trim() || null,
+          lastName: lastName.trim(),
           visitorId: visitorId,
         }),
       });
@@ -276,7 +350,7 @@ export default function RegisterPage() {
   };
 
   const isExchangeStarted = exchange?.status === "started";
-  const isDisabled = isExchangeStarted || loading || exchangeLoading;
+  const isDisabled = loading || exchangeLoading;
 
   if (exchangeLoading) {
     return (
@@ -293,11 +367,19 @@ export default function RegisterPage() {
   return (
     <RegisterContainer>
       <RegisterCard>
+        <HeaderRow>
+          <BackButton onClick={() => router.push(`/join`)} aria-label="Go back">
+            <ArrowLeft />
+          </BackButton>
+        </HeaderRow>
+        <ExchangeStepper currentStep={2} />
         <RegisterHeader>
-          <RegisterTitle>Join the Exchange</RegisterTitle>
+          <RegisterTitle>
+            {isExchangeStarted ? "Find Your Participant" : "Join the Exchange"}
+          </RegisterTitle>
           <RegisterSubtitle>
             {isExchangeStarted
-              ? "This exchange has already started"
+              ? "This exchange has already started. Enter your name to view your match and gift ideas."
               : "Enter your name to join the gift exchange"}
           </RegisterSubtitle>
         </RegisterHeader>
@@ -314,12 +396,6 @@ export default function RegisterPage() {
               }).format(exchange.spendingLimit)}
             </ExchangeInfoText>
           </ExchangeInfo>
-        )}
-
-        {isExchangeStarted && (
-          <ErrorMessage style={{ marginBottom: "1.5rem" }}>
-            This exchange has already started. Registration is closed.
-          </ErrorMessage>
         )}
 
         <Form onSubmit={handleSubmit}>
@@ -342,7 +418,7 @@ export default function RegisterPage() {
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="lastName">Last Name (Optional)</Label>
+            <Label htmlFor="lastName">Last Name *</Label>
             <InputWrapper>
               <InputIcon>
                 <User />
@@ -353,6 +429,7 @@ export default function RegisterPage() {
                 placeholder="Doe"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
+                required
                 disabled={isDisabled}
               />
             </InputWrapper>
@@ -360,8 +437,10 @@ export default function RegisterPage() {
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
 
-          <SubmitButton type="submit" disabled={isDisabled || !firstName.trim()}>
-            {loading ? "Joining..." : "Continue"}
+          <SubmitButton type="submit" disabled={isDisabled || !firstName.trim() || !lastName.trim()}>
+            {loading
+              ? (isExchangeStarted ? "Looking up..." : "Joining...")
+              : (isExchangeStarted ? "Find My Match" : "Continue")}
           </SubmitButton>
         </Form>
       </RegisterCard>

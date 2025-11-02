@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/db";
 import { participants, giftExchanges } from "@/app/db/schema";
-import { eq, and, isNotNull } from "drizzle-orm";
+import { eq, and, isNotNull, desc } from "drizzle-orm";
 
 export async function POST(request: Request) {
 	try {
@@ -19,9 +19,9 @@ export async function POST(request: Request) {
 
 		const normalizedVisitorId = visitorId.trim();
 
-		// Find all participants with this visitor ID
-		// Join with exchanges to filter only exchanges that have started
-		const participantsList = await db
+		// Find the latest participant entry with this visitor ID
+		// Return the most recent participant regardless of exchange status (started or not-started)
+		const [latestParticipant] = await db
 			.select({
 				participantId: participants.id,
 				participantFirstName: participants.firstName,
@@ -35,23 +35,28 @@ export async function POST(request: Request) {
 			.where(
 				and(
 					eq(participants.visitorId, normalizedVisitorId),
-					isNotNull(participants.visitorId),
-					eq(giftExchanges.status, "started")
+					isNotNull(participants.visitorId)
 				)
 			)
-			.orderBy(giftExchanges.createdAt);
+			.orderBy(desc(participants.createdAt))
+			.limit(1);
 
-		// Return list of exchanges the visitor is part of
-		const exchanges = participantsList.map((p) => ({
-			participantId: p.participantId,
-			participantName: `${p.participantFirstName} ${p.participantLastName || ""}`.trim(),
-			exchangeId: p.exchangeId,
-			exchangeName: p.exchangeName,
-		}));
+		// Return the latest exchange the visitor is part of
+		if (latestParticipant) {
+			return NextResponse.json({
+				found: true,
+				exchange: {
+					participantId: latestParticipant.participantId,
+					participantName: `${latestParticipant.participantFirstName} ${latestParticipant.participantLastName || ""}`.trim(),
+					exchangeId: latestParticipant.exchangeId,
+					exchangeName: latestParticipant.exchangeName,
+				},
+			});
+		}
 
 		return NextResponse.json({
-			found: exchanges.length > 0,
-			exchanges,
+			found: false,
+			exchange: null,
 		});
 	} catch (error) {
 		console.error("Error looking up participant by visitor ID:", error);

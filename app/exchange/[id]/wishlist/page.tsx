@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import ExchangeStepper from "@/app/components/ExchangeStepper";
 
 const MAX_ITEMS_PER_PARTICIPANT = 10;
 
@@ -14,6 +15,10 @@ const WishlistContainer = styled.div`
   justify-content: center;
   padding: 2rem;
   background: ${(props) => props.theme.lightMode.colors.background};
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const WishlistCard = styled.div`
@@ -27,7 +32,49 @@ const WishlistCard = styled.div`
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    max-width: 100%;
+  }
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`;
+
+const ParticipantName = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => props.theme.lightMode.colors.muted};
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -241,6 +288,7 @@ export default function WishlistPage() {
   const [error, setError] = useState<string | null>(null);
   const [spendingLimit, setSpendingLimit] = useState<number | null>(null);
   const [currency, setCurrency] = useState<string>("USD");
+  const [participantName, setParticipantName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!exchangeId || !participantId) {
@@ -248,12 +296,13 @@ export default function WishlistPage() {
       return;
     }
 
-    // Fetch exchange details and existing wishlist items
+    // Fetch exchange details, existing wishlist items, and participant info
     const fetchData = async () => {
       try {
-        const [exchangeResponse, itemsResponse] = await Promise.all([
+        const [exchangeResponse, itemsResponse, participantResponse] = await Promise.all([
           fetch(`/api/gift-exchanges/${exchangeId}`),
           fetch(`/api/participants/${participantId}/wishlist`),
+          fetch(`/api/participants/${participantId}`),
         ]);
 
         if (!exchangeResponse.ok) {
@@ -267,6 +316,11 @@ export default function WishlistPage() {
         if (itemsResponse.ok) {
           const itemsData = await itemsResponse.json();
           setItems(itemsData);
+        }
+
+        if (participantResponse.ok) {
+          const participantData = await participantResponse.json();
+          setParticipantName(`${participantData.firstName} ${participantData.lastName || ""}`.trim());
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -369,6 +423,13 @@ export default function WishlistPage() {
   return (
     <WishlistContainer>
       <WishlistCard>
+        <HeaderRow>
+          <BackButton onClick={() => router.push(`/exchange/${exchangeId}/register`)} aria-label="Go back">
+            <ArrowLeft />
+          </BackButton>
+          {participantName && <ParticipantName>{participantName}</ParticipantName>}
+        </HeaderRow>
+        <ExchangeStepper currentStep={3} />
         <WishlistHeader>
           <WishlistTitle>Create Your Wishlist</WishlistTitle>
           {spendingLimit !== null && (

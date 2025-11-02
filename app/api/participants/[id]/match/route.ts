@@ -28,8 +28,10 @@ export async function GET(
 			);
 		}
 
-		// Optional: validate visitor ID matches if provided
-		if (visitorId && participant.visitorId !== visitorId) {
+		// Optional: validate visitor ID matches if provided and participant has one stored
+		// Only deny access if both visitorId (from query) and participant.visitorId exist and don't match
+		// This allows users who found themselves by name to access even without matching visitor ID
+		if (visitorId && participant.visitorId && participant.visitorId !== visitorId) {
 			return NextResponse.json(
 				{ error: "Access denied" },
 				{ status: 403 }
@@ -70,6 +72,22 @@ export async function GET(
 			.limit(1);
 
 		if (!assignment) {
+			// Check if any assignments exist for this exchange
+			const existingAssignments = await db
+				.select()
+				.from(assignments)
+				.where(eq(assignments.exchangeId, participant.exchangeId))
+				.limit(1);
+
+			if (existingAssignments.length > 0) {
+				// Assignments exist but this participant doesn't have one
+				return NextResponse.json(
+					{ error: "You are not assigned in this exchange. Please contact the organizer." },
+					{ status: 404 }
+				);
+			}
+			
+			// No assignments exist for this exchange at all
 			return NextResponse.json(
 				{ error: "Assignment not found. Exchange may not have been started yet." },
 				{ status: 404 }
@@ -89,8 +107,12 @@ export async function GET(
 				id: item.id,
 				description: item.description,
 				createdAt: item.createdAt,
+				completed: item.completed || false,
+				completedBy: item.completedBy || null,
+				completedAt: item.completedAt || null,
 			})),
 			exchangeInfo: {
+				name: exchange.name,
 				spendingLimit: exchange.spendingLimit,
 				currency: exchange.currency,
 			},

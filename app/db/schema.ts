@@ -89,6 +89,9 @@ export const wishlistItems = pgTable("wishlist_items", {
 		.notNull()
 		.references(() => participants.id, { onDelete: "cascade" }),
 	description: text("description").notNull(),
+	completed: boolean("completed").notNull().default(false),
+	completedBy: text("completed_by").references(() => participants.id, { onDelete: "set null" }),
+	completedAt: timestamp("completed_at"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

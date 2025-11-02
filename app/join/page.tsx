@@ -13,6 +13,10 @@ const JoinContainer = styled.div`
   justify-content: center;
   padding: 2rem;
   background: ${(props) => props.theme.lightMode.colors.background};
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const JoinCard = styled.div`
@@ -26,7 +30,10 @@ const JoinCard = styled.div`
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    max-width: 100%;
   }
 `;
 
@@ -183,10 +190,6 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
   flex-direction: column;
-
-  @media (min-width: 480px) {
-    flex-direction: row;
-  }
 `;
 
 const SecondaryButton = styled.button`
@@ -313,9 +316,13 @@ export default function JoinPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [foundExchange, setFoundExchange] = useState<{ id: string; name: string } | null>(null);
-  const [returningExchanges, setReturningExchanges] = useState<ReturningExchange[] | null>(null);
+  const [foundExchange, setFoundExchange] = useState<{ id: string; name: string; status: string } | null>(null);
+  const [returningExchange, setReturningExchange] = useState<ReturningExchange | null>(null);
   const [checkingVisitor, setCheckingVisitor] = useState(true);
+  const [participantFirstName, setParticipantFirstName] = useState("");
+  const [participantLastName, setParticipantLastName] = useState("");
+  const [participantLoading, setParticipantLoading] = useState(false);
+  const [participantError, setParticipantError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -347,6 +354,7 @@ export default function JoinPage() {
       setFoundExchange({
         id: exchange.id,
         name: exchange.name,
+        status: exchange.status,
       });
       setLoading(false);
     } catch (error) {
@@ -358,7 +366,54 @@ export default function JoinPage() {
 
   const handleContinue = () => {
     if (foundExchange) {
+      // If exchange is started, we need to show participant lookup instead
+      if (foundExchange.status === "started") {
+        // This will be handled by the participant lookup form
+        return;
+      }
       router.push(`/exchange/${foundExchange.id}/register`);
+    }
+  };
+
+  const handleParticipantLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!foundExchange) return;
+
+    setParticipantLoading(true);
+    setParticipantError(null);
+
+    try {
+      const response = await fetch("/api/participants/lookup-by-name", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          exchangeId: foundExchange.id,
+          firstName: participantFirstName.trim(),
+          lastName: participantLastName.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setParticipantError(data.error || "No participant found with that name");
+        setParticipantLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.found && data.participant) {
+        // Redirect to match page
+        router.push(`/exchange/${foundExchange.id}/match?participantId=${data.participant.id}`);
+      } else {
+        setParticipantError("No participant found with that name");
+        setParticipantLoading(false);
+      }
+    } catch (error) {
+      console.error("Error looking up participant:", error);
+      setParticipantError("An error occurred while looking up the participant. Please try again.");
+      setParticipantLoading(false);
     }
   };
 
@@ -366,8 +421,11 @@ export default function JoinPage() {
     setFoundExchange(null);
     setError(null);
     setMessage(null);
+    setParticipantError(null);
     setOrganizerLastName("");
     setMagicWord("");
+    setParticipantFirstName("");
+    setParticipantLastName("");
   };
 
   useEffect(() => {
@@ -385,8 +443,8 @@ export default function JoinPage() {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.found && data.exchanges.length > 0) {
-            setReturningExchanges(data.exchanges);
+          if (data.found && data.exchange) {
+            setReturningExchange(data.exchange);
           }
         }
       } catch (err) {
@@ -405,40 +463,35 @@ export default function JoinPage() {
   };
 
   const handleUseDifferentInfo = () => {
-    setReturningExchanges(null);
+    setReturningExchange(null);
   };
 
   // Show returning participant screen if found
-  if (returningExchanges && returningExchanges.length > 0 && !foundExchange) {
+  if (returningExchange && !foundExchange) {
     return (
       <JoinContainer>
         <JoinCard>
           <JoinHeader>
             <JoinTitle>Welcome Back!</JoinTitle>
             <JoinSubtitle>
-              Hey {returningExchanges[0].participantName}, it looks like you&apos;re returning!
+              Hey {returningExchange.participantName}, it looks like you&apos;re returning!
             </JoinSubtitle>
           </JoinHeader>
 
           <ReturningParticipantSection>
-            <ReturningParticipantTitle>Your Gift Exchanges</ReturningParticipantTitle>
+            <ReturningParticipantTitle>Your Gift Exchange</ReturningParticipantTitle>
             <ReturningParticipantText>
-              Select an exchange to view your match and gift ideas:
+              View your match and gift ideas:
             </ReturningParticipantText>
-            <ExchangeList>
-              {returningExchanges.map((exchange) => (
-                <ExchangeListItem
-                  key={`${exchange.exchangeId}-${exchange.participantId}`}
-                  onClick={() => handleExchangeSelect(exchange)}
-                >
-                  <Gift />
-                  <ExchangeListItemContent>
-                    <ExchangeListItemName>{exchange.exchangeName}</ExchangeListItemName>
-                    <ExchangeListItemParticipant>As {exchange.participantName}</ExchangeListItemParticipant>
-                  </ExchangeListItemContent>
-                </ExchangeListItem>
-              ))}
-            </ExchangeList>
+            <ExchangeListItem
+              onClick={() => handleExchangeSelect(returningExchange)}
+            >
+              <Gift />
+              <ExchangeListItemContent>
+                <ExchangeListItemName>{returningExchange.exchangeName}</ExchangeListItemName>
+                <ExchangeListItemParticipant>As {returningExchange.participantName}</ExchangeListItemParticipant>
+              </ExchangeListItemContent>
+            </ExchangeListItem>
           </ReturningParticipantSection>
 
           <ButtonGroup>
@@ -451,8 +504,78 @@ export default function JoinPage() {
     );
   }
 
-  // Show confirmation screen if exchange was found
+  // Show confirmation screen or participant lookup if exchange was found
   if (foundExchange) {
+    // If exchange has started, show participant lookup form
+    if (foundExchange.status === "started") {
+      return (
+        <JoinContainer>
+          <JoinCard>
+            <JoinHeader>
+              <JoinTitle>Find Your Participant</JoinTitle>
+              <JoinSubtitle>
+                This exchange has already started. Enter your name to view your match and gift ideas.
+              </JoinSubtitle>
+            </JoinHeader>
+
+            <ConfirmationScreen>
+              <ExchangeName>{foundExchange.name}</ExchangeName>
+            </ConfirmationScreen>
+
+            <Form onSubmit={handleParticipantLookup}>
+              <FormGroup>
+                <Label htmlFor="participantFirstName">First Name *</Label>
+                <InputWrapper>
+                  <InputIcon>
+                    <User />
+                  </InputIcon>
+                  <Input
+                    id="participantFirstName"
+                    type="text"
+                    placeholder="John"
+                    value={participantFirstName}
+                    onChange={(e) => setParticipantFirstName(e.target.value)}
+                    required
+                    disabled={participantLoading}
+                  />
+                </InputWrapper>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="participantLastName">Last Name *</Label>
+                <InputWrapper>
+                  <InputIcon>
+                    <User />
+                  </InputIcon>
+                  <Input
+                    id="participantLastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={participantLastName}
+                    onChange={(e) => setParticipantLastName(e.target.value)}
+                    required
+                    disabled={participantLoading}
+                  />
+                </InputWrapper>
+              </FormGroup>
+
+              {participantError && <ErrorMessage>{participantError}</ErrorMessage>}
+
+              <ButtonGroup>
+                <SubmitButton type="submit" disabled={participantLoading || !participantFirstName.trim() || !participantLastName.trim()}>
+                  {participantLoading ? "Looking up..." : "Find My Match"}
+                </SubmitButton>
+                <SecondaryButton onClick={handleTryAgain} disabled={participantLoading}>
+                  Try Again
+                </SecondaryButton>
+              </ButtonGroup>
+            </Form>
+          </JoinCard>
+        </JoinContainer>
+      );
+    }
+
+    // If exchange is active, show confirmation screen
     return (
       <JoinContainer>
         <JoinCard>

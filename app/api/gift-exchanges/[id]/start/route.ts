@@ -104,11 +104,11 @@ export async function POST(
 
 		// Create pairings based on number of participants
 		if (participantsList.length % 2 === 0) {
-			// Even number: create pairs
-			// participant[0] → participant[1], participant[2] → participant[3], etc.
-			for (let i = 0; i < shuffledParticipants.length; i += 2) {
+			// Even number: create a circular chain
+			// participant[0] → participant[1] → participant[2] → ... → participant[n] → participant[0]
+			for (let i = 0; i < shuffledParticipants.length; i++) {
 				const giver = shuffledParticipants[i];
-				const receiver = shuffledParticipants[i + 1];
+				const receiver = shuffledParticipants[(i + 1) % shuffledParticipants.length];
 
 				assignmentRecords.push({
 					id: crypto.randomUUID(),
@@ -120,13 +120,11 @@ export async function POST(
 				});
 			}
 		} else {
-			// Odd number: create pairs for all but last 3, then create a 3-way circle
-			const pairCount = Math.floor((shuffledParticipants.length - 3) / 2);
-
-			// Create regular pairs
-			for (let i = 0; i < pairCount * 2; i += 2) {
+			// Odd number: create a circular chain for all participants
+			// participant[0] → participant[1] → participant[2] → ... → participant[n] → participant[0]
+			for (let i = 0; i < shuffledParticipants.length; i++) {
 				const giver = shuffledParticipants[i];
-				const receiver = shuffledParticipants[i + 1];
+				const receiver = shuffledParticipants[(i + 1) % shuffledParticipants.length];
 
 				assignmentRecords.push({
 					id: crypto.randomUUID(),
@@ -137,38 +135,6 @@ export async function POST(
 					updatedAt: now,
 				});
 			}
-
-			// Create 3-way circle for the last 3 participants
-			// A → B → C → A
-			const lastThree = shuffledParticipants.slice(-3);
-			const [a, b, c] = lastThree;
-
-			assignmentRecords.push(
-				{
-					id: crypto.randomUUID(),
-					exchangeId: id,
-					participantId: a.id,
-					assignedToParticipantId: b.id,
-					createdAt: now,
-					updatedAt: now,
-				},
-				{
-					id: crypto.randomUUID(),
-					exchangeId: id,
-					participantId: b.id,
-					assignedToParticipantId: c.id,
-					createdAt: now,
-					updatedAt: now,
-				},
-				{
-					id: crypto.randomUUID(),
-					exchangeId: id,
-					participantId: c.id,
-					assignedToParticipantId: a.id,
-					createdAt: now,
-					updatedAt: now,
-				}
-			);
 		}
 
 		// Insert all assignments in a transaction
