@@ -1,9 +1,10 @@
 "use client";
 
 import styled from "styled-components";
-import { Gift, Plus, Settings } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { Gift, Plus, Settings, LogOut } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { signOut } from "@/app/lib/auth";
 
 const DashboardWrapper = styled.div`
 	min-height: 100vh;
@@ -232,6 +233,32 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, onCreateClick }: DashboardLayoutProps) {
 	const pathname = usePathname();
+	const router = useRouter();
+
+	const handleSignOut = async () => {
+		const isBypassMode = process.env.NEXT_PUBLIC_SKIP_AUTH === "true";
+		
+		if (isBypassMode) {
+			// For bypass mode, clear the session cookie via API
+			try {
+				await fetch("/api/auth/sign-out-bypass", {
+					method: "POST",
+				});
+			} catch (error) {
+				console.error("Error signing out in bypass mode:", error);
+			}
+		} else {
+			// For normal mode, use better-auth signOut
+			try {
+				await signOut();
+			} catch (error) {
+				console.error("Error signing out:", error);
+			}
+		}
+		
+		// Redirect to home page
+		router.push("/");
+	};
 
 	return (
 		<DashboardWrapper>
@@ -262,6 +289,10 @@ export default function DashboardLayout({ children, onCreateClick }: DashboardLa
 						<Settings />
 						<span>Settings</span>
 					</NavItem>
+					<NavButton onClick={handleSignOut} $active={false}>
+						<LogOut />
+						<span>Sign Out</span>
+					</NavButton>
 				</NavList>
 			</Sidebar>
 
@@ -289,6 +320,10 @@ export default function DashboardLayout({ children, onCreateClick }: DashboardLa
 					<Settings />
 					<span>Settings</span>
 				</BottomNavItem>
+				<BottomNavButton onClick={handleSignOut} $active={false}>
+					<LogOut />
+					<span>Sign Out</span>
+				</BottomNavButton>
 			</BottomNav>
 		</DashboardWrapper>
 	);

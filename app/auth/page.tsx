@@ -250,7 +250,7 @@ const Message = styled.div<{ $type: "success" | "error" }>`
 
 export default function AuthPage() {
   const router = useRouter();
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
@@ -309,32 +309,24 @@ export default function AuthPage() {
           </AuthSubtitle>
         </AuthHeader>
 
-        <InfoBox>
-          <InfoTitle>
-            <Sparkles />
-            <span>Passwordless Authentication</span>
-          </InfoTitle>
-          <InfoText>
-            We use magic links for secure, password-free authentication. No passwords to remember!
-          </InfoText>
-          <InfoList>
-            <li>Only gift exchange creators need an account</li>
-            <li>We&apos;ll send you a secure magic link via email</li>
-            <li>Click the link to instantly sign in—no password required</li>
-          </InfoList>
-        </InfoBox>
+        {isSignUp && (
+          <InfoBox>
+            <InfoTitle>
+              <Sparkles />
+              <span>Passwordless Authentication</span>
+            </InfoTitle>
+            <InfoText>
+              We use magic links for secure, password-free authentication. No passwords to remember!
+            </InfoText>
+            <InfoList>
+              <li>Only gift exchange creators need an account</li>
+              <li>We&apos;ll send you a secure magic link via email</li>
+              <li>Click the link to instantly sign in—no password required</li>
+            </InfoList>
+          </InfoBox>
+        )}
 
         <ToggleContainer>
-          <ToggleButton
-            type="button"
-            $active={isSignUp}
-            onClick={() => {
-              setIsSignUp(true);
-              setMessage(null);
-            }}
-          >
-            Sign Up
-          </ToggleButton>
           <ToggleButton
             type="button"
             $active={!isSignUp}
@@ -344,6 +336,16 @@ export default function AuthPage() {
             }}
           >
             Sign In
+          </ToggleButton>
+          <ToggleButton
+            type="button"
+            $active={isSignUp}
+            onClick={() => {
+              setIsSignUp(true);
+              setMessage(null);
+            }}
+          >
+            Sign Up
           </ToggleButton>
         </ToggleContainer>
 
