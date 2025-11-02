@@ -157,6 +157,21 @@ const ErrorMessage = styled.div`
   border: 1px solid ${(props) => props.theme.lightMode.colors.errorBorder || "#fecaca"};
 `;
 
+const ExchangeInfo = styled.div`
+  padding: 1rem;
+  background: ${(props) => props.theme.lightMode.colors.muted};
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+`;
+
+const ExchangeInfoText = styled.p`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+  margin: 0.5rem 0 0 0;
+  line-height: 1.6;
+`;
+
 export default function RegisterPage() {
   const router = useRouter();
   const params = useParams();
@@ -166,17 +181,57 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exchange, setExchange] = useState<{
+    name: string;
+    spendingLimit: number;
+    currency: string;
+    status: string;
+  } | null>(null);
+  const [exchangeLoading, setExchangeLoading] = useState(true);
 
   useEffect(() => {
     if (!exchangeId) {
       router.push("/join");
+      return;
     }
+
+    // Fetch exchange details to check status
+    const fetchExchange = async () => {
+      try {
+        const response = await fetch(`/api/gift-exchanges/${exchangeId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setExchange({
+            name: data.name,
+            spendingLimit: data.spendingLimit,
+            currency: data.currency,
+            status: data.status,
+          });
+        } else {
+          setError("Exchange not found");
+        }
+      } catch (err) {
+        console.error("Error fetching exchange:", err);
+        setError("Failed to load exchange details");
+      } finally {
+        setExchangeLoading(false);
+      }
+    };
+
+    fetchExchange();
   }, [exchangeId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    // Prevent submission if exchange has started
+    if (exchange?.status === "started") {
+      setError("This exchange has already started. Registration is closed.");
+      return;
+    }
+
     setError(null);
+    setLoading(true);
 
     try {
       const response = await fetch("/api/participants", {
@@ -208,15 +263,52 @@ export default function RegisterPage() {
     }
   };
 
+  const isExchangeStarted = exchange?.status === "started";
+  const isDisabled = isExchangeStarted || loading || exchangeLoading;
+
+  if (exchangeLoading) {
+    return (
+      <RegisterContainer>
+        <RegisterCard>
+          <RegisterHeader>
+            <RegisterTitle>Loading...</RegisterTitle>
+          </RegisterHeader>
+        </RegisterCard>
+      </RegisterContainer>
+    );
+  }
+
   return (
     <RegisterContainer>
       <RegisterCard>
         <RegisterHeader>
           <RegisterTitle>Join the Exchange</RegisterTitle>
           <RegisterSubtitle>
-            Enter your name to join the gift exchange
+            {isExchangeStarted
+              ? "This exchange has already started"
+              : "Enter your name to join the gift exchange"}
           </RegisterSubtitle>
         </RegisterHeader>
+
+        {exchange && (
+          <ExchangeInfo>
+            <strong style={{ fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem", color: "inherit" }}>
+              {exchange.name}
+            </strong>
+            <ExchangeInfoText>
+              Spending Limit: {new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: exchange.currency,
+              }).format(exchange.spendingLimit)}
+            </ExchangeInfoText>
+          </ExchangeInfo>
+        )}
+
+        {isExchangeStarted && (
+          <ErrorMessage style={{ marginBottom: "1.5rem" }}>
+            This exchange has already started. Registration is closed.
+          </ErrorMessage>
+        )}
 
         <Form onSubmit={handleSubmit}>
           <FormGroup>
@@ -232,7 +324,7 @@ export default function RegisterPage() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
-                disabled={loading}
+                disabled={isDisabled}
               />
             </InputWrapper>
           </FormGroup>
@@ -249,14 +341,14 @@ export default function RegisterPage() {
                 placeholder="Doe"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                disabled={loading}
+                disabled={isDisabled}
               />
             </InputWrapper>
           </FormGroup>
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
 
-          <SubmitButton type="submit" disabled={loading || !firstName.trim()}>
+          <SubmitButton type="submit" disabled={isDisabled || !firstName.trim()}>
             {loading ? "Joining..." : "Continue"}
           </SubmitButton>
         </Form>
