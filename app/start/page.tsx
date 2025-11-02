@@ -139,9 +139,9 @@ export default function StartPage() {
           <OptionButton onClick={() => router.push("/join")}>
             <Users />
             <OptionContent>
-              <OptionTitle>Join a gift exchange</OptionTitle>
+              <OptionTitle>Join or view a gift exchange</OptionTitle>
               <OptionDescription>
-                Enter the organizer&apos;s information to find and join an existing gift exchange.
+                Enter the organizer&apos;s information to find, join, or view an existing gift exchange.
               </OptionDescription>
             </OptionContent>
           </OptionButton>

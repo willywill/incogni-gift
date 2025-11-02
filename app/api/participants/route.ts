@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 	try {
 		// Parse request body
 		const body = await request.json();
-		const { exchangeId, firstName, lastName } = body;
+		const { exchangeId, firstName, lastName, visitorId } = body;
 
 		// Validate inputs
 		if (!exchangeId || typeof exchangeId !== "string" || exchangeId.trim().length === 0) {
@@ -51,6 +51,7 @@ export async function POST(request: Request) {
 				exchangeId,
 				firstName: firstName.trim(),
 				lastName: lastName ? lastName.trim() : null,
+				visitorId: visitorId && typeof visitorId === "string" ? visitorId.trim() : null,
 				createdAt: now,
 				updatedAt: now,
 			})

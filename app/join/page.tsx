@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
-import { User, Key } from "lucide-react";
+import { User, Key, Gift } from "lucide-react";
+import { getVisitorId } from "@/app/lib/fingerprint";
 
 const JoinContainer = styled.div`
   min-height: 100vh;
@@ -223,6 +224,88 @@ const ErrorMessage = styled(Message)`
   border-color: ${(props) => props.theme.lightMode.colors.errorBorder || "#fecaca"};
 `;
 
+const ReturningParticipantSection = styled.div`
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: ${(props) => props.theme.lightMode.colors.muted};
+  border-radius: 8px;
+`;
+
+const ReturningParticipantTitle = styled.h2`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0 0 0.75rem 0;
+`;
+
+const ReturningParticipantText = styled.p`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+`;
+
+const ExchangeList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const ExchangeListItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+    background: ${(props) => props.theme.lightMode.colors.muted};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: ${(props) => props.theme.lightMode.colors.foreground};
+    flex-shrink: 0;
+  }
+`;
+
+const ExchangeListItemContent = styled.div`
+  flex: 1;
+`;
+
+const ExchangeListItemName = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin-bottom: 0.25rem;
+`;
+
+const ExchangeListItemParticipant = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+`;
+
+interface ReturningExchange {
+  participantId: string;
+  participantName: string;
+  exchangeId: string;
+  exchangeName: string;
+}
+
 export default function JoinPage() {
   const router = useRouter();
   const [organizerLastName, setOrganizerLastName] = useState("");
@@ -231,6 +314,8 @@ export default function JoinPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [foundExchange, setFoundExchange] = useState<{ id: string; name: string } | null>(null);
+  const [returningExchanges, setReturningExchanges] = useState<ReturningExchange[] | null>(null);
+  const [checkingVisitor, setCheckingVisitor] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -285,6 +370,87 @@ export default function JoinPage() {
     setMagicWord("");
   };
 
+  useEffect(() => {
+    // Check for returning participant on mount
+    const checkReturningParticipant = async () => {
+      try {
+        const visitorId = await getVisitorId();
+        const response = await fetch("/api/participants/lookup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ visitorId }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.found && data.exchanges.length > 0) {
+            setReturningExchanges(data.exchanges);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking returning participant:", err);
+      } finally {
+        setCheckingVisitor(false);
+      }
+    };
+
+    checkReturningParticipant();
+  }, []);
+
+  const handleExchangeSelect = (exchange: ReturningExchange) => {
+    // Redirect to match view page if exchange has started
+    router.push(`/exchange/${exchange.exchangeId}/match?participantId=${exchange.participantId}`);
+  };
+
+  const handleUseDifferentInfo = () => {
+    setReturningExchanges(null);
+  };
+
+  // Show returning participant screen if found
+  if (returningExchanges && returningExchanges.length > 0 && !foundExchange) {
+    return (
+      <JoinContainer>
+        <JoinCard>
+          <JoinHeader>
+            <JoinTitle>Welcome Back!</JoinTitle>
+            <JoinSubtitle>
+              Hey {returningExchanges[0].participantName}, it looks like you&apos;re returning!
+            </JoinSubtitle>
+          </JoinHeader>
+
+          <ReturningParticipantSection>
+            <ReturningParticipantTitle>Your Gift Exchanges</ReturningParticipantTitle>
+            <ReturningParticipantText>
+              Select an exchange to view your match and gift ideas:
+            </ReturningParticipantText>
+            <ExchangeList>
+              {returningExchanges.map((exchange) => (
+                <ExchangeListItem
+                  key={`${exchange.exchangeId}-${exchange.participantId}`}
+                  onClick={() => handleExchangeSelect(exchange)}
+                >
+                  <Gift />
+                  <ExchangeListItemContent>
+                    <ExchangeListItemName>{exchange.exchangeName}</ExchangeListItemName>
+                    <ExchangeListItemParticipant>As {exchange.participantName}</ExchangeListItemParticipant>
+                  </ExchangeListItemContent>
+                </ExchangeListItem>
+              ))}
+            </ExchangeList>
+          </ReturningParticipantSection>
+
+          <ButtonGroup>
+            <SecondaryButton onClick={handleUseDifferentInfo}>
+              Use Different Information
+            </SecondaryButton>
+          </ButtonGroup>
+        </JoinCard>
+      </JoinContainer>
+    );
+  }
+
   // Show confirmation screen if exchange was found
   if (foundExchange) {
     return (
@@ -312,13 +478,26 @@ export default function JoinPage() {
     );
   }
 
+  // Show loading while checking visitor
+  if (checkingVisitor) {
+    return (
+      <JoinContainer>
+        <JoinCard>
+          <JoinHeader>
+            <JoinTitle>Loading...</JoinTitle>
+          </JoinHeader>
+        </JoinCard>
+      </JoinContainer>
+    );
+  }
+
   return (
     <JoinContainer>
       <JoinCard>
         <JoinHeader>
-          <JoinTitle>Join a Gift Exchange</JoinTitle>
+          <JoinTitle>Join or View a Gift Exchange</JoinTitle>
           <JoinSubtitle>
-            Enter the organizer&apos;s information to find and join an existing exchange
+            Enter the organizer&apos;s information to find, join, or view an existing exchange
           </JoinSubtitle>
         </JoinHeader>
 
