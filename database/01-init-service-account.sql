@@ -12,6 +12,8 @@ $$;
 -- Grant connection and usage on the database
 GRANT CONNECT ON DATABASE incogni_gift TO app_service;
 GRANT USAGE ON SCHEMA public TO app_service;
+-- Grant CREATE privilege for running migrations
+GRANT CREATE ON SCHEMA public TO app_service;
 
 -- Grant privileges on existing tables (will be applied after migrations)
 -- This ensures the service account can access tables created by migrations

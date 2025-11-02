@@ -47,13 +47,18 @@ A little mystery. A lot of joy. 🎁✨
 3. **Set up environment variables**:
    - Copy `.env.example` to `.env`:
      ```bash
-   cp .env.example .env
-   ```
+     cp .env.example .env
+     ```
    - Update the values in `.env` file:
      - `DATABASE_URL`: Service account connection string for the application
      - `BETTER_AUTH_SECRET`: Generate a secure random string for production
      - `BETTER_AUTH_URL`: Your application URL (default: `http://localhost:3000`)
      - `NEXT_PUBLIC_BETTER_AUTH_URL`: Public auth URL (default: `http://localhost:3000/api/auth`)
+     - `SMTP_HOST`: SMTP server hostname (e.g., `smtp.gmail.com`, `smtp.sendgrid.net`)
+     - `SMTP_PORT`: SMTP server port (typically `587` for TLS or `465` for SSL)
+     - `SMTP_USER`: SMTP username/email address
+     - `SMTP_PASSWORD`: SMTP password or app-specific password
+     - `SMTP_FROM`: Sender email address and name (e.g., `IncogniGift <[email protected]>`)
 
 4. **Start the database**:
    ```bash
