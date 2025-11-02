@@ -4,6 +4,47 @@ import { db } from "@/app/db";
 import { giftExchanges } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 
+export async function GET(
+	request: Request,
+	{ params }: { params: Promise<{ id: string }> }
+) {
+	try {
+		const { id } = await params;
+
+		// Get exchange by ID (no auth required - public for participants)
+		const [exchange] = await db
+			.select()
+			.from(giftExchanges)
+			.where(eq(giftExchanges.id, id))
+			.limit(1);
+
+		if (!exchange) {
+			return NextResponse.json(
+				{ error: "Exchange not found" },
+				{ status: 404 }
+			);
+		}
+
+		return NextResponse.json({
+			id: exchange.id,
+			name: exchange.name,
+			magicWord: exchange.magicWord,
+			spendingLimit: exchange.spendingLimit,
+			currency: exchange.currency,
+			status: exchange.status,
+			createdBy: exchange.createdBy,
+			createdAt: exchange.createdAt,
+			updatedAt: exchange.updatedAt,
+		});
+	} catch (error) {
+		console.error("Error fetching gift exchange:", error);
+		return NextResponse.json(
+			{ error: "Internal server error" },
+			{ status: 500 }
+		);
+	}
+}
+
 export async function PATCH(
 	request: Request,
 	{ params }: { params: Promise<{ id: string }> }

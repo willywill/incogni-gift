@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { User, Key } from "lucide-react";
 
@@ -156,24 +157,160 @@ const Message = styled.div`
   border: 1px solid ${(props) => props.theme.lightMode.colors.border};
 `;
 
+const ConfirmationScreen = styled.div`
+  text-align: center;
+`;
+
+const ExchangeName = styled.h2`
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0 0 1.5rem 0;
+  letter-spacing: -0.02em;
+`;
+
+const ConfirmationQuestion = styled.p`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+  }
+`;
+
+const SecondaryButton = styled.button`
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+
+  &:hover:not(:disabled) {
+    background: ${(props) => props.theme.lightMode.colors.muted};
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled(Message)`
+  background: ${(props) => props.theme.lightMode.colors.error || "#fee2e2"};
+  color: ${(props) => props.theme.lightMode.colors.errorText || "#991b1b"};
+  border-color: ${(props) => props.theme.lightMode.colors.errorBorder || "#fecaca"};
+`;
+
 export default function JoinPage() {
+  const router = useRouter();
   const [organizerLastName, setOrganizerLastName] = useState("");
   const [magicWord, setMagicWord] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [foundExchange, setFoundExchange] = useState<{ id: string; name: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+    setError(null);
+    setFoundExchange(null);
 
-    // Placeholder for future backend integration
-    // TODO: Implement exchange lookup when backend is ready
-    setTimeout(() => {
-      setMessage("Exchange lookup functionality will be available soon!");
+    try {
+      const response = await fetch("/api/gift-exchanges/lookup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          lastName: organizerLastName.trim(),
+          magicWord: magicWord.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.error || "No exchange found matching the provided information");
+        setLoading(false);
+        return;
+      }
+
+      const exchange = await response.json();
+      setFoundExchange({
+        id: exchange.id,
+        name: exchange.name,
+      });
       setLoading(false);
-    }, 500);
+    } catch (error) {
+      console.error("Error looking up exchange:", error);
+      setError("An error occurred while looking up the exchange. Please try again.");
+      setLoading(false);
+    }
   };
+
+  const handleContinue = () => {
+    if (foundExchange) {
+      router.push(`/exchange/${foundExchange.id}/register`);
+    }
+  };
+
+  const handleTryAgain = () => {
+    setFoundExchange(null);
+    setError(null);
+    setMessage(null);
+    setOrganizerLastName("");
+    setMagicWord("");
+  };
+
+  // Show confirmation screen if exchange was found
+  if (foundExchange) {
+    return (
+      <JoinContainer>
+        <JoinCard>
+          <JoinHeader>
+            <JoinTitle>Join a Gift Exchange</JoinTitle>
+          </JoinHeader>
+
+          <ConfirmationScreen>
+            <ExchangeName>{foundExchange.name}</ExchangeName>
+            <ConfirmationQuestion>Does this look right?</ConfirmationQuestion>
+
+            <ButtonGroup>
+              <SubmitButton onClick={handleContinue}>
+                Continue
+              </SubmitButton>
+              <SecondaryButton onClick={handleTryAgain}>
+                Try Again
+              </SecondaryButton>
+            </ButtonGroup>
+          </ConfirmationScreen>
+        </JoinCard>
+      </JoinContainer>
+    );
+  }
 
   return (
     <JoinContainer>
@@ -222,6 +359,7 @@ export default function JoinPage() {
             </InputWrapper>
           </FormGroup>
 
+          {error && <ErrorMessage>{error}</ErrorMessage>}
           {message && <Message>{message}</Message>}
 
           <SubmitButton type="submit" disabled={loading || !organizerLastName.trim() || !magicWord.trim()}>
