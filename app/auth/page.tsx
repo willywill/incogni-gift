@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { Mail, Sparkles } from "lucide-react";
 import { authClient } from "../lib/auth";
@@ -248,6 +249,7 @@ const Message = styled.div<{ $type: "success" | "error" }>`
 `;
 
 export default function AuthPage() {
+  const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(true);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -260,21 +262,29 @@ export default function AuthPage() {
     setLoading(true);
     setMessage(null);
 
+    if (process.env.NEXT_PUBLIC_SKIP_AUTH === "true") {
+      router.push("/dashboard");
+      return;
+    }
+
     try {
-      // Placeholder handler - will be connected to backend API routes later
-      if (isSignUp) {
-        // await authClient.signUp.email({ email });
-        console.log("Sign up with email:", email);
+      const { error } = await authClient.signIn.magicLink({
+        email,
+        callbackURL: "/dashboard",
+        errorCallbackURL: "/auth?error=1",
+      });
+
+      if (error) {
         setMessage({
-          type: "success",
-          text: "Check your email for a magic link to complete sign up!",
+          type: "error",
+          text: error.message || "Something went wrong. Please try again.",
         });
       } else {
-        // await authClient.signIn.email({ email });
-        console.log("Sign in with email:", email);
         setMessage({
           type: "success",
-          text: "Check your email for a magic link to sign in!",
+          text: isSignUp
+            ? "Check your email for a magic link to complete sign up!"
+            : "Check your email for a magic link to sign in!",
         });
       }
     } catch (error) {
@@ -358,7 +368,7 @@ export default function AuthPage() {
 
           {message && <Message $type={message.type}>{message.text}</Message>}
 
-          <SubmitButton type="submit" disabled={loading || !email}>
+          <SubmitButton type="submit" disabled={loading || !email.trim()}>
             {loading
               ? "Sending..."
               : isSignUp

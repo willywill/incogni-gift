@@ -1,11 +1,10 @@
 import { createAuthClient } from "better-auth/react";
+import { magicLinkClient } from "better-auth/client/plugins";
 
-// Better Auth client configuration
-// Connects to the backend API routes at /api/auth
 export const authClient = createAuthClient({
 	baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "/api/auth",
+	plugins: [magicLinkClient()],
 });
 
-// Export hooks for use in components
-export const { useSession, signIn, signUp, signOut } = authClient;
+export const { useSession, signIn, signUp, signOut, magicLink } = authClient;
 
