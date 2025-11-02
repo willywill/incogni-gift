@@ -83,7 +83,7 @@ export default function Header() {
         <HeroSubtitle>
           Secret matches, unforgettable surprises. A little mystery. A lot of joy. 🎁✨
         </HeroSubtitle>
-        <HeroCTA href="/auth">Start Your Gift Exchange</HeroCTA>
+        <HeroCTA href="/start">Start Your Gift Exchange</HeroCTA>
       </HeroSection>
     </>
   );
