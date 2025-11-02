@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "@/app/lib/auth";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import CreateExchangeWizard from "@/app/components/CreateExchangeWizard";
 import * as Dialog from "@radix-ui/react-dialog";
 import { User, Trash2, LogOut, X } from "lucide-react";
 
@@ -376,6 +377,7 @@ export default function SettingsPage() {
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [deleteConfirmText, setDeleteConfirmText] = useState("");
 	const [deleting, setDeleting] = useState(false);
+	const [wizardOpen, setWizardOpen] = useState(false);
 
 	useEffect(() => {
 		if (session?.user) {
@@ -496,7 +498,7 @@ export default function SettingsPage() {
 
 	if (isPending || loading) {
 		return (
-			<DashboardLayout>
+			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<LoadingContainer>
 					<LoadingText>Loading...</LoadingText>
 				</LoadingContainer>
@@ -506,7 +508,7 @@ export default function SettingsPage() {
 
 	if (!session?.user) {
 		return (
-			<DashboardLayout>
+			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<AccessDeniedContainer>
 					<AccessDeniedCard>
 						<AccessDeniedTitle>Access Denied</AccessDeniedTitle>
@@ -518,7 +520,7 @@ export default function SettingsPage() {
 	}
 
 	return (
-		<DashboardLayout>
+		<DashboardLayout onCreateClick={() => setWizardOpen(true)}>
 			<PageHeader>
 				<div>
 					<PageTitle>Settings</PageTitle>
@@ -655,6 +657,15 @@ export default function SettingsPage() {
 					</div>
 				</ModalContent>
 			</Dialog.Root>
+
+			<CreateExchangeWizard
+				open={wizardOpen}
+				onOpenChange={setWizardOpen}
+				onSuccess={() => {
+					// Navigate to dashboard after creating exchange
+					router.push("/dashboard");
+				}}
+			/>
 		</DashboardLayout>
 	);
 }

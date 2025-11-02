@@ -54,6 +54,7 @@ A little mystery. A lot of joy. 🎁✨
      - `BETTER_AUTH_SECRET`: Generate a secure random string for production
      - `BETTER_AUTH_URL`: Your application URL (default: `http://localhost:3000`)
      - `NEXT_PUBLIC_BETTER_AUTH_URL`: Public auth URL (default: `http://localhost:3000/api/auth`)
+     - `NEXT_PUBLIC_BASE_URL`: Base URL for QR codes and invite links (default: `http://localhost:3000` for local, use your production domain for production)
      - `SMTP_HOST`: SMTP server hostname (e.g., `smtp.gmail.com`, `smtp.sendgrid.net`)
      - `SMTP_PORT`: SMTP server port (typically `587` for TLS or `465` for SSL)
      - `SMTP_USER`: SMTP username/email address
