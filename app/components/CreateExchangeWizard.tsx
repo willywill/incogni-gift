@@ -358,10 +358,11 @@ export default function CreateExchangeWizard({
 	const [name, setName] = useState("");
 	const [spendingLimit, setSpendingLimit] = useState(25);
 	const [currency, setCurrency] = useState("USD");
+	const [magicWord, setMagicWord] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const totalSteps = 2;
+	const totalSteps = 3;
 	const progress = (step / totalSteps) * 100;
 
 	const handleNext = () => {
@@ -372,6 +373,13 @@ export default function CreateExchangeWizard({
 			}
 			setError(null);
 			setStep(2);
+		} else if (step === 2) {
+			if (!spendingLimit || spendingLimit <= 0 || spendingLimit % 5 !== 0) {
+				setError("Spending limit must be a positive number in increments of 5");
+				return;
+			}
+			setError(null);
+			setStep(3);
 		}
 	};
 
@@ -383,8 +391,13 @@ export default function CreateExchangeWizard({
 	};
 
 	const handleSubmit = async () => {
-		if (!spendingLimit || spendingLimit <= 0 || spendingLimit % 5 !== 0) {
-			setError("Spending limit must be a positive number in increments of 5");
+		if (!magicWord.trim()) {
+			setError("Please enter a magic word for your gift exchange");
+			return;
+		}
+
+		if (magicWord.trim().length < 3) {
+			setError("Magic word must be at least 3 characters long");
 			return;
 		}
 
@@ -401,6 +414,7 @@ export default function CreateExchangeWizard({
 					name: name.trim(),
 					spendingLimit,
 					currency,
+					magicWord: magicWord.trim(),
 				}),
 			});
 
@@ -414,6 +428,7 @@ export default function CreateExchangeWizard({
 			setName("");
 			setSpendingLimit(25);
 			setCurrency("USD");
+			setMagicWord("");
 			setError(null);
 			onOpenChange(false);
 			onSuccess();
@@ -431,6 +446,7 @@ export default function CreateExchangeWizard({
 			setName("");
 			setSpendingLimit(25);
 			setCurrency("USD");
+			setMagicWord("");
 			setError(null);
 		}
 		onOpenChange(newOpen);
@@ -552,6 +568,32 @@ export default function CreateExchangeWizard({
 											</SelectContent>
 										</Select.Portal>
 									</SelectRoot>
+								</FormGroup>
+							</>
+						)}
+
+						{step === 3 && (
+							<>
+								<div>
+								<StepTitle>What&apos;s your magic word?</StepTitle>
+								<StepDescription>
+									Participants will use this word along with your last name to join the exchange.
+									Choose something memorable but not too obvious.
+								</StepDescription>
+							</div>
+							<FormGroup>
+								<Label htmlFor="magicWord">Magic Word</Label>
+								<Input
+									id="magicWord"
+									type="text"
+									placeholder="e.g., Snowflake"
+									value={magicWord}
+									onChange={(e) => {
+										setMagicWord(e.target.value);
+										setError(null);
+									}}
+									autoFocus
+								/>
 								</FormGroup>
 							</>
 						)}

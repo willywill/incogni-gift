@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
 		// Parse request body
 		const body = await request.json();
-		const { name, spendingLimit, currency } = body;
+		const { name, spendingLimit, currency, magicWord } = body;
 
 		// Validate inputs
 		if (!name || typeof name !== "string" || name.trim().length === 0) {
@@ -48,6 +48,13 @@ export async function POST(request: Request) {
 			);
 		}
 
+		if (!magicWord || typeof magicWord !== "string" || magicWord.trim().length < 3) {
+			return NextResponse.json(
+				{ error: "Magic word is required and must be at least 3 characters long" },
+				{ status: 400 }
+			);
+		}
+
 		// Create the gift exchange
 		const id = crypto.randomUUID();
 		const now = new Date();
@@ -57,6 +64,7 @@ export async function POST(request: Request) {
 			.values({
 				id,
 				name: name.trim(),
+				magicWord: magicWord.trim(),
 				spendingLimit,
 				currency,
 				status: "active",
@@ -70,6 +78,7 @@ export async function POST(request: Request) {
 			{
 				id: newExchange.id,
 				name: newExchange.name,
+				magicWord: newExchange.magicWord,
 				spendingLimit: newExchange.spendingLimit,
 				currency: newExchange.currency,
 				status: newExchange.status,
@@ -116,6 +125,7 @@ export async function GET(request: Request) {
 			exchanges.map((exchange) => ({
 				id: exchange.id,
 				name: exchange.name,
+				magicWord: exchange.magicWord,
 				spendingLimit: exchange.spendingLimit,
 				currency: exchange.currency,
 				status: exchange.status,
