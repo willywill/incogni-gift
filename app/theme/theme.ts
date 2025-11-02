@@ -17,16 +17,20 @@ export const theme = {
 			// Pure black and white
 			black: "#000000",
 			white: "#ffffff",
-			// Semantic colors
-			background: "#ffffff",
-			foreground: "#000000",
-			primary: "#000000",
-			secondary: "#525252",
-			muted: "#f5f5f5",
-			accent: "#262626",
-			border: "#e5e5e5",
-			input: "#e5e5e5",
-			ring: "#000000",
+		// Semantic colors
+		background: "#ffffff",
+		foreground: "#000000",
+		primary: "#000000",
+		secondary: "#525252",
+		muted: "#f5f5f5",
+		accent: "#262626",
+		border: "#e5e5e5",
+		input: "#e5e5e5",
+		ring: "#000000",
+		// Error colors
+		error: "#fee2e2",
+		errorText: "#991b1b",
+		errorBorder: "#fecaca",
 		},
 	},
 } as const;
