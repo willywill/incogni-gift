@@ -113,7 +113,7 @@ export default function Navbar() {
           <NavLinkNext href="/about">About</NavLinkNext>
           <NavLinkNext href="/support">Support</NavLinkNext>
         </NavLinks>
-        <CTAButton href="/auth">Get Started</CTAButton>
+        <CTAButton href="/start">Get Started</CTAButton>
       </Nav>
     </HeaderWrapper>
   );
