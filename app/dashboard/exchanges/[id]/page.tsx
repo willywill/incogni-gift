@@ -23,6 +23,7 @@ import {
 	ChevronDown,
 	ChevronUp,
 	Check,
+	Rocket,
 } from "lucide-react";
 
 const PageHeader = styled.div`
@@ -724,6 +725,181 @@ const SelectScrollButton = styled(Select.ScrollUpButton)`
 	cursor: default;
 `;
 
+const StartExchangeButton = styled(Button)`
+	background: ${(props) => props.theme.lightMode.colors.foreground};
+	color: ${(props) => props.theme.lightMode.colors.background};
+	font-size: 1rem;
+	padding: 1rem 2rem;
+	font-weight: 600;
+
+	&:hover {
+		background: ${(props) => props.theme.lightMode.colors.gray800};
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+
+	@media (max-width: 768px) {
+		width: 100%;
+		margin-top: 1rem;
+	}
+`;
+
+const StartExchangeModalOverlay = styled(Dialog.Overlay)`
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+`;
+
+const StartExchangeModalContent = styled(Dialog.Content)`
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: ${(props) => props.theme.lightMode.colors.background};
+	border-radius: 16px;
+	padding: 2rem;
+	z-index: 1001;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	max-width: 600px;
+	width: 90vw;
+	max-height: 85vh;
+	overflow-y: auto;
+
+	@media (max-width: 768px) {
+		padding: 1.5rem;
+	}
+`;
+
+const StartExchangeModalCloseButton = styled(Dialog.Close)`
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: transparent;
+	border: none;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: ${(props) => props.theme.lightMode.colors.muted};
+		color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+`;
+
+const StartExchangeModalTitle = styled(Dialog.Title)`
+	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	margin: 0;
+	letter-spacing: -0.02em;
+`;
+
+const StartExchangeSection = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+`;
+
+const StartExchangeSectionTitle = styled.h3`
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	margin: 0;
+`;
+
+const StartExchangeText = styled.p`
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	margin: 0;
+	line-height: 1.6;
+`;
+
+const StartExchangeError = styled.div`
+	padding: 1rem;
+	border-radius: 8px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	background: ${(props) => (props.theme.lightMode.colors as any).error || "#fee2e2"};
+	color: ${(props) => (props.theme.lightMode.colors as any).errorText || "#991b1b"};
+	border: 1px solid ${(props) => (props.theme.lightMode.colors as any).errorBorder || "#fecaca"};
+`;
+
+const StartExchangeParticipantsList = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	max-height: 200px;
+	overflow-y: auto;
+`;
+
+const StartExchangeParticipantItem = styled.div`
+	padding: 0.5rem 0.75rem;
+	background: ${(props) => props.theme.lightMode.colors.muted};
+	border-radius: 6px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+`;
+
+const StartExchangeButtonContainer = styled.div`
+	display: flex;
+	gap: 0.75rem;
+	justify-content: flex-end;
+	margin-top: 0.5rem;
+
+	@media (max-width: 768px) {
+		flex-direction: column-reverse;
+	}
+`;
+
+const ParticipantItemWithActions = styled(ParticipantItem)`
+	justify-content: space-between;
+`;
+
+const RemoveParticipantButton = styled.button`
+	background: transparent;
+	border: none;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+
+	&:hover {
+		background: ${(props) => props.theme.lightMode.colors.border};
+		color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
 const currencies = [
 	{ value: "USD", label: "USD - US Dollar" },
 	{ value: "EUR", label: "EUR - Euro" },
@@ -783,6 +959,8 @@ export default function GiftExchangeDetailPage() {
 	const [wizardOpen, setWizardOpen] = useState(false);
 	const [copySuccess, setCopySuccess] = useState(false);
 	const [qrCodeGenerated, setQrCodeGenerated] = useState(false);
+	const [startExchangeModalOpen, setStartExchangeModalOpen] = useState(false);
+	const [removingParticipantId, setRemovingParticipantId] = useState<string | null>(null);
 
 	// Generate invitation link dynamically using NEXT_PUBLIC_BASE_URL or fallback to window.location.origin
 	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
@@ -1092,6 +1270,31 @@ export default function GiftExchangeDetailPage() {
 		}
 	};
 
+	const handleStartExchange = async () => {
+		// Fetch participants if not already loaded or in activity tab
+		if (exchange && (participants.length === 0 || activeTab !== "activity")) {
+			await fetchParticipants();
+		}
+		setStartExchangeModalOpen(true);
+	};
+
+	const handleConfirmStartExchange = () => {
+		// Placeholder - actual implementation will come later
+		console.log("Starting exchange:", exchange?.id);
+		setStartExchangeModalOpen(false);
+	};
+
+	const handleRemoveParticipant = async (participantId: string) => {
+		// Placeholder - actual implementation will come later
+		console.log("Removing participant:", participantId);
+		setRemovingParticipantId(participantId);
+		// For now, just remove from local state as UI placeholder
+		setTimeout(() => {
+			setParticipants(participants.filter((p) => p.id !== participantId));
+			setRemovingParticipantId(null);
+		}, 500);
+	};
+
 	return (
 		<DashboardLayout onCreateClick={() => setWizardOpen(true)}>
 			<BackButton onClick={() => router.push("/dashboard")}>
@@ -1103,6 +1306,12 @@ export default function GiftExchangeDetailPage() {
 					<PageTitle>{exchange.name}</PageTitle>
 					<PageSubtitle>Manage your gift exchange</PageSubtitle>
 				</div>
+				{exchange.status === "active" && (
+					<StartExchangeButton onClick={handleStartExchange}>
+						<Rocket />
+						Start Exchange
+					</StartExchangeButton>
+				)}
 			</PageHeader>
 
 			<TabsContainer>
@@ -1259,6 +1468,9 @@ export default function GiftExchangeDetailPage() {
 											</button>
 										</QrModalCloseButton>
 										<QrModalTitle>Scan to Join</QrModalTitle>
+										<div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem", marginTop: "-2.0rem", height: "65px" }}>
+											<img src="/logo.png" alt="IncogniGift" style={{ height: "120px", width: "auto" }} />
+										</div>
 										{qrCodeGenerated && inviteLink ? (
 											<QrCodeLargeWrapper>
 												<QRCodeSVG
@@ -1323,10 +1535,22 @@ export default function GiftExchangeDetailPage() {
 												{participants.map((participant) => {
 													const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
 													return (
-														<ParticipantItem key={participant.id} onClick={() => handleParticipantClick(participant)}>
-															<Users style={{ width: "20px", height: "20px" }} />
-															<ParticipantName>{fullName}</ParticipantName>
-														</ParticipantItem>
+														<ParticipantItemWithActions key={participant.id}>
+															<div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, cursor: "pointer" }} onClick={() => handleParticipantClick(participant)}>
+																<Users style={{ width: "20px", height: "20px" }} />
+																<ParticipantName>{fullName}</ParticipantName>
+															</div>
+															<RemoveParticipantButton
+																onClick={(e) => {
+																	e.stopPropagation();
+																	handleRemoveParticipant(participant.id);
+																}}
+																disabled={removingParticipantId === participant.id}
+																title="Remove participant"
+															>
+																<Trash2 />
+															</RemoveParticipantButton>
+														</ParticipantItemWithActions>
 													);
 												})}
 											</ParticipantList>
@@ -1530,6 +1754,114 @@ export default function GiftExchangeDetailPage() {
 						</>
 					)}
 				</ParticipantModalContent>
+			</Dialog.Root>
+
+			<Dialog.Root open={startExchangeModalOpen} onOpenChange={setStartExchangeModalOpen}>
+				<StartExchangeModalOverlay />
+				<StartExchangeModalContent>
+					<StartExchangeModalCloseButton asChild>
+						<button>
+							<X />
+						</button>
+					</StartExchangeModalCloseButton>
+					<StartExchangeModalTitle>Start Exchange?</StartExchangeModalTitle>
+
+					{participants.length < 2 ? (
+						<>
+							<StartExchangeError>
+								You need at least 2 participants to start the exchange.
+							</StartExchangeError>
+							<StartExchangeText>
+								Currently, you have {participants.length} participant{participants.length !== 1 ? "s" : ""}. Please invite more participants before starting the exchange.
+							</StartExchangeText>
+						</>
+					) : (
+						<>
+							<StartExchangeText>
+								Are you sure you want to start this exchange? Once started, no new participants can join.
+							</StartExchangeText>
+
+							<StartExchangeSection>
+								<StartExchangeSectionTitle>Exchange Details</StartExchangeSectionTitle>
+								<StartExchangeText>
+									<strong>Spending Limit:</strong>{" "}
+									{new Intl.NumberFormat("en-US", {
+										style: "currency",
+										currency: exchange?.currency || "USD",
+									}).format(exchange?.spendingLimit || 0)}
+								</StartExchangeText>
+								<StartExchangeText>
+									<strong>Participants:</strong> {participants.length}
+								</StartExchangeText>
+								<StartExchangeParticipantsList>
+									{participants.map((participant) => {
+										const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
+										return (
+											<StartExchangeParticipantItem key={participant.id}>
+												{fullName}
+											</StartExchangeParticipantItem>
+										);
+									})}
+								</StartExchangeParticipantsList>
+							</StartExchangeSection>
+
+							<StartExchangeSection>
+								<StartExchangeSectionTitle>Pairing Information</StartExchangeSectionTitle>
+								{participants.length % 2 === 0 ? (
+									<>
+										<StartExchangeText>
+											<strong>Number of Pairs:</strong> {Math.floor(participants.length / 2)}
+										</StartExchangeText>
+										<StartExchangeText>
+											Each person will give a gift to one person and receive a gift from one person.
+										</StartExchangeText>
+									</>
+								) : (
+									<>
+										<StartExchangeText>
+											<strong>Number of Pairs:</strong> {Math.floor(participants.length / 2)} pairs
+										</StartExchangeText>
+										<StartExchangeText>
+											<strong>{Math.floor(participants.length / 2) === 1 ? '' : 'Plus '}1 three-way mini-circle</strong>
+										</StartExchangeText>
+										<StartExchangeText style={{ marginLeft: "1rem", marginTop: "0.5rem" }}>
+											Since you have an odd number of participants, one group of 3 will form a mini-circle: A → B → C → A
+										</StartExchangeText>
+										<StartExchangeText style={{ marginLeft: "1rem", fontSize: "0.875rem", opacity: 0.8 }}>
+											• A gives to B and receives from C<br />
+											• B gives to C and receives from A<br />
+											• C gives to A and receives from B
+										</StartExchangeText>
+										<StartExchangeText style={{ marginTop: "0.75rem" }}>
+											Everyone still gives one gift and receives one gift. Alternatively, you can invite another participant to make an even number.
+										</StartExchangeText>
+									</>
+								)}
+							</StartExchangeSection>
+
+							<StartExchangeSection>
+								<StartExchangeSectionTitle>What Will Happen</StartExchangeSectionTitle>
+								<StartExchangeText>
+									{participants.length % 2 === 0
+										? "We will randomly pair each person with another participant. Each person gives to one person and receives from one person. Once started, no new participants can join."
+										: "We will randomly create pairs, with one group of 3 participants forming a mini-circle (A → B → C → A). Each person gives one gift and receives one gift. Once started, no new participants can join."}
+								</StartExchangeText>
+							</StartExchangeSection>
+						</>
+					)}
+
+					<StartExchangeButtonContainer>
+						<Button onClick={() => setStartExchangeModalOpen(false)}>
+							Cancel
+						</Button>
+						{participants.length >= 2 && (
+							<PrimaryButton onClick={handleConfirmStartExchange}>
+								<Rocket />
+								Start Exchange
+							</PrimaryButton>
+						)}
+					</StartExchangeButtonContainer>
+				</StartExchangeModalContent>
 			</Dialog.Root>
 
 			<CreateExchangeWizard
