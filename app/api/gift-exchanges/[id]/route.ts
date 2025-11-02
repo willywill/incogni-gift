@@ -206,3 +206,57 @@ export async function PATCH(
 	}
 }
 
+export async function DELETE(
+	request: Request,
+	{ params }: { params: Promise<{ id: string }> }
+) {
+	try {
+		// Get the current session
+		const session = await getSession({ headers: request.headers });
+
+		if (!session?.user) {
+			return NextResponse.json(
+				{ error: "Unauthorized" },
+				{ status: 401 }
+			);
+		}
+
+		const { id } = await params;
+
+		// First, verify the user owns this exchange
+		const [existingExchange] = await db
+			.select()
+			.from(giftExchanges)
+			.where(
+				and(
+					eq(giftExchanges.id, id),
+					eq(giftExchanges.createdBy, session.user.id)
+				)
+			)
+			.limit(1);
+
+		if (!existingExchange) {
+			return NextResponse.json(
+				{ error: "Exchange not found or access denied" },
+				{ status: 404 }
+			);
+		}
+
+		// Delete the exchange (cascading deletes will handle participants, assignments, wishlist items)
+		await db
+			.delete(giftExchanges)
+			.where(eq(giftExchanges.id, id));
+
+		return NextResponse.json(
+			{ message: "Exchange deleted successfully" },
+			{ status: 200 }
+		);
+	} catch (error) {
+		console.error("Error deleting gift exchange:", error);
+		return NextResponse.json(
+			{ error: "Internal server error" },
+			{ status: 500 }
+		);
+	}
+}
+
