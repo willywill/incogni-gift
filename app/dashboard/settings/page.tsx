@@ -487,7 +487,7 @@ export default function SettingsPage() {
 		router.push("/");
 	};
 
-	const formatDate = (dateString: string) => {
+	const formatDate = (dateString: Date | string) => {
 		const date = new Date(dateString);
 		return new Intl.DateTimeFormat("en-US", {
 			month: "long",
