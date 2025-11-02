@@ -163,7 +163,8 @@ export const auth = betterAuth({
 
 export async function createBypassSession() {
 	const mockUserEmail = "[email protected]";
-	const mockUserName = "Mock User";
+	const mockUserFirstName = "Mock";
+	const mockUserLastName = "User";
 	
 	let mockUserRecord = await db.select().from(user).where(eq(user.email, mockUserEmail)).limit(1);
 	
@@ -173,7 +174,8 @@ export async function createBypassSession() {
 		await db.insert(user).values({
 			id: userId,
 			email: mockUserEmail,
-			name: mockUserName,
+			firstName: mockUserFirstName,
+			lastName: mockUserLastName,
 			emailVerified: true,
 		});
 	} else {
@@ -223,7 +225,8 @@ function buildSessionResponse(userData: any, sessionData: any) {
 			user: {
 				id: userData.id,
 				email: userData.email,
-				name: userData.name,
+				firstName: userData.firstName,
+				lastName: userData.lastName,
 				emailVerified: userData.emailVerified,
 				createdAt: userData.createdAt instanceof Date 
 					? userData.createdAt.toISOString() 

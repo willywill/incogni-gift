@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "styled-components";
-import { Gift, Calendar } from "lucide-react";
+import { Gift, Calendar, Key } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -153,6 +153,7 @@ const LoadingText = styled.p`
 interface GiftExchange {
 	id: string;
 	name: string;
+	magicWord: string | null;
 	spendingLimit: number;
 	currency: string;
 	status: string;
@@ -259,6 +260,12 @@ export default function GiftExchangeList({ onCreateClick, refreshTrigger }: Gift
 								Spending limit: {formatCurrency(exchange.spendingLimit, exchange.currency)}
 							</span>
 						</DetailRow>
+						{exchange.magicWord && (
+							<DetailRow>
+								<Key />
+								<span>Magic word: {exchange.magicWord}</span>
+							</DetailRow>
+						)}
 						<DetailRow>
 							<Calendar />
 							<span>Created {formatDate(exchange.createdAt)}</span>

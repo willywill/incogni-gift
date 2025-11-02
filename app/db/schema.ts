@@ -9,7 +9,8 @@ import {
 // Better Auth required tables
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
-	name: text("name"),
+	firstName: text("first_name"),
+	lastName: text("last_name"),
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").notNull().default(false),
 	image: text("image"),
@@ -57,6 +58,7 @@ export const users = pgTable("users", {
 export const giftExchanges = pgTable("gift_exchanges", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
+	magicWord: text("magic_word"),
 	spendingLimit: integer("spending_limit").notNull(),
 	currency: text("currency").notNull().default("USD"),
 	status: text("status").notNull().default("active"),

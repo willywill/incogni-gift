@@ -6,6 +6,7 @@ import { useSession } from "@/app/lib/auth";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Select from "@radix-ui/react-select";
 import {
 	ArrowLeft,
 	Users,
@@ -16,6 +17,10 @@ import {
 	Copy,
 	Maximize2,
 	X,
+	Key,
+	ChevronDown,
+	ChevronUp,
+	Check,
 } from "lucide-react";
 
 const PageHeader = styled.div`
@@ -524,9 +529,102 @@ const QrCodeLarge = styled.div`
 	}
 `;
 
+const SelectRoot = styled(Select.Root)`
+	width: 100%;
+`;
+
+const SelectTrigger = styled(Select.Trigger)`
+	width: 100%;
+	padding: 0.875rem 1rem;
+	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+	border-radius: 8px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	background: ${(props) => props.theme.lightMode.colors.background};
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+
+	&[data-state="open"] {
+		border-color: ${(props) => props.theme.lightMode.colors.foreground};
+		box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+		color: ${(props) => props.theme.lightMode.colors.secondary};
+	}
+`;
+
+const SelectValue = styled(Select.Value)`
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+`;
+
+const SelectContent = styled(Select.Content)`
+	overflow: hidden;
+	background: ${(props) => props.theme.lightMode.colors.background};
+	border-radius: 8px;
+	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	z-index: 1002;
+`;
+
+const SelectViewport = styled(Select.Viewport)`
+	padding: 0.5rem;
+`;
+
+const SelectItem = styled(Select.Item)`
+	padding: 0.75rem 1rem;
+	border-radius: 6px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	outline: none;
+
+	&[data-highlighted] {
+		background: ${(props) => props.theme.lightMode.colors.muted};
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
+const SelectScrollButton = styled(Select.ScrollUpButton)`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 25px;
+	background: ${(props) => props.theme.lightMode.colors.background};
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	cursor: default;
+`;
+
+const currencies = [
+	{ value: "USD", label: "USD - US Dollar" },
+	{ value: "EUR", label: "EUR - Euro" },
+	{ value: "GBP", label: "GBP - British Pound" },
+	{ value: "CAD", label: "CAD - Canadian Dollar" },
+	{ value: "AUD", label: "AUD - Australian Dollar" },
+];
+
 interface GiftExchange {
 	id: string;
 	name: string;
+	magicWord: string | null;
 	spendingLimit: number;
 	currency: string;
 	status: string;
@@ -548,6 +646,12 @@ export default function GiftExchangeDetailPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [activeTab, setActiveTab] = useState<TabType>("invite");
 	const [editName, setEditName] = useState("");
+	const [editMagicWord, setEditMagicWord] = useState("");
+	const [isEditingMagicWord, setIsEditingMagicWord] = useState(false);
+	const [editSpendingLimit, setEditSpendingLimit] = useState(25);
+	const [editCurrency, setEditCurrency] = useState("USD");
+	const [isEditingSpendingLimit, setIsEditingSpendingLimit] = useState(false);
+	const [saving, setSaving] = useState(false);
 	const [qrModalOpen, setQrModalOpen] = useState(false);
 
 	// Generate QR code pattern (mock) - use useState to prevent regeneration on each render
@@ -580,6 +684,9 @@ export default function GiftExchangeDetailPage() {
 	useEffect(() => {
 		if (exchange) {
 			setEditName(exchange.name);
+			setEditMagicWord(exchange.magicWord || "");
+			setEditSpendingLimit(exchange.spendingLimit);
+			setEditCurrency(exchange.currency);
 		}
 	}, [exchange]);
 
@@ -599,6 +706,7 @@ export default function GiftExchangeDetailPage() {
 					setExchange({
 						id: id,
 						name: "Holiday Gift Exchange",
+						magicWord: "Snowflake",
 						spendingLimit: 50,
 						currency: "USD",
 						status: "active",
@@ -612,6 +720,7 @@ export default function GiftExchangeDetailPage() {
 				setExchange({
 					id: id,
 					name: "Holiday Gift Exchange",
+					magicWord: "Snowflake",
 					spendingLimit: 50,
 					currency: "USD",
 					status: "active",
@@ -625,6 +734,7 @@ export default function GiftExchangeDetailPage() {
 			setExchange({
 				id: id,
 				name: "Holiday Gift Exchange",
+				magicWord: "Snowflake",
 				spendingLimit: 50,
 				currency: "USD",
 				status: "active",
@@ -699,6 +809,77 @@ export default function GiftExchangeDetailPage() {
 		console.log("Deleting exchange:", exchange?.id);
 	};
 
+	const handleSaveMagicWord = async () => {
+		if (!editMagicWord.trim() || editMagicWord.trim().length < 3) {
+			setError("Magic word must be at least 3 characters long");
+			return;
+		}
+
+		try {
+			setSaving(true);
+			setError(null);
+
+			const response = await fetch(`/api/gift-exchanges/${id}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					magicWord: editMagicWord.trim(),
+				}),
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to update magic word");
+			}
+
+			const updated = await response.json();
+			setExchange(updated);
+			setIsEditingMagicWord(false);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleSaveSpendingLimit = async () => {
+		if (!editSpendingLimit || editSpendingLimit <= 0 || editSpendingLimit % 5 !== 0) {
+			setError("Spending limit must be a positive number in increments of 5");
+			return;
+		}
+
+		try {
+			setSaving(true);
+			setError(null);
+
+			const response = await fetch(`/api/gift-exchanges/${id}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					spendingLimit: editSpendingLimit,
+					currency: editCurrency,
+				}),
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to update spending limit");
+			}
+
+			const updated = await response.json();
+			setExchange(updated);
+			setIsEditingSpendingLimit(false);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred");
+		} finally {
+			setSaving(false);
+		}
+	};
+
 	return (
 		<DashboardLayout>
 			<BackButton onClick={() => router.push("/dashboard")}>
@@ -729,23 +910,74 @@ export default function GiftExchangeDetailPage() {
 				</TabsList>
 
 				<TabContent>
+					{error && (
+						<Card style={{ marginBottom: "2rem", borderLeft: "3px solid", borderLeftColor: "inherit" }}>
+							<p style={{ margin: 0, color: "inherit" }}>{error}</p>
+						</Card>
+					)}
 					{activeTab === "invite" && (
 						<>
 							<Section>
 								<div>
-									<SectionTitle>Invite via Link</SectionTitle>
-									<SectionDescription>Share this link to invite participants or view the link yourself to join the exchange!</SectionDescription>
+									<SectionTitle>Magic Word</SectionTitle>
+									<SectionDescription>
+										Exchangers will use this word along with your last name to join. Make sure to share
+										this with participants.
+									</SectionDescription>
 								</div>
 								<Card>
-									<InviteLinkContainer>
-										<LinkInputContainer>
-											<LinkInput type="text" value={mockInviteLink} readOnly />
-											<PrimaryButton onClick={handleCopyLink}>
-												<Copy />
-												Copy Link
+									{!isEditingMagicWord ? (
+										<>
+											<div style={{ marginBottom: "1rem" }}>
+												<div
+													style={{
+														display: "flex",
+														alignItems: "center",
+														gap: "0.5rem",
+														fontSize: "1.125rem",
+														fontWeight: 600,
+														color: "inherit",
+													}}
+												>
+													<Key style={{ width: "20px", height: "20px" }} />
+													<span>{exchange?.magicWord || "Not set"}</span>
+												</div>
+											</div>
+											<PrimaryButton onClick={() => setIsEditingMagicWord(true)}>
+												<Edit />
+												Edit Magic Word
 											</PrimaryButton>
-										</LinkInputContainer>
-									</InviteLinkContainer>
+										</>
+									) : (
+										<FormGroup>
+											<Label htmlFor="magic-word">Magic Word</Label>
+											<Input
+												id="magic-word"
+												type="text"
+												value={editMagicWord}
+												onChange={(e) => {
+													setEditMagicWord(e.target.value);
+													setError(null);
+												}}
+												placeholder="e.g., Snowflake"
+											/>
+											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+												<PrimaryButton onClick={handleSaveMagicWord} disabled={saving}>
+													{saving ? "Saving..." : "Save"}
+												</PrimaryButton>
+												<Button
+													onClick={() => {
+														setIsEditingMagicWord(false);
+														setEditMagicWord(exchange?.magicWord || "");
+														setError(null);
+													}}
+													disabled={saving}
+												>
+													Cancel
+												</Button>
+											</div>
+										</FormGroup>
+									)}
 								</Card>
 							</Section>
 
@@ -783,6 +1015,27 @@ export default function GiftExchangeDetailPage() {
 										</QrCodeLarge>
 									</QrModalContent>
 								</Dialog.Root>
+							</Section>
+
+							<Section>
+								<div>
+									<SectionTitle>Invite via Link</SectionTitle>
+									<SectionDescription>
+										Share this link to invite participants or view the link yourself to join the
+										exchange!
+									</SectionDescription>
+								</div>
+								<Card>
+									<InviteLinkContainer>
+										<LinkInputContainer>
+											<LinkInput type="text" value={mockInviteLink} readOnly />
+											<PrimaryButton onClick={handleCopyLink}>
+												<Copy />
+												Copy Link
+											</PrimaryButton>
+										</LinkInputContainer>
+									</InviteLinkContainer>
+								</Card>
 							</Section>
 						</>
 					)}
@@ -829,6 +1082,113 @@ export default function GiftExchangeDetailPage() {
 											Save Changes
 										</PrimaryButton>
 									</FormGroup>
+								</Card>
+							</Section>
+
+							<Section>
+								<div>
+									<SectionTitle>Edit Spending Limit</SectionTitle>
+									<SectionDescription>
+										Update the spending limit and currency for your gift exchange
+									</SectionDescription>
+								</div>
+								<Card>
+									{!isEditingSpendingLimit ? (
+										<>
+											<div style={{ marginBottom: "1rem" }}>
+												<div
+													style={{
+														fontSize: "1.125rem",
+														fontWeight: 600,
+														color: "inherit",
+														marginBottom: "0.5rem",
+													}}
+												>
+													{new Intl.NumberFormat("en-US", {
+														style: "currency",
+														currency: exchange?.currency || "USD",
+													}).format(exchange?.spendingLimit || 0)}
+												</div>
+											</div>
+											<PrimaryButton onClick={() => setIsEditingSpendingLimit(true)}>
+												<Edit />
+												Edit Spending Limit
+											</PrimaryButton>
+										</>
+									) : (
+										<FormGroup>
+											<Label htmlFor="spending-limit">Spending Limit</Label>
+											<Input
+												id="spending-limit"
+												type="number"
+												min="5"
+												step="5"
+												value={editSpendingLimit}
+												onChange={(e) => {
+													const value = parseInt(e.target.value, 10);
+													if (!isNaN(value) && value >= 5) {
+														setEditSpendingLimit(value);
+													} else if (e.target.value === "") {
+														setEditSpendingLimit(0);
+													}
+													setError(null);
+												}}
+											/>
+											<Label htmlFor="currency-select">Currency</Label>
+											<SelectRoot
+												value={editCurrency}
+												onValueChange={setEditCurrency}
+												defaultValue={editCurrency}
+											>
+												<SelectTrigger id="currency-select" aria-label="Currency">
+													<SelectValue />
+													<Select.Icon>
+														<ChevronDown />
+													</Select.Icon>
+												</SelectTrigger>
+												<Select.Portal>
+													<SelectContent position="popper" sideOffset={5}>
+														<Select.ScrollUpButton asChild>
+															<SelectScrollButton>
+																<ChevronUp />
+															</SelectScrollButton>
+														</Select.ScrollUpButton>
+														<SelectViewport>
+															{currencies.map((curr) => (
+																<SelectItem key={curr.value} value={curr.value}>
+																	<Select.ItemText>{curr.label}</Select.ItemText>
+																	<Select.ItemIndicator>
+																		<Check />
+																	</Select.ItemIndicator>
+																</SelectItem>
+															))}
+														</SelectViewport>
+														<Select.ScrollDownButton asChild>
+															<SelectScrollButton>
+																<ChevronDown />
+															</SelectScrollButton>
+														</Select.ScrollDownButton>
+													</SelectContent>
+												</Select.Portal>
+											</SelectRoot>
+											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+												<PrimaryButton onClick={handleSaveSpendingLimit} disabled={saving}>
+													{saving ? "Saving..." : "Save"}
+												</PrimaryButton>
+												<Button
+													onClick={() => {
+														setIsEditingSpendingLimit(false);
+														setEditSpendingLimit(exchange?.spendingLimit || 25);
+														setEditCurrency(exchange?.currency || "USD");
+														setError(null);
+													}}
+													disabled={saving}
+												>
+													Cancel
+												</Button>
+											</div>
+										</FormGroup>
+									)}
 								</Card>
 							</Section>
 
