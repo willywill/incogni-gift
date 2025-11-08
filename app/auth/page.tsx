@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { Mail, Sparkles } from "lucide-react";
@@ -248,7 +248,7 @@ const Message = styled.div<{ $type: "success" | "error" }>`
       : props.theme.lightMode.colors.border};
 `;
 
-export default function AuthPage() {
+const AuthPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -413,5 +413,23 @@ export default function AuthPage() {
       </AuthCard>
     </AuthContainer>
   );
-}
+};
+
+const AuthPage = () => {
+  return (
+    <Suspense fallback={
+      <AuthContainer>
+        <AuthCard>
+          <AuthHeader>
+            <AuthTitle>Loading...</AuthTitle>
+          </AuthHeader>
+        </AuthCard>
+      </AuthContainer>
+    }>
+      <AuthPageContent />
+    </Suspense>
+  );
+};
+
+export default AuthPage;
 
