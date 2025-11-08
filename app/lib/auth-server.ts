@@ -117,6 +117,7 @@ export const auth = betterAuth({
 	},
 	plugins: [
 		magicLink({
+			expiresIn: 300, // 5 minutes in seconds
 			sendMagicLink: async ({ email, url, token }) => {
 				if (isAuthBypassEnabled()) {
 					return;
@@ -170,6 +171,7 @@ export async function createBypassSession() {
 			email: mockUserEmail,
 			firstName: mockUserFirstName,
 			lastName: mockUserLastName,
+			name: `${mockUserFirstName} ${mockUserLastName}`, // Set name as full name
 			emailVerified: true,
 		});
 	} else {

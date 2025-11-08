@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { Mail, Sparkles } from "lucide-react";
 import { authClient } from "../lib/auth";
@@ -243,19 +243,49 @@ const Message = styled.div<{ $type: "success" | "error" }>`
       : props.theme.lightMode.colors.foreground};
   border: 1px solid
     ${(props) =>
-      props.$type === "success"
-        ? props.theme.lightMode.colors.border
-        : props.theme.lightMode.colors.border};
+    props.$type === "success"
+      ? props.theme.lightMode.colors.border
+      : props.theme.lightMode.colors.border};
 `;
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
   );
+
+  // Handle error parameters from URL (e.g., expired/invalid magic links)
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+
+    if (error) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (errorDescription) {
+        // Better Auth provides error descriptions
+        if (errorDescription.includes("expired") || errorDescription.includes("Expired")) {
+          errorMessage = "This magic link has expired. Magic links are valid for 5 minutes. Please request a new one.";
+        } else if (errorDescription.includes("invalid") || errorDescription.includes("Invalid")) {
+          errorMessage = "This magic link is invalid or has already been used. Please request a new one.";
+        } else {
+          errorMessage = errorDescription;
+        }
+      } else {
+        // Fallback for generic error parameter
+        errorMessage = "This magic link is invalid or has expired. Please request a new one.";
+      }
+
+      setMessage({
+        type: "error",
+        text: errorMessage,
+      });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -270,7 +300,7 @@ export default function AuthPage() {
     try {
       const { error } = await authClient.signIn.magicLink({
         email,
-        callbackURL: "/dashboard",
+        callbackURL: "/onboarding/complete-profile",
         errorCallbackURL: "/auth?error=1",
       });
 
@@ -368,7 +398,9 @@ export default function AuthPage() {
             </InputWrapper>
           </FormGroup>
 
-          {message && <Message $type={message.type}>{message.text}</Message>}
+          {message && (
+            <Message $type={message.type}>{message.text}</Message>
+          )}
 
           <SubmitButton type="submit" disabled={loading || !email.trim()}>
             {loading

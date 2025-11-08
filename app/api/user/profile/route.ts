@@ -83,6 +83,7 @@ export async function PATCH(request: Request) {
 			.set({
 				firstName: firstName.trim(),
 				lastName: lastName.trim(),
+				name: `${firstName.trim()} ${lastName.trim()}`.trim(), // Set name as full name
 				updatedAt: new Date(),
 			})
 			.where(eq(user.id, session.user.id))

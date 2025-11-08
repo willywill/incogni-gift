@@ -9,6 +9,7 @@ import {
 // Better Auth required tables
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
+	name: text("name"), // Better Auth expects this field, but we use firstName/lastName
 	firstName: text("first_name"),
 	lastName: text("last_name"),
 	email: text("email").notNull().unique(),
