@@ -42,13 +42,9 @@ function createMagicLinkEmail(magicLinkUrl: string): { html: string; text: strin
 									<td align="center">
 										<a href="${magicLinkUrl}" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">Sign In</a>
 									</td>
-								</tr>
-							</table>
-							<p style="margin: 0 0 24px 0; font-size: 13px; line-height: 1.6; color: #737373; word-break: break-all;">
-								Or copy and paste this link into your browser:<br>
-								<a href="${magicLinkUrl}" style="color: #000000; text-decoration: underline;">${magicLinkUrl}</a>
-							</p>
-							<p style="margin: 0; padding: 16px; background-color: #f5f5f5; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #525252;">
+						</tr>
+					</table>
+					<p style="margin: 0; padding: 16px; background-color: #f5f5f5; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #525252;">
 								<strong style="color: #000000;">Security note:</strong> If you didn't request this link, you can safely ignore this email. This link will expire in 5 minutes for your security.
 							</p>
 						</td>
@@ -73,9 +69,7 @@ function createMagicLinkEmail(magicLinkUrl: string): { html: string; text: strin
 
 Sign in to your account
 
-Click the link below to securely sign in to your IncogniGift account. This link will expire in 5 minutes.
-
-${magicLinkUrl}
+You've received a magic link to securely sign in to your IncogniGift account. Please use the link in the HTML version of this email. This link will expire in 5 minutes.
 
 Security note: If you didn't request this link, you can safely ignore this email. This link will expire in 5 minutes for your security.
 
