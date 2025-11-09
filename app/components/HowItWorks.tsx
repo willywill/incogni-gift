@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "styled-components";
-import { UserPlus, Users, Lightbulb, Gift } from "lucide-react";
+import { UserPlus, Users, Heart, Gift } from "lucide-react";
 
 const HowItWorksSection = styled.section`
   max-width: 1200px;
@@ -132,23 +132,23 @@ const ConnectorLine = styled.div`
 const steps = [
   {
     icon: UserPlus,
-    title: "Create Your Profile",
-    description: "Sign up and share your interests, hobbies, and preferences to help us find the perfect match.",
+    title: "Create & Manage",
+    description: "Create a gift exchange with just an email—no password needed. Manage everything, set spending limits, and control when to start and end.",
   },
   {
     icon: Users,
-    title: "Get Matched Anonymously",
-    description: "Our algorithm pairs you with someone special while keeping both identities completely secret.",
+    title: "Easy Participation",
+    description: "Participants join conveniently without needing an account. They simply add their interests and preferences.",
   },
   {
-    icon: Lightbulb,
-    title: "Receive Smart Suggestions",
-    description: "Get personalized gift ideas based on your match's interests without revealing who they are.",
+    icon: Heart,
+    title: "Smart Anonymous Matching",
+    description: "Participants are matched anonymously using our smart matching system with your defined spending limits.",
   },
   {
     icon: Gift,
     title: "Exchange & Reveal",
-    description: "Send the perfect gift and choose when to reveal your identity for that magical moment.",
+    description: "When the exchange ends, it's revealed who should receive the gifts. The surprise moment everyone's been waiting for!",
   },
 ];
 
@@ -157,7 +157,7 @@ export default function HowItWorks() {
     <HowItWorksSection id="how-it-works">
       <SectionTitle>How It Works</SectionTitle>
       <SectionSubtitle>
-        Four simple steps to create unforgettable gift exchange experiences
+        Simple and seamless gift exchange from creation to reveal
       </SectionSubtitle>
       <StepsContainer>
         {steps.map((step, index) => (

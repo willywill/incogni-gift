@@ -114,11 +114,6 @@ const features = [
     description: "Get paired with the perfect gift exchange partner while keeping identities completely secret until the big reveal.",
   },
   {
-    icon: Gift,
-    title: "Smart Gift Suggestions",
-    description: "Receive personalized gift recommendations based on interests and preferences without revealing personal details.",
-  },
-  {
     icon: Shield,
     title: "Zero Personal Info Exposed",
     description: "Your privacy is our priority. Share interests without sharing identity. Your match partner never sees your personal information.",
