@@ -127,6 +127,7 @@ export const auth = betterAuth({
 						"Failed to send email via Mailgun. " +
 						"Please check your MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM environment variables."
 					);
+					console.error(mailgunError);
 					(mailgunError as any).originalError = error;
 					throw mailgunError;
 				}
