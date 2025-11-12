@@ -31,6 +31,7 @@ export default function RootLayout({
 		<html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
 			<body>
 				<StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+				<Analytics />
 			</body>
 		</html>
 	);
