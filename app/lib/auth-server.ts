@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
-import nodemailer from "nodemailer";
+import Mailgun from "mailgun.js";
+import FormData from "form-data";
 import { db } from "@/app/db";
 import { user, session } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
@@ -80,32 +81,18 @@ Anonymous gift pairing made simple.`;
 	return { html, text };
 }
 
-function createTransporter() {
-	if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-		throw new Error("SMTP configuration is missing. Please set SMTP_HOST, SMTP_USER, and SMTP_PASSWORD environment variables.");
+function createMailgunClient() {
+	if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
+		throw new Error("Mailgun configuration is missing. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.");
 	}
 
-	const port = parseInt(process.env.SMTP_PORT || "587", 10);
-	const useSSL = port === 465;
+	const mailgun = new Mailgun(FormData);
+	const client = mailgun.client({
+		username: "api",
+		key: process.env.MAILGUN_API_KEY,
+	});
 
-	const config: any = {
-		host: process.env.SMTP_HOST,
-		port: port,
-		secure: useSSL,
-		auth: {
-			user: process.env.SMTP_USER,
-			pass: process.env.SMTP_PASSWORD,
-		},
-	};
-
-	if (!useSSL && port === 587) {
-		config.requireTLS = true;
-		config.tls = {
-			rejectUnauthorized: false,
-		};
-	}
-
-	return nodemailer.createTransport(config);
+	return { client, domain: process.env.MAILGUN_DOMAIN };
 }
 
 export const auth = betterAuth({
@@ -124,11 +111,11 @@ export const auth = betterAuth({
 				}
 				
 				try {
-					const transporter = createTransporter();
+					const { client, domain } = createMailgunClient();
 					const { html, text } = createMagicLinkEmail(url);
-					const from = process.env.SMTP_FROM || "IncogniGift <[email protected]>";
+					const from = process.env.MAILGUN_FROM || "IncogniGift <[email protected]>";
 
-					await transporter.sendMail({
+					await client.messages.create(domain, {
 						from: from,
 						to: email,
 						subject: "Sign in to IncogniGift",
@@ -136,17 +123,12 @@ export const auth = betterAuth({
 						text: text,
 					});
 				} catch (error) {
-					if ((error as any)?.code === "EAUTH" || (error as any)?.responseCode === 535) {
-						const authError = new Error(
-							"SMTP authentication failed. Check your SMTP credentials. " +
-							"For Gmail, use an App Password instead of your regular password. " +
-							"Make sure SMTP_USER and SMTP_PASSWORD are correct in your .env file."
-						);
-						(authError as any).originalError = error;
-						throw authError;
-					}
-
-					throw error;
+					const mailgunError = new Error(
+						"Failed to send email via Mailgun. " +
+						"Please check your MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM environment variables."
+					);
+					(mailgunError as any).originalError = error;
+					throw mailgunError;
 				}
 			},
 		}),
