@@ -32,15 +32,40 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+	const timestamp = new Date().toISOString();
+	const url = new URL(request.url);
+	const isMagicLinkRequest = url.pathname.includes("/magic-link") || url.pathname.includes("/sign-in/magic-link");
+	
+	if (isMagicLinkRequest) {
+		console.log(`[Magic Link API] [${timestamp}] Received magic link request - Path: ${url.pathname}`);
+	}
+	
 	if (isAuthBypassEnabled()) {
-		const url = new URL(request.url);
-		if (url.pathname.includes("/magic-link") || url.pathname.includes("/sign-in/magic-link")) {
-			return new Response(JSON.stringify({ success: true }), {
+		if (isMagicLinkRequest) {
+			console.log(`[Magic Link API] [${timestamp}] Auth bypass enabled, returning success response`);
+			const response = new Response(JSON.stringify({ success: true }), {
 				status: 200,
 				headers: { "Content-Type": "application/json" },
 			});
+			console.log(`[Magic Link API] [${timestamp}] Returning bypass response with status: ${response.status}`);
+			return response;
 		}
 	}
 	
-	return await auth.handler(request);
+	try {
+		const response = await auth.handler(request);
+		if (isMagicLinkRequest) {
+			console.log(`[Magic Link API] [${timestamp}] Magic link request processed - Response status: ${response.status}`);
+		}
+		return response;
+	} catch (error) {
+		const errorTimestamp = new Date().toISOString();
+		const errorDetails = {
+			message: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+			name: error instanceof Error ? error.name : undefined,
+		};
+		console.error(`[Magic Link API] [${errorTimestamp}] Error processing magic link request:`, errorDetails);
+		throw error;
+	}
 }
