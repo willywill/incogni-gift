@@ -52,7 +52,7 @@ export async function GET(
 			);
 		}
 
-		if (exchange.status !== "started") {
+		if (exchange.status !== "started" && exchange.status !== "ended") {
 			return NextResponse.json(
 				{ error: "Exchange has not started yet" },
 				{ status: 400 }
@@ -101,7 +101,21 @@ export async function GET(
 			.where(eq(wishlistItems.participantId, assignment.assignedToParticipantId))
 			.orderBy(wishlistItems.createdAt);
 
-		// Return anonymous wishlist items (no name revealed)
+		// If exchange is ended, get the matched participant's name
+		let matchedParticipantName: string | null = null;
+		if (exchange.status === "ended") {
+			const [matchedParticipant] = await db
+				.select()
+				.from(participants)
+				.where(eq(participants.id, assignment.assignedToParticipantId))
+				.limit(1);
+
+			if (matchedParticipant) {
+				matchedParticipantName = `${matchedParticipant.firstName} ${matchedParticipant.lastName || ""}`.trim();
+			}
+		}
+
+		// Return wishlist items (name revealed only if exchange is ended)
 		return NextResponse.json({
 			wishlistItems: wishlistItemsList.map((item) => ({
 				id: item.id,
@@ -115,6 +129,8 @@ export async function GET(
 				name: exchange.name,
 				spendingLimit: exchange.spendingLimit,
 				currency: exchange.currency,
+				status: exchange.status,
+				matchedParticipantName: matchedParticipantName,
 			},
 		});
 	} catch (error) {

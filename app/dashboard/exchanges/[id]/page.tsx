@@ -24,6 +24,7 @@ import {
 	ChevronUp,
 	Check,
 	Rocket,
+	CheckCircle,
 } from "lucide-react";
 
 const PageHeader = styled.div`
@@ -862,6 +863,36 @@ const StartExchangeButton = styled(Button)`
 	}
 `;
 
+const EndedNotice = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1rem 1.5rem;
+	background: ${(props) => props.theme.lightMode.colors.muted};
+	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+	border-radius: 8px;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+
+	@media (max-width: 768px) {
+		width: 100%;
+		margin-top: 1rem;
+	}
+`;
+
+const EndedNoticeTitle = styled.div`
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+`;
+
+const EndedNoticeDate = styled.div`
+	font-size: 0.875rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+`;
+
 const StartExchangeModalOverlay = styled(Dialog.Overlay)`
 	position: fixed;
 	inset: 0;
@@ -1074,6 +1105,7 @@ export default function GiftExchangeDetailPage() {
 	const [copySuccess, setCopySuccess] = useState(false);
 	const [qrCodeGenerated, setQrCodeGenerated] = useState(false);
 	const [startExchangeModalOpen, setStartExchangeModalOpen] = useState(false);
+	const [endExchangeModalOpen, setEndExchangeModalOpen] = useState(false);
 	const [removingParticipantId, setRemovingParticipantId] = useState<string | null>(null);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
@@ -1106,22 +1138,26 @@ export default function GiftExchangeDetailPage() {
 			setEditMagicWord(exchange.magicWord || "");
 			setEditSpendingLimit(exchange.spendingLimit);
 			setEditCurrency(exchange.currency);
-			
-			// If exchange is started and we're on the invite tab, switch to activity tab
-			if (exchange.status === "started" && activeTab === "invite") {
+
+			// If exchange is started or ended and we're on the invite tab, switch to activity tab
+			if ((exchange.status === "started" || exchange.status === "ended") && activeTab === "invite") {
 				setActiveTab("activity");
 			}
-			// If exchange is started and we're editing spending limit, close the edit form
-			if (exchange.status === "started" && isEditingSpendingLimit) {
+			// If exchange is started or ended and we're editing spending limit, close the edit form
+			if ((exchange.status === "started" || exchange.status === "ended") && isEditingSpendingLimit) {
 				setIsEditingSpendingLimit(false);
 			}
+			// If exchange is ended and we're editing magic word, close the edit form
+			if (exchange.status === "ended" && isEditingMagicWord) {
+				setIsEditingMagicWord(false);
+			}
 		}
-	}, [exchange, activeTab, isEditingSpendingLimit]);
+	}, [exchange, activeTab, isEditingSpendingLimit, isEditingMagicWord]);
 
 	useEffect(() => {
 		if (exchange && activeTab === "activity") {
 			fetchParticipants();
-			if (exchange.status === "started") {
+			if (exchange.status === "started" || exchange.status === "ended") {
 				fetchAssignments();
 			}
 		}
@@ -1508,6 +1544,46 @@ export default function GiftExchangeDetailPage() {
 		}
 	};
 
+	const handleEndExchange = async () => {
+		setEndExchangeModalOpen(true);
+	};
+
+	const handleConfirmEndExchange = async () => {
+		if (!exchange) {
+			return;
+		}
+
+		try {
+			setLoading(true);
+			setError(null);
+
+			const response = await fetch(`/api/gift-exchanges/${exchange.id}/end`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to end exchange");
+			}
+
+			const result = await response.json();
+
+			// Refresh exchange data
+			await fetchExchange();
+
+			// Close modal
+			setEndExchangeModalOpen(false);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred while ending the exchange");
+			console.error("Error ending exchange:", err);
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const handleRemoveParticipant = (participantId: string) => {
 		const participant = participants.find((p) => p.id === participantId);
 		if (participant) {
@@ -1561,11 +1637,34 @@ export default function GiftExchangeDetailPage() {
 						Start Exchange
 					</StartExchangeButton>
 				)}
+				{exchange.status === "started" && (
+					<StartExchangeButton onClick={handleEndExchange}>
+						<CheckCircle />
+						End Exchange
+					</StartExchangeButton>
+				)}
+				{exchange.status === "ended" && (
+					<EndedNotice>
+						<EndedNoticeTitle>
+							<CheckCircle style={{ width: "18px", height: "18px" }} />
+							Exchange Ended
+						</EndedNoticeTitle>
+						<EndedNoticeDate>
+							Ended on {new Intl.DateTimeFormat("en-US", {
+								month: "long",
+								day: "numeric",
+								year: "numeric",
+								hour: "numeric",
+								minute: "2-digit",
+							}).format(new Date(exchange.updatedAt))}
+						</EndedNoticeDate>
+					</EndedNotice>
+				)}
 			</PageHeader>
 
 			<TabsContainer>
 				<TabsList>
-					{exchange?.status !== "started" && (
+					{exchange?.status === "active" && (
 						<TabButton $active={activeTab === "invite"} onClick={() => setActiveTab("invite")}>
 							<LinkIcon />
 							Invite
@@ -1615,7 +1714,10 @@ export default function GiftExchangeDetailPage() {
 													<span>{exchange?.magicWord || "Not set"}</span>
 												</div>
 											</div>
-											<PrimaryButton onClick={() => setIsEditingMagicWord(true)}>
+											<PrimaryButton
+												onClick={() => setIsEditingMagicWord(true)}
+												disabled={exchange?.status === "ended"}
+											>
 												<Edit />
 												Edit Magic Word
 											</PrimaryButton>
@@ -1623,9 +1725,9 @@ export default function GiftExchangeDetailPage() {
 									) : (
 										<FormGroup>
 											<Label htmlFor="magic-word">Magic Word</Label>
-											<div style={{ 
-												fontSize: "0.8125rem", 
-												color: "inherit", 
+											<div style={{
+												fontSize: "0.8125rem",
+												color: "inherit",
 												opacity: 0.7,
 												marginTop: "-0.5rem",
 												marginBottom: "0.5rem"
@@ -1641,6 +1743,7 @@ export default function GiftExchangeDetailPage() {
 													setMagicWordError(null);
 												}}
 												placeholder="e.g., Snowflake"
+												disabled={exchange?.status === "ended"}
 											/>
 											{magicWordError && (
 												<div style={{
@@ -1657,7 +1760,10 @@ export default function GiftExchangeDetailPage() {
 												</div>
 											)}
 											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-												<PrimaryButton onClick={handleSaveMagicWord} disabled={saving}>
+												<PrimaryButton
+													onClick={handleSaveMagicWord}
+													disabled={saving || exchange?.status === "ended"}
+												>
 													{saving ? "Saving..." : "Save"}
 												</PrimaryButton>
 												<Button
@@ -1771,7 +1877,7 @@ export default function GiftExchangeDetailPage() {
 
 					{activeTab === "activity" && (
 						<>
-							{exchange?.status === "started" && (
+							{(exchange?.status === "started" || exchange?.status === "ended") && (
 								<Section>
 									<div>
 										<SectionTitle>Gift Pairings</SectionTitle>
@@ -1783,11 +1889,11 @@ export default function GiftExchangeDetailPage() {
 										) : assignmentsList.length > 0 ? (
 											<ParticipantList>
 												{assignmentsList.map((assignment) => (
-													<div key={assignment.id} style={{ 
-														padding: "1rem", 
-														border: "1px solid", 
-														borderColor: "inherit", 
-														borderRadius: "8px", 
+													<div key={assignment.id} style={{
+														padding: "1rem",
+														border: "1px solid",
+														borderColor: "inherit",
+														borderRadius: "8px",
 														marginBottom: "0.75rem",
 														display: "flex",
 														alignItems: "center",
@@ -1876,8 +1982,12 @@ export default function GiftExchangeDetailPage() {
 												setError(null);
 											}}
 											placeholder="Enter exchange name"
+											disabled={exchange?.status === "ended"}
 										/>
-										<PrimaryButton onClick={handleSaveName} disabled={saving}>
+										<PrimaryButton
+											onClick={handleSaveName}
+											disabled={saving || exchange?.status === "ended"}
+										>
 											<Edit />
 											{saving ? "Saving..." : "Save Changes"}
 										</PrimaryButton>
@@ -1889,7 +1999,7 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Edit Spending Limit</SectionTitle>
 									<SectionDescription>
-										{exchange?.status === "started"
+										{exchange?.status === "started" || exchange?.status === "ended"
 											? "Spending limit cannot be changed after the exchange has started."
 											: "Update the spending limit and currency for your gift exchange"}
 									</SectionDescription>
@@ -1912,7 +2022,7 @@ export default function GiftExchangeDetailPage() {
 													}).format(exchange?.spendingLimit || 0)}
 												</div>
 											</div>
-											{exchange?.status === "started" && (
+											{(exchange?.status === "started" || exchange?.status === "ended") && (
 												<div style={{
 													padding: "0.875rem 1rem",
 													borderRadius: "8px",
@@ -1927,7 +2037,7 @@ export default function GiftExchangeDetailPage() {
 											)}
 											<PrimaryButton
 												onClick={() => setIsEditingSpendingLimit(true)}
-												disabled={exchange?.status === "started"}
+												disabled={exchange?.status === "started" || exchange?.status === "ended"}
 											>
 												<Edit />
 												Edit Spending Limit
@@ -1935,7 +2045,7 @@ export default function GiftExchangeDetailPage() {
 										</>
 									) : (
 										<FormGroup>
-											{exchange?.status === "started" && (
+											{(exchange?.status === "started" || exchange?.status === "ended") && (
 												<div style={{
 													padding: "0.875rem 1rem",
 													borderRadius: "8px",
@@ -1964,14 +2074,14 @@ export default function GiftExchangeDetailPage() {
 													}
 													setError(null);
 												}}
-												disabled={exchange?.status === "started"}
+												disabled={exchange?.status === "started" || exchange?.status === "ended"}
 											/>
 											<Label htmlFor="currency-select">Currency</Label>
 											<SelectRoot
 												value={editCurrency}
 												onValueChange={setEditCurrency}
 												defaultValue={editCurrency}
-												disabled={exchange?.status === "started"}
+												disabled={exchange?.status === "started" || exchange?.status === "ended"}
 											>
 												<SelectTrigger id="currency-select" aria-label="Currency">
 													<SelectValue />
@@ -2007,7 +2117,7 @@ export default function GiftExchangeDetailPage() {
 											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
 												<PrimaryButton
 													onClick={handleSaveSpendingLimit}
-													disabled={saving || exchange?.status === "started"}
+													disabled={saving || exchange?.status === "started" || exchange?.status === "ended"}
 												>
 													{saving ? "Saving..." : "Save"}
 												</PrimaryButton>
@@ -2188,6 +2298,48 @@ export default function GiftExchangeDetailPage() {
 								Start Exchange
 							</PrimaryButton>
 						)}
+					</StartExchangeButtonContainer>
+				</StartExchangeModalContent>
+			</Dialog.Root>
+
+			<Dialog.Root open={endExchangeModalOpen} onOpenChange={setEndExchangeModalOpen}>
+				<StartExchangeModalOverlay />
+				<StartExchangeModalContent>
+					<StartExchangeModalCloseButton asChild>
+						<button>
+							<X />
+						</button>
+					</StartExchangeModalCloseButton>
+					<StartExchangeModalTitle>End Exchange?</StartExchangeModalTitle>
+
+					<StartExchangeText>
+						Are you sure you want to end this exchange? Once ended, participants will be able to see who their match is and can give their gifts.
+					</StartExchangeText>
+
+					<StartExchangeSection>
+						<StartExchangeSectionTitle>What Will Happen</StartExchangeSectionTitle>
+						<StartExchangeText>
+							When you end the exchange:
+						</StartExchangeText>
+						<StartExchangeText style={{ marginLeft: "1rem" }}>
+							• The name of their matched participant will be revealed
+						</StartExchangeText>
+						<StartExchangeText style={{ marginLeft: "1rem" }}>
+							• They can continue to view their match&apos;s gift ideas
+						</StartExchangeText>
+						<StartExchangeText style={{ marginLeft: "1rem" }}>
+							• They will be able to give their gifts to their match
+						</StartExchangeText>
+					</StartExchangeSection>
+
+					<StartExchangeButtonContainer>
+						<Button onClick={() => setEndExchangeModalOpen(false)}>
+							Cancel
+						</Button>
+						<PrimaryButton onClick={handleConfirmEndExchange}>
+							<CheckCircle />
+							End Exchange
+						</PrimaryButton>
 					</StartExchangeButtonContainer>
 				</StartExchangeModalContent>
 			</Dialog.Root>

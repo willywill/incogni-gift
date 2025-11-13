@@ -146,7 +146,7 @@ export async function GET(request: Request) {
 			);
 		}
 
-		// Get all active and started gift exchanges for this user
+		// Get all active, started, and ended gift exchanges for this user
 		const exchanges = await db
 			.select()
 			.from(giftExchanges)
@@ -155,7 +155,8 @@ export async function GET(request: Request) {
 					eq(giftExchanges.createdBy, session.user.id),
 					or(
 						eq(giftExchanges.status, "active"),
-						eq(giftExchanges.status, "started")
+						eq(giftExchanges.status, "started"),
+						eq(giftExchanges.status, "ended")
 					)
 				)
 			)

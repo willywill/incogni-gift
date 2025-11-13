@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { Gift, Check, Home } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
 import ExchangeStepper from "@/app/components/ExchangeStepper";
+import Confetti from "react-confetti";
 
 const MatchContainer = styled.div`
   min-height: 100vh;
@@ -292,6 +293,48 @@ const ErrorMessage = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+const CelebrationBanner = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: ${(props) => props.theme.lightMode.colors.muted};
+  border-radius: 12px;
+  border: 2px solid ${(props) => props.theme.lightMode.colors.foreground};
+`;
+
+const CelebrationTitle = styled.h2`
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
+`;
+
+const CelebrationText = styled.p`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.125rem;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0.5rem 0;
+  line-height: 1.6;
+`;
+
+const MatchedName = styled.span`
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+`;
+
+const ConfettiWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+`;
+
 interface WishlistItem {
   id: string;
   description: string;
@@ -312,11 +355,14 @@ export default function MatchPage() {
   const [spendingLimit, setSpendingLimit] = useState<number | null>(null);
   const [currency, setCurrency] = useState<string>("USD");
   const [exchangeName, setExchangeName] = useState<string | null>(null);
+  const [exchangeStatus, setExchangeStatus] = useState<string | null>(null);
+  const [matchedParticipantName, setMatchedParticipantName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visitorId, setVisitorId] = useState<string | null>(null);
   const [participantName, setParticipantName] = useState<string | null>(null);
   const [completingItemId, setCompletingItemId] = useState<string | null>(null);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (!exchangeId || !participantId) {
@@ -346,6 +392,8 @@ export default function MatchPage() {
         setSpendingLimit(data.exchangeInfo?.spendingLimit || null);
         setCurrency(data.exchangeInfo?.currency || "USD");
         setExchangeName(data.exchangeInfo?.name || null);
+        setExchangeStatus(data.exchangeInfo?.status || null);
+        setMatchedParticipantName(data.exchangeInfo?.matchedParticipantName || null);
 
         if (participantResponse.ok) {
           const participantData = await participantResponse.json();
@@ -370,6 +418,20 @@ export default function MatchPage() {
         fetchMatchData(null);
       });
   }, [exchangeId, participantId, router]);
+
+  // Set window size for confetti
+  useEffect(() => {
+    const updateWindowSize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateWindowSize();
+    window.addEventListener("resize", updateWindowSize);
+    return () => window.removeEventListener("resize", updateWindowSize);
+  }, []);
 
   const handleToggleComplete = async (itemId: string, currentCompleted: boolean) => {
     if (completingItemId || !participantId) return;
@@ -428,8 +490,22 @@ export default function MatchPage() {
     );
   }
 
+  const isEnded = exchangeStatus === "ended";
+
   return (
     <MatchContainer>
+      {isEnded && windowSize.width > 0 && windowSize.height > 0 && (
+        <ConfettiWrapper>
+          <Confetti
+            width={windowSize.width}
+            height={windowSize.height}
+            colors={["#000000", "#FFFFFF"]}
+            numberOfPieces={200}
+            recycle={false}
+            gravity={0.3}
+          />
+        </ConfettiWrapper>
+      )}
       <HeaderSection>
         {exchangeName && (
           <>
@@ -451,15 +527,40 @@ export default function MatchPage() {
       <ContentWrapper>
         <MatchCard>
           <ExchangeStepper currentStep={4} />
-          <MatchHeader>
-            <MatchTitle>
-              <Gift />
-              Your Gift Match
-            </MatchTitle>
-            <MatchSubtitle>
-              Here are some gift ideas your match suggested you get for them. Let the gifting begin!
-            </MatchSubtitle>
-          </MatchHeader>
+          {isEnded ? (
+            <>
+              <CelebrationBanner>
+                <CelebrationTitle>🎉 Exchange Complete! 🎉</CelebrationTitle>
+                <CelebrationText>
+                  The gift exchange has ended!
+                </CelebrationText>
+                {matchedParticipantName && (
+                  <CelebrationText>
+                    You can now give your gifts to <MatchedName>{matchedParticipantName}</MatchedName>
+                  </CelebrationText>
+                )}
+              </CelebrationBanner>
+              <MatchHeader>
+                <MatchTitle>
+                  <Gift />
+                  Gift Ideas for {matchedParticipantName || "Your Match"}
+                </MatchTitle>
+                <MatchSubtitle>
+                  Here are the gift ideas {matchedParticipantName || "your match"} suggested. Time to spread some joy!
+                </MatchSubtitle>
+              </MatchHeader>
+            </>
+          ) : (
+            <MatchHeader>
+              <MatchTitle>
+                <Gift />
+                Your Gift Match
+              </MatchTitle>
+              <MatchSubtitle>
+                Here are some gift ideas your match suggested you get for them. Let the gifting begin!
+              </MatchSubtitle>
+            </MatchHeader>
+          )}
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
 
