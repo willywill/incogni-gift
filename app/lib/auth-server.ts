@@ -12,15 +12,6 @@ export function isAuthBypassEnabled(): boolean {
 	return process.env.NEXT_PUBLIC_SKIP_AUTH === "true";
 }
 
-function sanitizeEmail(email: string): string {
-	const [localPart, domain] = email.split("@");
-	if (!domain) return email; // Invalid email format, return as-is
-	const sanitizedLocal = localPart.length > 3 
-		? `${localPart.substring(0, 3)}***` 
-		: "***";
-	return `${sanitizedLocal}@${domain}`;
-}
-
 function createMagicLinkEmail(magicLinkUrl: string): { html: string; text: string } {
 	const html = `
 <!DOCTYPE html>
@@ -91,25 +82,17 @@ Anonymous gift pairing made simple.`;
 }
 
 function createMailgunClient() {
-	const apiKey = process.env.MAILGUN_API_KEY;
-	const domain = process.env.MAILGUN_DOMAIN;
-	const hasFrom = !!process.env.MAILGUN_FROM;
-	
-	console.log(`[Magic Link] Environment check - MAILGUN_API_KEY: ${apiKey ? "present" : "missing"}, MAILGUN_DOMAIN: ${domain ? "present" : "missing"}, MAILGUN_FROM: ${hasFrom ? "present" : "missing"}`);
-	
-	if (!apiKey || !domain) {
-		const error = new Error("Mailgun configuration is missing. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.");
-		console.error(`[Magic Link] Configuration error:`, error.message);
-		throw error;
+	if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
+		throw new Error("Mailgun configuration is missing. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.");
 	}
 
 	const mailgun = new Mailgun(FormData);
 	const client = mailgun.client({
 		username: "api",
-		key: apiKey,
+		key: process.env.MAILGUN_API_KEY,
 	});
 
-	return { client, domain };
+	return { client, domain: process.env.MAILGUN_DOMAIN };
 }
 
 export const auth = betterAuth({
@@ -123,58 +106,28 @@ export const auth = betterAuth({
 		magicLink({
 			expiresIn: 300, // 5 minutes in seconds
 			sendMagicLink: async ({ email, url, token }) => {
-				const sanitizedEmail = sanitizeEmail(email);
-				const timestamp = new Date().toISOString();
-				
-				console.log(`[Magic Link] [${timestamp}] Starting magic link send for ${sanitizedEmail}`);
-				
 				if (isAuthBypassEnabled()) {
-					console.log(`[Magic Link] [${timestamp}] Auth bypass enabled, skipping email send for ${sanitizedEmail}`);
 					return;
 				}
 				
 				try {
-					console.log(`[Magic Link] [${timestamp}] Creating Mailgun client for ${sanitizedEmail}`);
 					const { client, domain } = createMailgunClient();
-					
-					console.log(`[Magic Link] [${timestamp}] Generating email content for ${sanitizedEmail}`);
 					const { html, text } = createMagicLinkEmail(url);
 					const from = process.env.MAILGUN_FROM || "IncogniGift <[email protected]>";
-					
-					console.log(`[Magic Link] [${timestamp}] Sending email via Mailgun - From: ${from}, To: ${sanitizedEmail}, Domain: ${domain}`);
 
-					const mailgunResponse = await client.messages.create(domain, {
+					await client.messages.create(domain, {
 						from: from,
 						to: email,
 						subject: "Sign in to IncogniGift",
 						html: html,
 						text: text,
 					});
-					
-					console.log(`[Magic Link] [${timestamp}] Successfully sent magic link email to ${sanitizedEmail}. Mailgun response:`, {
-						id: mailgunResponse?.id,
-						message: mailgunResponse?.message,
-					});
 				} catch (error) {
-					const timestamp = new Date().toISOString();
-					const errorDetails = {
-						message: error instanceof Error ? error.message : String(error),
-						stack: error instanceof Error ? error.stack : undefined,
-						name: error instanceof Error ? error.name : undefined,
-						...(error && typeof error === "object" && "response" in error 
-							? { mailgunResponse: error.response } 
-							: {}),
-						...(error && typeof error === "object" && "status" in error 
-							? { status: error.status } 
-							: {}),
-					};
-					
-					console.error(`[Magic Link] [${timestamp}] Failed to send magic link email to ${sanitizedEmail}:`, errorDetails);
-					
 					const mailgunError = new Error(
 						"Failed to send email via Mailgun. " +
 						"Please check your MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM environment variables."
 					);
+					console.error(mailgunError);
 					(mailgunError as any).originalError = error;
 					throw mailgunError;
 				}
