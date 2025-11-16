@@ -356,7 +356,9 @@ export default function MatchPage() {
   const [currency, setCurrency] = useState<string>("USD");
   const [exchangeName, setExchangeName] = useState<string | null>(null);
   const [exchangeStatus, setExchangeStatus] = useState<string | null>(null);
+  const [showRecipientNames, setShowRecipientNames] = useState<boolean>(false);
   const [matchedParticipantName, setMatchedParticipantName] = useState<string | null>(null);
+  const [buyingForYouName, setBuyingForYouName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visitorId, setVisitorId] = useState<string | null>(null);
@@ -393,7 +395,9 @@ export default function MatchPage() {
         setCurrency(data.exchangeInfo?.currency || "USD");
         setExchangeName(data.exchangeInfo?.name || null);
         setExchangeStatus(data.exchangeInfo?.status || null);
+        setShowRecipientNames(data.exchangeInfo?.showRecipientNames || false);
         setMatchedParticipantName(data.exchangeInfo?.matchedParticipantName || null);
+        setBuyingForYouName(data.exchangeInfo?.buyingForYouName || null);
 
         if (participantResponse.ok) {
           const participantData = await participantResponse.json();
@@ -490,8 +494,6 @@ export default function MatchPage() {
     );
   }
 
-  const isEnded = exchangeStatus === "ended";
-
   return (
     <MatchContainer>
       {isEnded && windowSize.width > 0 && windowSize.height > 0 && (
@@ -539,6 +541,11 @@ export default function MatchPage() {
                     You can now give your gifts to <MatchedName>{matchedParticipantName}</MatchedName>
                   </CelebrationText>
                 )}
+                {buyingForYouName && (
+                  <CelebrationText>
+                    <MatchedName>{buyingForYouName}</MatchedName> was buying gifts for you!
+                  </CelebrationText>
+                )}
               </CelebrationBanner>
               <MatchHeader>
                 <MatchTitle>
@@ -550,6 +557,16 @@ export default function MatchPage() {
                 </MatchSubtitle>
               </MatchHeader>
             </>
+          ) : showRecipient && matchedParticipantName ? (
+            <MatchHeader>
+              <MatchTitle>
+                <Gift />
+                Gift Ideas for {matchedParticipantName}
+              </MatchTitle>
+              <MatchSubtitle>
+                You&apos;re buying gifts for {matchedParticipantName}! Here are some gift ideas they suggested. Let the gifting begin!
+              </MatchSubtitle>
+            </MatchHeader>
           ) : (
             <MatchHeader>
               <MatchTitle>

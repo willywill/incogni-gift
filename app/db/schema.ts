@@ -63,6 +63,7 @@ export const giftExchanges = pgTable("gift_exchanges", {
 	spendingLimit: integer("spending_limit").notNull(),
 	currency: text("currency").notNull().default("USD"),
 	status: text("status").notNull().default("active"),
+	showRecipientNames: boolean("show_recipient_names").notNull().default(false),
 	createdBy: text("created_by")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),

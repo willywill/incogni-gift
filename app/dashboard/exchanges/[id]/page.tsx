@@ -1060,6 +1060,7 @@ interface GiftExchange {
 	spendingLimit: number;
 	currency: string;
 	status: string;
+	showRecipientNames: boolean;
 	createdBy: string;
 	createdAt: string;
 	updatedAt: string;
@@ -1093,6 +1094,7 @@ export default function GiftExchangeDetailPage() {
 	const [editSpendingLimit, setEditSpendingLimit] = useState(25);
 	const [editCurrency, setEditCurrency] = useState("USD");
 	const [isEditingSpendingLimit, setIsEditingSpendingLimit] = useState(false);
+	const [showRecipientNames, setShowRecipientNames] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [qrModalOpen, setQrModalOpen] = useState(false);
 	const [participants, setParticipants] = useState<Participant[]>([]);
@@ -1138,6 +1140,7 @@ export default function GiftExchangeDetailPage() {
 			setEditMagicWord(exchange.magicWord || "");
 			setEditSpendingLimit(exchange.spendingLimit);
 			setEditCurrency(exchange.currency);
+			setShowRecipientNames(exchange.showRecipientNames);
 
 			// If exchange is started or ended and we're on the invite tab, switch to activity tab
 			if ((exchange.status === "started" || exchange.status === "ended") && activeTab === "invite") {
@@ -1255,6 +1258,7 @@ export default function GiftExchangeDetailPage() {
 						spendingLimit: 50,
 						currency: "USD",
 						status: "active",
+						showRecipientNames: false,
 						createdBy: session?.user?.id || "",
 						createdAt: new Date().toISOString(),
 						updatedAt: new Date().toISOString(),
@@ -1269,6 +1273,7 @@ export default function GiftExchangeDetailPage() {
 					spendingLimit: 50,
 					currency: "USD",
 					status: "active",
+					showRecipientNames: false,
 					createdBy: session?.user?.id || "",
 					createdAt: new Date().toISOString(),
 					updatedAt: new Date().toISOString(),
@@ -1283,6 +1288,7 @@ export default function GiftExchangeDetailPage() {
 				spendingLimit: 50,
 				currency: "USD",
 				status: "active",
+				showRecipientNames: false,
 				createdBy: session?.user?.id || "",
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
@@ -1487,6 +1493,36 @@ export default function GiftExchangeDetailPage() {
 			const updated = await response.json();
 			setExchange(updated);
 			setIsEditingSpendingLimit(false);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleToggleShowRecipientNames = async () => {
+		try {
+			setSaving(true);
+			setError(null);
+
+			const response = await fetch(`/api/gift-exchanges/${id}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					showRecipientNames: !showRecipientNames,
+				}),
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to update anonymity settings");
+			}
+
+			const updated = await response.json();
+			setExchange(updated);
+			setShowRecipientNames(updated.showRecipientNames);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "An error occurred");
 		} finally {
@@ -2135,6 +2171,78 @@ export default function GiftExchangeDetailPage() {
 											</div>
 										</FormGroup>
 									)}
+								</Card>
+							</Section>
+
+							<Section>
+								<div>
+									<SectionTitle>Anonymity Settings</SectionTitle>
+									<SectionDescription>
+										{exchange?.status === "started" || exchange?.status === "ended"
+											? "Anonymity settings cannot be changed after the exchange has started."
+											: "Control whether participants can see who they're buying gifts for before the exchange ends."}
+									</SectionDescription>
+								</div>
+								<Card>
+									{(exchange?.status === "started" || exchange?.status === "ended") && (
+										<div style={{
+											padding: "0.875rem 1rem",
+											borderRadius: "8px",
+											background: "rgba(0, 0, 0, 0.05)",
+											marginBottom: "1rem",
+											fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
+											fontSize: "0.875rem",
+											color: "inherit",
+										}}>
+											Anonymity settings cannot be changed after the exchange has started.
+										</div>
+									)}
+									<div style={{ 
+										display: "flex", 
+										alignItems: "flex-start", 
+										gap: "0.75rem",
+										padding: "1rem",
+										border: "1px solid",
+										borderColor: "inherit",
+										borderRadius: "8px",
+										cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer",
+										transition: "all 0.2s ease",
+										background: showRecipientNames ? "rgba(0, 0, 0, 0.03)" : "transparent",
+										opacity: (exchange?.status === "started" || exchange?.status === "ended") ? 0.5 : 1
+									}}
+									onClick={() => {
+										if (exchange?.status !== "started" && exchange?.status !== "ended" && !saving) {
+											handleToggleShowRecipientNames();
+										}
+									}}
+									>
+										<input
+											type="checkbox"
+											id="showRecipientNames"
+											checked={showRecipientNames}
+											onChange={handleToggleShowRecipientNames}
+											disabled={exchange?.status === "started" || exchange?.status === "ended" || saving}
+											style={{
+												width: "20px",
+												height: "20px",
+												cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer",
+												marginTop: "2px"
+											}}
+										/>
+										<div style={{ flex: 1, cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer" }}>
+											<Label htmlFor="showRecipientNames" style={{ cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer", display: "block", marginBottom: "0.25rem" }}>
+												Show recipient names to participants
+											</Label>
+											<div style={{
+												fontSize: "0.875rem",
+												color: "inherit",
+												opacity: 0.7,
+												lineHeight: "1.5"
+											}}>
+												When enabled, participants will see the name of who they&apos;re buying gifts for as soon as the exchange starts. When the exchange ends, they&apos;ll also see who was buying gifts for them.
+											</div>
+										</div>
+									</div>
 								</Card>
 							</Section>
 

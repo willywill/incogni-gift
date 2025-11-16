@@ -110,8 +110,8 @@ const FeatureDescription = styled.p`
 const features = [
   {
     icon: Lock,
-    title: "Anonymous Matching",
-    description: "Get paired with the perfect gift exchange partner while keeping identities completely secret until the big reveal.",
+    title: "Flexible Anonymity",
+    description: "By default, identities stay secret until the big reveal. Creators can optionally enable a mode where participants see who they're buying gifts for right away.",
   },
   {
     icon: Shield,
@@ -125,8 +125,8 @@ const features = [
   },
   {
     icon: Eye,
-    title: "Optional Reveal",
-    description: "Choose when and how to reveal your identity to your gift exchange partner after the perfect gift is delivered.",
+    title: "Controlled Reveal",
+    description: "Exchange creators have full control over anonymity settings. Choose whether to keep identities secret or show recipient names immediately after matching.",
   },
 ];
 
