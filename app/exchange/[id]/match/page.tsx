@@ -366,6 +366,8 @@ export default function MatchPage() {
   const [completingItemId, setCompletingItemId] = useState<string | null>(null);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
+  const isEnded = exchangeStatus === "ended";
+
   useEffect(() => {
     if (!exchangeId || !participantId) {
       router.push("/join");
@@ -466,11 +468,11 @@ export default function MatchPage() {
         items.map((item) =>
           item.id === itemId
             ? {
-                ...item,
-                completed: updatedItem.completed,
-                completedBy: updatedItem.completedBy,
-                completedAt: updatedItem.completedAt,
-              }
+              ...item,
+              completed: updatedItem.completed,
+              completedBy: updatedItem.completedBy,
+              completedAt: updatedItem.completedAt,
+            }
             : item
         )
       );
@@ -557,7 +559,7 @@ export default function MatchPage() {
                 </MatchSubtitle>
               </MatchHeader>
             </>
-          ) : showRecipient && matchedParticipantName ? (
+          ) : showRecipientNames && matchedParticipantName ? (
             <MatchHeader>
               <MatchTitle>
                 <Gift />
