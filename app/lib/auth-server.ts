@@ -95,6 +95,17 @@ function createMailgunClient() {
 	return { client, domain: process.env.MAILGUN_DOMAIN };
 }
 
+// Build trusted origins array from environment variables
+function getTrustedOrigins(): string[] {
+	const origins: string[] = [];
+
+	if (process.env.NEXT_PUBLIC_BASE_URL) {
+		origins.push(process.env.NEXT_PUBLIC_BASE_URL);
+	}
+
+	return origins;
+}
+
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
@@ -109,7 +120,7 @@ export const auth = betterAuth({
 				if (isAuthBypassEnabled()) {
 					return;
 				}
-				
+
 				try {
 					const { client, domain } = createMailgunClient();
 					const { html, text } = createMagicLinkEmail(url);
@@ -137,15 +148,16 @@ export const auth = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET || "change-me-in-production",
 	baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 	basePath: "/api/auth",
+	trustedOrigins: getTrustedOrigins(),
 });
 
 export async function createBypassSession() {
 	const mockUserEmail = "[email protected]";
 	const mockUserFirstName = "Mock";
 	const mockUserLastName = "User";
-	
+
 	let mockUserRecord = await db.select().from(user).where(eq(user.email, mockUserEmail)).limit(1);
-	
+
 	let userId: string;
 	if (mockUserRecord.length === 0) {
 		userId = crypto.randomUUID();
@@ -159,22 +171,22 @@ export async function createBypassSession() {
 		});
 	} else {
 		userId = mockUserRecord[0].id;
-		
+
 		const existingSessions = await db.select().from(session).where(eq(session.userId, userId));
 		const validSession = existingSessions.find(s => s.expiresAt > new Date());
-		
+
 		if (validSession) {
 			const userData = mockUserRecord[0];
 			return buildSessionResponse(userData, validSession);
 		}
 	}
-	
+
 	const sessionToken = crypto.randomBytes(32).toString("hex");
 	const sessionId = crypto.randomUUID();
 	const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-	
+
 	await db.delete(session).where(eq(session.userId, userId));
-	
+
 	await db.insert(session).values({
 		id: sessionId,
 		token: sessionToken,
@@ -183,17 +195,17 @@ export async function createBypassSession() {
 		ipAddress: null,
 		userAgent: null,
 	});
-	
+
 	const userRecord = await db.select().from(user).where(eq(user.id, userId)).limit(1);
 	const userData = userRecord[0];
-	
+
 	const newSession = {
 		id: sessionId,
 		token: sessionToken,
 		userId: userId,
 		expiresAt: expiresAt,
 	};
-	
+
 	return buildSessionResponse(userData, newSession);
 }
 
@@ -207,8 +219,8 @@ function buildSessionResponse(userData: any, sessionData: any) {
 				firstName: userData.firstName,
 				lastName: userData.lastName,
 				emailVerified: userData.emailVerified,
-				createdAt: userData.createdAt instanceof Date 
-					? userData.createdAt.toISOString() 
+				createdAt: userData.createdAt instanceof Date
+					? userData.createdAt.toISOString()
 					: new Date(userData.createdAt).toISOString(),
 				updatedAt: userData.updatedAt instanceof Date
 					? userData.updatedAt.toISOString()
@@ -231,7 +243,7 @@ export async function getSession(params: { headers: Headers | Record<string, str
 		const { response } = await createBypassSession();
 		return response;
 	}
-	
+
 	return await auth.api.getSession(params);
 }
 

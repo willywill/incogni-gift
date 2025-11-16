@@ -1,7 +1,4 @@
-import { auth, createBypassSession, isAuthBypassEnabled, getSession } from "@/app/lib/auth-server";
-import { db } from "@/app/db";
-import { session } from "@/app/db/schema";
-import { eq } from "drizzle-orm";
+import { auth, createBypassSession, isAuthBypassEnabled } from "@/app/lib/auth-server";
 
 export async function GET(request: Request) {
 	if (isAuthBypassEnabled()) {
@@ -42,28 +39,6 @@ export async function POST(request: Request) {
 				status: 200,
 				headers: { "Content-Type": "application/json" },
 			});
-		}
-	}
-
-	// Handle magic link sign-in requests: if user is already signed in, sign them out first
-	const url = new URL(request.url);
-	if (url.pathname.includes("/magic-link") || url.pathname.includes("/sign-in/magic-link")) {
-		try {
-			// Check if there's an existing session
-			const existingSession = await getSession({ headers: request.headers });
-
-			if (existingSession?.user?.id) {
-				// User is already signed in - sign them out first to avoid "Invalid origin" errors
-				try {
-					await db.delete(session).where(eq(session.userId, existingSession.user.id));
-				} catch (signOutError) {
-					// Log but continue - the magic link request will still proceed
-					console.error("Error signing out existing session before magic link:", signOutError);
-				}
-			}
-		} catch (error) {
-			// If session check fails, continue anyway - better-auth will handle it
-			console.error("Error checking existing session:", error);
 		}
 	}
 
