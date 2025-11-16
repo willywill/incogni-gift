@@ -8,6 +8,10 @@ import { extractUrls } from "@/app/lib/link-preview-client";
 
 const MAX_ITEMS_PER_PARTICIPANT = 10;
 
+// Increase timeout limit for this route to allow time for link preview generation
+// This is especially important in production serverless environments
+export const maxDuration = 15; // 15 seconds
+
 export async function POST(
 	request: Request,
 	{ params }: { params: Promise<{ id: string }> }

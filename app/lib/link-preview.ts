@@ -11,6 +11,24 @@ import { extractUrls } from "./link-preview-client";
 const resolve4 = promisify(dns.resolve4);
 const resolve6 = promisify(dns.resolve6);
 
+// DNS resolution timeout in milliseconds
+const DNS_TIMEOUT_MS = 3000; // 3 seconds
+
+/**
+ * Wrap DNS resolution with a timeout to prevent hanging
+ */
+async function resolveWithTimeout<T>(
+	resolveFn: () => Promise<T>,
+	timeoutMs: number
+): Promise<T> {
+	return Promise.race([
+		resolveFn(),
+		new Promise<T>((_, reject) =>
+			setTimeout(() => reject(new Error("DNS resolution timeout")), timeoutMs)
+		),
+	]);
+}
+
 // List of blocked URL shortener domains
 const BLOCKED_SHORTENER_DOMAINS = [
 	"bit.ly",
@@ -65,8 +83,12 @@ async function resolveDNSHost(url: string): Promise<string> {
 
 		// Resolve hostname to IP addresses
 		// Try IPv4 first, then IPv6
+		// Both wrapped with timeout to prevent hanging
 		try {
-			const addresses = await resolve4(hostname);
+			const addresses = await resolveWithTimeout(
+				() => resolve4(hostname),
+				DNS_TIMEOUT_MS
+			);
 			if (addresses && addresses.length > 0) {
 				// Return the original URL - the resolution itself prevents SSRF
 				// by ensuring the hostname resolves to a valid IP
@@ -77,7 +99,10 @@ async function resolveDNSHost(url: string): Promise<string> {
 		}
 
 		try {
-			const addresses = await resolve6(hostname);
+			const addresses = await resolveWithTimeout(
+				() => resolve6(hostname),
+				DNS_TIMEOUT_MS
+			);
 			if (addresses && addresses.length > 0) {
 				return url;
 			}
@@ -118,7 +143,9 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 		await resolveDNSHost(url);
 
 		// Generate preview using link-preview-js
+		// Set timeout to 5 seconds to prevent HTTP requests from hanging
 		const preview = await getLinkPreview(url, {
+			timeout: 5000, // 5 seconds timeout for HTTP requests
 			resolveDNSHost: async (urlToResolve: string) => {
 				await resolveDNSHost(urlToResolve);
 				return urlToResolve;
