@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Gift, Check, Home, Clock } from "lucide-react";
+import { Gift, Check, Home, Clock, Edit } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
 import ExchangeStepper from "@/app/components/ExchangeStepper";
 import Confetti from "react-confetti";
@@ -431,6 +431,18 @@ const NotStartedText = styled.p`
   line-height: 1.6;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  width: 100%;
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+  }
+`;
+
 const PrimaryButton = styled.button`
   display: flex;
   align-items: center;
@@ -446,11 +458,44 @@ const PrimaryButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 2rem;
   width: 100%;
 
   &:hover {
     opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const SecondaryButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+
+  &:hover {
+    background: ${(props) => props.theme.lightMode.colors.muted};
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -685,10 +730,16 @@ export default function MatchPage() {
                   </NotStartedText>
                 )}
               </NotStartedBanner>
-              <PrimaryButton onClick={() => router.push("/")}>
-                <Home />
-                Go Home
-              </PrimaryButton>
+              <ButtonContainer>
+                <SecondaryButton onClick={() => router.push(`/exchange/${exchangeId}/wishlist?participantId=${participantId}`)}>
+                  <Edit />
+                  Edit Suggested Items
+                </SecondaryButton>
+                <PrimaryButton onClick={() => router.push("/")}>
+                  <Home />
+                  Go Home
+                </PrimaryButton>
+              </ButtonContainer>
             </>
           ) : isEnded ? (
             <>
