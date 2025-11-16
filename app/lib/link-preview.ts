@@ -92,6 +92,23 @@ async function resolveDNSHost(url: string): Promise<string> {
 }
 
 /**
+ * Type guard to check if preview has images, title, and description
+ */
+function hasPreviewData(
+	preview: Awaited<ReturnType<typeof getLinkPreview>>
+): preview is Awaited<ReturnType<typeof getLinkPreview>> & {
+	images: string[];
+	title: string;
+	description: string | undefined;
+} {
+	return (
+		'images' in preview &&
+		'title' in preview &&
+		'description' in preview
+	);
+}
+
+/**
  * Generate link preview for a URL
  * Returns preview data or null if generation fails
  */
@@ -107,6 +124,16 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 				return urlToResolve;
 			},
 		});
+
+		// Validate that preview has the required properties (images, title, description)
+		if (!hasPreviewData(preview)) {
+			return {
+				url,
+				previewImage: null,
+				previewTitle: null,
+				previewDescription: null,
+			};
+		}
 
 		return {
 			url,
