@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
 		// Parse request body
 		const body = await request.json();
-		const { name, spendingLimit, currency, magicWord } = body;
+		const { name, spendingLimit, currency, magicWord, showRecipientNames } = body;
 
 		// Validate inputs
 		if (!name || typeof name !== "string" || name.trim().length === 0) {
@@ -105,6 +105,7 @@ export async function POST(request: Request) {
 				spendingLimit,
 				currency,
 				status: "active",
+				showRecipientNames: showRecipientNames ?? false,
 				createdBy: session.user.id,
 				createdAt: now,
 				updatedAt: now,
@@ -119,6 +120,7 @@ export async function POST(request: Request) {
 				spendingLimit: newExchange.spendingLimit,
 				currency: newExchange.currency,
 				status: newExchange.status,
+				showRecipientNames: newExchange.showRecipientNames,
 				createdBy: newExchange.createdBy,
 				createdAt: newExchange.createdAt,
 				updatedAt: newExchange.updatedAt,
@@ -170,6 +172,7 @@ export async function GET(request: Request) {
 				spendingLimit: exchange.spendingLimit,
 				currency: exchange.currency,
 				status: exchange.status,
+				showRecipientNames: exchange.showRecipientNames,
 				createdBy: exchange.createdBy,
 				createdAt: exchange.createdAt,
 				updatedAt: exchange.updatedAt,

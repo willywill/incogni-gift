@@ -356,13 +356,17 @@ export default function MatchPage() {
   const [currency, setCurrency] = useState<string>("USD");
   const [exchangeName, setExchangeName] = useState<string | null>(null);
   const [exchangeStatus, setExchangeStatus] = useState<string | null>(null);
+  const [showRecipientNames, setShowRecipientNames] = useState<boolean>(false);
   const [matchedParticipantName, setMatchedParticipantName] = useState<string | null>(null);
+  const [buyingForYouName, setBuyingForYouName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visitorId, setVisitorId] = useState<string | null>(null);
   const [participantName, setParticipantName] = useState<string | null>(null);
   const [completingItemId, setCompletingItemId] = useState<string | null>(null);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  const isEnded = exchangeStatus === "ended";
 
   useEffect(() => {
     if (!exchangeId || !participantId) {
@@ -393,7 +397,9 @@ export default function MatchPage() {
         setCurrency(data.exchangeInfo?.currency || "USD");
         setExchangeName(data.exchangeInfo?.name || null);
         setExchangeStatus(data.exchangeInfo?.status || null);
+        setShowRecipientNames(data.exchangeInfo?.showRecipientNames || false);
         setMatchedParticipantName(data.exchangeInfo?.matchedParticipantName || null);
+        setBuyingForYouName(data.exchangeInfo?.buyingForYouName || null);
 
         if (participantResponse.ok) {
           const participantData = await participantResponse.json();
@@ -462,11 +468,11 @@ export default function MatchPage() {
         items.map((item) =>
           item.id === itemId
             ? {
-                ...item,
-                completed: updatedItem.completed,
-                completedBy: updatedItem.completedBy,
-                completedAt: updatedItem.completedAt,
-              }
+              ...item,
+              completed: updatedItem.completed,
+              completedBy: updatedItem.completedBy,
+              completedAt: updatedItem.completedAt,
+            }
             : item
         )
       );
@@ -489,8 +495,6 @@ export default function MatchPage() {
       </MatchContainer>
     );
   }
-
-  const isEnded = exchangeStatus === "ended";
 
   return (
     <MatchContainer>
@@ -539,6 +543,11 @@ export default function MatchPage() {
                     You can now give your gifts to <MatchedName>{matchedParticipantName}</MatchedName>
                   </CelebrationText>
                 )}
+                {buyingForYouName && (
+                  <CelebrationText>
+                    <MatchedName>{buyingForYouName}</MatchedName> was buying gifts for you!
+                  </CelebrationText>
+                )}
               </CelebrationBanner>
               <MatchHeader>
                 <MatchTitle>
@@ -550,6 +559,16 @@ export default function MatchPage() {
                 </MatchSubtitle>
               </MatchHeader>
             </>
+          ) : showRecipientNames && matchedParticipantName ? (
+            <MatchHeader>
+              <MatchTitle>
+                <Gift />
+                Gift Ideas for {matchedParticipantName}
+              </MatchTitle>
+              <MatchSubtitle>
+                You&apos;re buying gifts for {matchedParticipantName}! Here are some gift ideas they suggested. Let the gifting begin!
+              </MatchSubtitle>
+            </MatchHeader>
           ) : (
             <MatchHeader>
               <MatchTitle>

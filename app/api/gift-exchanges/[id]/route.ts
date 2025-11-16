@@ -32,6 +32,7 @@ export async function GET(
 			spendingLimit: exchange.spendingLimit,
 			currency: exchange.currency,
 			status: exchange.status,
+			showRecipientNames: exchange.showRecipientNames,
 			createdBy: exchange.createdBy,
 			createdAt: exchange.createdAt,
 			updatedAt: exchange.updatedAt,
@@ -64,7 +65,7 @@ export async function PATCH(
 
 		// Parse request body
 		const body = await request.json();
-		const { name, spendingLimit, currency, magicWord } = body;
+		const { name, spendingLimit, currency, magicWord, showRecipientNames } = body;
 
 		// First, verify the user owns this exchange
 		const [existingExchange] = await db
@@ -91,6 +92,7 @@ export async function PATCH(
 			spendingLimit?: number;
 			currency?: string;
 			magicWord?: string;
+			showRecipientNames?: boolean;
 			updatedAt: Date;
 		} = {
 			updatedAt: new Date(),
@@ -179,6 +181,23 @@ export async function PATCH(
 			updates.magicWord = normalizedMagicWord;
 		}
 
+		if (showRecipientNames !== undefined) {
+			if (typeof showRecipientNames !== "boolean") {
+				return NextResponse.json(
+					{ error: "showRecipientNames must be a boolean" },
+					{ status: 400 }
+				);
+			}
+			// Only allow toggling if exchange is NOT started or ended
+			if (existingExchange.status === "started" || existingExchange.status === "ended") {
+				return NextResponse.json(
+					{ error: "Cannot change recipient name visibility after exchange has started" },
+					{ status: 400 }
+				);
+			}
+			updates.showRecipientNames = showRecipientNames;
+		}
+
 		// Update the exchange
 		const [updatedExchange] = await db
 			.update(giftExchanges)
@@ -193,6 +212,7 @@ export async function PATCH(
 			spendingLimit: updatedExchange.spendingLimit,
 			currency: updatedExchange.currency,
 			status: updatedExchange.status,
+			showRecipientNames: updatedExchange.showRecipientNames,
 			createdBy: updatedExchange.createdBy,
 			createdAt: updatedExchange.createdAt,
 			updatedAt: updatedExchange.updatedAt,

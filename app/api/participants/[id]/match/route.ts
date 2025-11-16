@@ -101,9 +101,9 @@ export async function GET(
 			.where(eq(wishlistItems.participantId, assignment.assignedToParticipantId))
 			.orderBy(wishlistItems.createdAt);
 
-		// If exchange is ended, get the matched participant's name
+		// If exchange is ended OR showRecipientNames is enabled, get the matched participant's name
 		let matchedParticipantName: string | null = null;
-		if (exchange.status === "ended") {
+		if (exchange.status === "ended" || exchange.showRecipientNames) {
 			const [matchedParticipant] = await db
 				.select()
 				.from(participants)
@@ -115,7 +115,34 @@ export async function GET(
 			}
 		}
 
-		// Return wishlist items (name revealed only if exchange is ended)
+		// If exchange is ended AND showRecipientNames is enabled, also get who is buying for this participant
+		let buyingForYouName: string | null = null;
+		if (exchange.status === "ended" && exchange.showRecipientNames) {
+			const [reverseAssignment] = await db
+				.select()
+				.from(assignments)
+				.where(
+					and(
+						eq(assignments.exchangeId, participant.exchangeId),
+						eq(assignments.assignedToParticipantId, participantId)
+					)
+				)
+				.limit(1);
+
+			if (reverseAssignment) {
+				const [buyingParticipant] = await db
+					.select()
+					.from(participants)
+					.where(eq(participants.id, reverseAssignment.participantId))
+					.limit(1);
+
+				if (buyingParticipant) {
+					buyingForYouName = `${buyingParticipant.firstName} ${buyingParticipant.lastName || ""}`.trim();
+				}
+			}
+		}
+
+		// Return wishlist items (name revealed if exchange is ended OR showRecipientNames is enabled)
 		return NextResponse.json({
 			wishlistItems: wishlistItemsList.map((item) => ({
 				id: item.id,
@@ -130,7 +157,9 @@ export async function GET(
 				spendingLimit: exchange.spendingLimit,
 				currency: exchange.currency,
 				status: exchange.status,
+				showRecipientNames: exchange.showRecipientNames,
 				matchedParticipantName: matchedParticipantName,
+				buyingForYouName: buyingForYouName,
 			},
 		});
 	} catch (error) {

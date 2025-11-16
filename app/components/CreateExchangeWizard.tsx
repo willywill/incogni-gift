@@ -359,10 +359,11 @@ export default function CreateExchangeWizard({
 	const [spendingLimit, setSpendingLimit] = useState(25);
 	const [currency, setCurrency] = useState("USD");
 	const [magicWord, setMagicWord] = useState("");
+	const [showRecipientNames, setShowRecipientNames] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const totalSteps = 3;
+	const totalSteps = 4;
 	const progress = (step / totalSteps) * 100;
 
 	const handleNext = () => {
@@ -380,6 +381,9 @@ export default function CreateExchangeWizard({
 			}
 			setError(null);
 			setStep(3);
+		} else if (step === 3) {
+			setError(null);
+			setStep(4);
 		}
 	};
 
@@ -415,6 +419,7 @@ export default function CreateExchangeWizard({
 					spendingLimit,
 					currency,
 					magicWord: magicWord.trim(),
+					showRecipientNames,
 				}),
 			});
 
@@ -435,6 +440,7 @@ export default function CreateExchangeWizard({
 			setSpendingLimit(25);
 			setCurrency("USD");
 			setMagicWord("");
+			setShowRecipientNames(false);
 			setError(null);
 			onOpenChange(false);
 			onSuccess();
@@ -453,6 +459,7 @@ export default function CreateExchangeWizard({
 			setSpendingLimit(25);
 			setCurrency("USD");
 			setMagicWord("");
+			setShowRecipientNames(false);
 			setError(null);
 		}
 		onOpenChange(newOpen);
@@ -600,6 +607,59 @@ export default function CreateExchangeWizard({
 									}}
 									autoFocus
 								/>
+								</FormGroup>
+							</>
+						)}
+
+						{step === 4 && (
+							<>
+								<div>
+									<StepTitle>Anonymity Settings</StepTitle>
+									<StepDescription>
+										By default, participants won&apos;t see who they&apos;re buying gifts for until the exchange ends. Enable this option to show recipient names immediately after the exchange starts.
+									</StepDescription>
+								</div>
+								<FormGroup>
+									<div style={{ 
+										display: "flex", 
+										alignItems: "flex-start", 
+										gap: "0.75rem",
+										padding: "1rem",
+										border: "1px solid",
+										borderColor: "inherit",
+										borderRadius: "8px",
+										cursor: "pointer",
+										transition: "all 0.2s ease",
+										background: showRecipientNames ? "rgba(0, 0, 0, 0.03)" : "transparent"
+									}}
+									onClick={() => setShowRecipientNames(!showRecipientNames)}
+									>
+										<input
+											type="checkbox"
+											id="showRecipientNames"
+											checked={showRecipientNames}
+											onChange={(e) => setShowRecipientNames(e.target.checked)}
+											style={{
+												width: "20px",
+												height: "20px",
+												cursor: "pointer",
+												marginTop: "2px"
+											}}
+										/>
+										<div style={{ flex: 1, cursor: "pointer" }}>
+											<Label htmlFor="showRecipientNames" style={{ cursor: "pointer", display: "block", marginBottom: "0.25rem" }}>
+												Show recipient names to participants
+											</Label>
+											<div style={{
+												fontSize: "0.875rem",
+												color: "inherit",
+												opacity: 0.7,
+												lineHeight: "1.5"
+											}}>
+												When enabled, participants will see the name of who they&apos;re buying gifts for as soon as the exchange starts. When the exchange ends, they&apos;ll also see who was buying gifts for them.
+											</div>
+										</div>
+									</div>
 								</FormGroup>
 							</>
 						)}
