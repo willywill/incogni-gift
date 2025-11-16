@@ -11,6 +11,10 @@ import { extractUrls } from "./link-preview-client";
 const resolve4 = promisify(dns.resolve4);
 const resolve6 = promisify(dns.resolve6);
 
+// Temporarily disable DNS resolution for Vercel serverless compatibility
+// Set to true to re-enable DNS resolution (SSRF protection)
+const ENABLE_DNS_RESOLUTION = false;
+
 // DNS resolution timeout in milliseconds
 const DNS_TIMEOUT_MS = 3000; // 3 seconds
 
@@ -77,6 +81,13 @@ export function isShortenerUrl(url: string): boolean {
  * This function resolves the hostname to an IP address before making requests
  */
 async function resolveDNSHost(url: string): Promise<string> {
+	// Skip DNS resolution if disabled (for serverless environments like Vercel)
+	if (!ENABLE_DNS_RESOLUTION) {
+		// Still validate URL format
+		new URL(url);
+		return url;
+	}
+
 	try {
 		const urlObj = new URL(url);
 		const hostname = urlObj.hostname;
@@ -139,18 +150,24 @@ function hasPreviewData(
  */
 export async function generateLinkPreview(url: string): Promise<LinkPreviewData | null> {
 	try {
-		// Resolve DNS first to prevent SSRF
+		// Resolve DNS first to prevent SSRF (if enabled)
 		await resolveDNSHost(url);
 
 		// Generate preview using link-preview-js
 		// Set timeout to 5 seconds to prevent HTTP requests from hanging
-		const preview = await getLinkPreview(url, {
+		const previewOptions: Parameters<typeof getLinkPreview>[1] = {
 			timeout: 5000, // 5 seconds timeout for HTTP requests
-			resolveDNSHost: async (urlToResolve: string) => {
+		};
+
+		// Only add resolveDNSHost option if DNS resolution is enabled
+		if (ENABLE_DNS_RESOLUTION) {
+			previewOptions.resolveDNSHost = async (urlToResolve: string) => {
 				await resolveDNSHost(urlToResolve);
 				return urlToResolve;
-			},
-		});
+			};
+		}
+
+		const preview = await getLinkPreview(url, previewOptions);
 
 		// Validate that preview has the required properties (images, title, description)
 		if (!hasPreviewData(preview)) {
