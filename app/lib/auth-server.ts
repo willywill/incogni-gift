@@ -99,8 +99,11 @@ function createMailgunClient() {
 function getTrustedOrigins(): string[] {
 	const origins: string[] = [];
 
-	if (process.env.NEXT_PUBLIC_BASE_URL) {
-		origins.push(process.env.NEXT_PUBLIC_BASE_URL);
+	if (process.env.BETTER_AUTH_URL) {
+		origins.push(process.env.BETTER_AUTH_URL);
+		// Add the www version of the URL
+		origins.push(process.env.BETTER_AUTH_URL
+			.replace("https://", "https://www."));
 	}
 
 	return origins;
