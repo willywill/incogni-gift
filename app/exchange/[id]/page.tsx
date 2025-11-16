@@ -182,40 +182,37 @@ const ErrorMessage = styled.div`
   border: 1px solid ${(props) => props.theme.lightMode.colors.errorBorder || "#fecaca"};
 `;
 
-const BottomNav = styled.nav`
-  width: 100%;
-  background: ${(props) => props.theme.lightMode.colors.background};
-  border-top: 1px solid ${(props) => props.theme.lightMode.colors.border};
-  padding: 2rem 1rem;
-  margin-top: 3rem;
+const PrimaryButton = styled.button`
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-`;
-
-const HomeButton = styled.button`
-  display: flex;
-  align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  padding: 1rem 2rem;
+  border: none;
   border-radius: 8px;
-  background: ${(props) => props.theme.lightMode.colors.background};
-  color: ${(props) => props.theme.lightMode.colors.foreground};
+  background: ${(props) => props.theme.lightMode.colors.foreground};
+  color: ${(props) => props.theme.lightMode.colors.background};
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-top: 2rem;
+  width: 100%;
 
   &:hover {
-    background: ${(props) => props.theme.lightMode.colors.muted};
-    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 `;
 
@@ -320,15 +317,13 @@ export default function ExchangePage() {
               </InfoValue>
             </InfoItem>
           </InfoSection>
+
+          <PrimaryButton onClick={() => router.push("/")}>
+            <Home />
+            Go Home
+          </PrimaryButton>
         </ExchangeCard>
       </ContentWrapper>
-
-      <BottomNav>
-        <HomeButton onClick={() => router.push("/")}>
-          <Home />
-          Home
-        </HomeButton>
-      </BottomNav>
     </ExchangeContainer>
   );
 }

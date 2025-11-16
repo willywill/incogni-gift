@@ -3,6 +3,8 @@ import { db } from "@/app/db";
 import { wishlistItems, participants } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { processLinkPreview } from "@/app/lib/link-preview";
+import { extractUrls } from "@/app/lib/link-preview-client";
 
 const MAX_ITEMS_PER_PARTICIPANT = 10;
 
@@ -52,6 +54,28 @@ export async function POST(
 			);
 		}
 
+		// Process link preview if URL is detected
+		let previewData = null;
+		const trimmedDescription = description.trim();
+
+		try {
+			previewData = await processLinkPreview(trimmedDescription);
+		} catch (error) {
+			// If shortener detected or other error, return error response
+			if (error instanceof Error && error.message.includes("URL shorteners")) {
+				return NextResponse.json(
+					{ error: error.message },
+					{ status: 400 }
+				);
+			}
+			// For other errors (network failures, etc.), continue without preview
+			console.error("Error processing link preview:", error);
+		}
+
+		// Extract URL if present (for storage)
+		const urls = extractUrls(trimmedDescription);
+		const url = urls.length > 0 ? urls[0] : null;
+
 		// Create wishlist item
 		const id = crypto.randomUUID();
 		const now = new Date();
@@ -61,7 +85,11 @@ export async function POST(
 			.values({
 				id,
 				participantId,
-				description: description.trim(),
+				description: trimmedDescription,
+				url: previewData?.url || url || null,
+				previewImage: previewData?.previewImage || null,
+				previewTitle: previewData?.previewTitle || null,
+				previewDescription: previewData?.previewDescription || null,
 				createdAt: now,
 				updatedAt: now,
 			})
@@ -72,6 +100,10 @@ export async function POST(
 				id: newItem.id,
 				participantId: newItem.participantId,
 				description: newItem.description,
+				url: newItem.url,
+				previewImage: newItem.previewImage,
+				previewTitle: newItem.previewTitle,
+				previewDescription: newItem.previewDescription,
 				createdAt: newItem.createdAt,
 				updatedAt: newItem.updatedAt,
 			},
@@ -118,6 +150,10 @@ export async function GET(
 				id: item.id,
 				participantId: item.participantId,
 				description: item.description,
+				url: item.url,
+				previewImage: item.previewImage,
+				previewTitle: item.previewTitle,
+				previewDescription: item.previewDescription,
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,
 			}))

@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Gift, Check, Home } from "lucide-react";
+import { Gift, Check, Home, Clock } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
 import ExchangeStepper from "@/app/components/ExchangeStepper";
 import Confetti from "react-confetti";
+import { extractUrls, extractDomain, formatDomainName, getFaviconUrl } from "@/app/lib/link-preview-client";
 
 const MatchContainer = styled.div`
   min-height: 100vh;
@@ -185,24 +186,114 @@ const WishlistItemsList = styled.ul`
   gap: 0.75rem;
 `;
 
-const WishlistItem = styled.li<{ $completed: boolean }>`
+const WishlistItemContainer = styled.li<{ $completed: boolean }>`
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
   border: 1px solid ${(props) => props.theme.lightMode.colors.border};
   border-radius: 8px;
   background: ${(props) => props.theme.lightMode.colors.background};
+  opacity: ${(props) => (props.$completed ? 0.6 : 1)};
+`;
+
+const WishlistItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   line-height: 1.6;
-  text-decoration: ${(props) => (props.$completed ? "line-through" : "none")};
-  opacity: ${(props) => (props.$completed ? 0.6 : 1)};
 `;
 
 const ItemDescription = styled.span`
   flex: 1;
+`;
+
+const PreviewCard = styled.a`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const PreviewSource = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8125rem;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+`;
+
+const FaviconImage = styled.img`
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: 0.375rem;
+  margin-right: 0.375rem;
+  position: relative;
+  top: 0.125em;
+`;
+
+const PreviewContentWrapper = styled.div`
+  display: flex;
+  gap: 0.75rem;
+`;
+
+const PreviewImage = styled.img`
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+`;
+
+const PreviewContent = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+const PreviewTitle = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
+
+const PreviewDescription = styled.div`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8125rem;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
 
 const Checkbox = styled.button<{ $checked: boolean }>`
@@ -236,43 +327,6 @@ const EmptyWishlistText = styled.p`
   text-align: center;
   padding: 2rem;
   margin: 0;
-`;
-
-const BottomNav = styled.nav`
-  width: 100%;
-  background: ${(props) => props.theme.lightMode.colors.background};
-  border-top: 1px solid ${(props) => props.theme.lightMode.colors.border};
-  padding: 2rem 1rem;
-  margin-top: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const HomeButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-  border-radius: 8px;
-  background: ${(props) => props.theme.lightMode.colors.background};
-  color: ${(props) => props.theme.lightMode.colors.foreground};
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${(props) => props.theme.lightMode.colors.muted};
-    border-color: ${(props) => props.theme.lightMode.colors.foreground};
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
 `;
 
 const LoadingText = styled.p`
@@ -335,9 +389,89 @@ const ConfettiWrapper = styled.div`
   z-index: 9999;
 `;
 
+const NotStartedBanner = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: ${(props) => props.theme.lightMode.colors.muted};
+  border-radius: 12px;
+  border: 2px solid ${(props) => props.theme.lightMode.colors.border};
+`;
+
+const NotStartedTitle = styled.h2`
+  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+
+  svg {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+`;
+
+const NotStartedText = styled.p`
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.125rem;
+  color: ${(props) => props.theme.lightMode.colors.foreground};
+  margin: 0.5rem 0;
+  line-height: 1.6;
+`;
+
+const PrimaryButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  background: ${(props) => props.theme.lightMode.colors.foreground};
+  color: ${(props) => props.theme.lightMode.colors.background};
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 2rem;
+  width: 100%;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
 interface WishlistItem {
   id: string;
   description: string;
+  url?: string | null;
+  previewImage?: string | null;
+  previewTitle?: string | null;
+  previewDescription?: string | null;
   createdAt: string;
   completed: boolean;
   completedBy: string | null;
@@ -367,6 +501,7 @@ export default function MatchPage() {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   const isEnded = exchangeStatus === "ended";
+  const isNotStarted = exchangeStatus === "active";
 
   useEffect(() => {
     if (!exchangeId || !participantId) {
@@ -531,7 +666,31 @@ export default function MatchPage() {
       <ContentWrapper>
         <MatchCard>
           <ExchangeStepper currentStep={4} />
-          {isEnded ? (
+          {isNotStarted ? (
+            <>
+              <NotStartedBanner>
+                <NotStartedTitle>
+                  <Clock />
+                  The Exchange Hasn&apos;t Started Yet!
+                </NotStartedTitle>
+                <NotStartedText>
+                  Hold tight! The organizer is still setting things up. Once they start the exchange, you&apos;ll be able to see your match&apos;s gift ideas.
+                </NotStartedText>
+                {spendingLimit !== null && (
+                  <NotStartedText>
+                    <strong>Spending Limit:</strong> {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: currency,
+                    }).format(spendingLimit)}
+                  </NotStartedText>
+                )}
+              </NotStartedBanner>
+              <PrimaryButton onClick={() => router.push("/")}>
+                <Home />
+                Go Home
+              </PrimaryButton>
+            </>
+          ) : isEnded ? (
             <>
               <CelebrationBanner>
                 <CelebrationTitle>🎉 Exchange Complete! 🎉</CelebrationTitle>
@@ -558,75 +717,210 @@ export default function MatchPage() {
                   Here are the gift ideas {matchedParticipantName || "your match"} suggested. Time to spread some joy!
                 </MatchSubtitle>
               </MatchHeader>
+              {spendingLimit !== null && (
+                <SpendingLimit>
+                  <SpendingLimitText>
+                    Spending Limit: {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: currency,
+                    }).format(spendingLimit)}
+                  </SpendingLimitText>
+                </SpendingLimit>
+              )}
+              <WishlistSection>
+                <WishlistSectionTitle>Gift Ideas</WishlistSectionTitle>
+                {wishlistItems.length > 0 ? (
+                  <WishlistItemsList>
+                    {wishlistItems.map((item) => (
+                      <WishlistItemContainer key={item.id} $completed={item.completed}>
+                        <WishlistItem>
+                          <Checkbox
+                            $checked={item.completed}
+                            onClick={() => handleToggleComplete(item.id, item.completed)}
+                            disabled={completingItemId === item.id}
+                            aria-label={item.completed ? "Mark as incomplete" : "Mark as complete"}
+                          >
+                            {item.completed && <Check />}
+                          </Checkbox>
+                          <ItemDescription style={{ textDecoration: item.completed ? "line-through" : "none" }}>
+                            {(() => {
+                              const urls = extractUrls(item.description);
+                              if (urls.length > 0 && item.url) {
+                                const domain = extractDomain(item.url);
+                                if (domain) {
+                                  const domainName = formatDomainName(domain);
+                                  const faviconUrl = getFaviconUrl(domain);
+                                  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+                                  const parts = item.description.split(urlRegex);
+                                  return (
+                                    <>
+                                      {parts.map((part, index) => {
+                                        // Check if this part is a URL (odd indices after split are URLs)
+                                        if (index % 2 === 1) {
+                                          return (
+                                            <span key={index}>
+                                              <span>From </span>
+                                              <FaviconImage src={faviconUrl} alt={domainName} />
+                                              <span>{domainName}</span>
+                                            </span>
+                                          );
+                                        }
+                                        return <span key={index}>{part}</span>;
+                                      })}
+                                    </>
+                                  );
+                                }
+                              }
+                              return item.description;
+                            })()}
+                          </ItemDescription>
+                        </WishlistItem>
+                        {item.url && (item.previewImage || item.previewTitle || item.previewDescription) && (
+                          <PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
+                            <PreviewContentWrapper>
+                              {item.previewImage && (
+                                <PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
+                              )}
+                              <PreviewContent>
+                                {item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
+                                {item.previewDescription && (
+                                  <PreviewDescription>{item.previewDescription}</PreviewDescription>
+                                )}
+                              </PreviewContent>
+                            </PreviewContentWrapper>
+                          </PreviewCard>
+                        )}
+                      </WishlistItemContainer>
+                    ))}
+                  </WishlistItemsList>
+                ) : (
+                  <EmptyWishlistText>
+                    No gift ideas have been added yet. Check back later!
+                  </EmptyWishlistText>
+                )}
+              </WishlistSection>
+              <PrimaryButton onClick={() => router.push("/")}>
+                <Home />
+                Go Home
+              </PrimaryButton>
             </>
-          ) : showRecipientNames && matchedParticipantName ? (
-            <MatchHeader>
-              <MatchTitle>
-                <Gift />
-                Gift Ideas for {matchedParticipantName}
-              </MatchTitle>
-              <MatchSubtitle>
-                You&apos;re buying gifts for {matchedParticipantName}! Here are some gift ideas they suggested. Let the gifting begin!
-              </MatchSubtitle>
-            </MatchHeader>
           ) : (
-            <MatchHeader>
-              <MatchTitle>
-                <Gift />
-                Your Gift Match
-              </MatchTitle>
-              <MatchSubtitle>
-                Here are some gift ideas your match suggested you get for them. Let the gifting begin!
-              </MatchSubtitle>
-            </MatchHeader>
+            <>
+              {showRecipientNames && matchedParticipantName ? (
+                <MatchHeader>
+                  <MatchTitle>
+                    <Gift />
+                    Gift Ideas for {matchedParticipantName}
+                  </MatchTitle>
+                  <MatchSubtitle>
+                    You&apos;re buying gifts for {matchedParticipantName}! Here are some gift ideas they suggested. Let the gifting begin!
+                  </MatchSubtitle>
+                </MatchHeader>
+              ) : (
+                <MatchHeader>
+                  <MatchTitle>
+                    <Gift />
+                    Your Gift Match
+                  </MatchTitle>
+                  <MatchSubtitle>
+                    Here are some gift ideas your match suggested you get for them. Let the gifting begin!
+                  </MatchSubtitle>
+                </MatchHeader>
+              )}
+
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+
+              {spendingLimit !== null && (
+                <SpendingLimit>
+                  <SpendingLimitText>
+                    Spending Limit: {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: currency,
+                    }).format(spendingLimit)}
+                  </SpendingLimitText>
+                </SpendingLimit>
+              )}
+
+              <WishlistSection>
+                <WishlistSectionTitle>Gift Ideas</WishlistSectionTitle>
+                {wishlistItems.length > 0 ? (
+                  <WishlistItemsList>
+                    {wishlistItems.map((item) => (
+                      <WishlistItemContainer key={item.id} $completed={item.completed}>
+                        <WishlistItem>
+                          <Checkbox
+                            $checked={item.completed}
+                            onClick={() => handleToggleComplete(item.id, item.completed)}
+                            disabled={completingItemId === item.id}
+                            aria-label={item.completed ? "Mark as incomplete" : "Mark as complete"}
+                          >
+                            {item.completed && <Check />}
+                          </Checkbox>
+                          <ItemDescription style={{ textDecoration: item.completed ? "line-through" : "none" }}>
+                            {(() => {
+                              const urls = extractUrls(item.description);
+                              if (urls.length > 0 && item.url) {
+                                const domain = extractDomain(item.url);
+                                if (domain) {
+                                  const domainName = formatDomainName(domain);
+                                  const faviconUrl = getFaviconUrl(domain);
+                                  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+                                  const parts = item.description.split(urlRegex);
+                                  return (
+                                    <>
+                                      {parts.map((part, index) => {
+                                        // Check if this part is a URL (odd indices after split are URLs)
+                                        if (index % 2 === 1) {
+                                          return (
+                                            <span key={index}>
+                                              <span>From </span>
+                                              <FaviconImage src={faviconUrl} alt={domainName} />
+                                              <span>{domainName}</span>
+                                            </span>
+                                          );
+                                        }
+                                        return <span key={index}>{part}</span>;
+                                      })}
+                                    </>
+                                  );
+                                }
+                              }
+                              return item.description;
+                            })()}
+                          </ItemDescription>
+                        </WishlistItem>
+                        {item.url && (item.previewImage || item.previewTitle || item.previewDescription) && (
+                          <PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
+                            <PreviewContentWrapper>
+                              {item.previewImage && (
+                                <PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
+                              )}
+                              <PreviewContent>
+                                {item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
+                                {item.previewDescription && (
+                                  <PreviewDescription>{item.previewDescription}</PreviewDescription>
+                                )}
+                              </PreviewContent>
+                            </PreviewContentWrapper>
+                          </PreviewCard>
+                        )}
+                      </WishlistItemContainer>
+                    ))}
+                  </WishlistItemsList>
+                ) : (
+                  <EmptyWishlistText>
+                    No gift ideas have been added yet. Check back later!
+                  </EmptyWishlistText>
+                )}
+              </WishlistSection>
+              <PrimaryButton onClick={() => router.push("/")}>
+                <Home />
+                Go Home
+              </PrimaryButton>
+            </>
           )}
-
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-
-          {spendingLimit !== null && (
-            <SpendingLimit>
-              <SpendingLimitText>
-                Spending Limit: {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: currency,
-                }).format(spendingLimit)}
-              </SpendingLimitText>
-            </SpendingLimit>
-          )}
-
-          <WishlistSection>
-            <WishlistSectionTitle>Gift Ideas</WishlistSectionTitle>
-            {wishlistItems.length > 0 ? (
-              <WishlistItemsList>
-                {wishlistItems.map((item) => (
-                  <WishlistItem key={item.id} $completed={item.completed}>
-                    <Checkbox
-                      $checked={item.completed}
-                      onClick={() => handleToggleComplete(item.id, item.completed)}
-                      disabled={completingItemId === item.id}
-                      aria-label={item.completed ? "Mark as incomplete" : "Mark as complete"}
-                    >
-                      {item.completed && <Check />}
-                    </Checkbox>
-                    <ItemDescription>{item.description}</ItemDescription>
-                  </WishlistItem>
-                ))}
-              </WishlistItemsList>
-            ) : (
-              <EmptyWishlistText>
-                No gift ideas have been added yet. Check back later!
-              </EmptyWishlistText>
-            )}
-          </WishlistSection>
         </MatchCard>
       </ContentWrapper>
-
-      <BottomNav>
-        <HomeButton onClick={() => router.push("/")}>
-          <Home />
-          Home
-        </HomeButton>
-      </BottomNav>
     </MatchContainer>
   );
 }

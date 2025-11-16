@@ -52,11 +52,20 @@ export async function GET(
 			);
 		}
 
+		// If exchange hasn't started yet, return early with exchange info and empty wishlist
 		if (exchange.status !== "started" && exchange.status !== "ended") {
-			return NextResponse.json(
-				{ error: "Exchange has not started yet" },
-				{ status: 400 }
-			);
+			return NextResponse.json({
+				wishlistItems: [],
+				exchangeInfo: {
+					name: exchange.name,
+					spendingLimit: exchange.spendingLimit,
+					currency: exchange.currency,
+					status: exchange.status,
+					showRecipientNames: exchange.showRecipientNames,
+					matchedParticipantName: null,
+					buyingForYouName: null,
+				},
+			});
 		}
 
 		// Find the assignment for this participant
@@ -86,7 +95,7 @@ export async function GET(
 					{ status: 404 }
 				);
 			}
-			
+
 			// No assignments exist for this exchange at all
 			return NextResponse.json(
 				{ error: "Assignment not found. Exchange may not have been started yet." },
@@ -147,6 +156,10 @@ export async function GET(
 			wishlistItems: wishlistItemsList.map((item) => ({
 				id: item.id,
 				description: item.description,
+				url: item.url || null,
+				previewImage: item.previewImage || null,
+				previewTitle: item.previewTitle || null,
+				previewDescription: item.previewDescription || null,
 				createdAt: item.createdAt,
 				completed: item.completed || false,
 				completedBy: item.completedBy || null,
