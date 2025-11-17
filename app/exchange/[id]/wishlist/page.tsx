@@ -288,6 +288,26 @@ const PreviewDescription = styled.div`
   -webkit-box-orient: vertical;
 `;
 
+const FallbackLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: 6px;
+  background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
+  text-decoration: none;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: ${(props) => props.theme.lightMode.colors.foreground};
+    color: ${(props) => props.theme.lightMode.colors.foreground};
+  }
+`;
+
 const DeleteButton = styled.button`
   display: flex;
   align-items: center;
@@ -632,20 +652,26 @@ export default function WishlistPage() {
                     <Trash2 />
                   </DeleteButton>
                 </ItemContent>
-                {item.url && (item.previewImage || item.previewTitle || item.previewDescription) && (
-                  <PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
-                    <PreviewContentWrapper>
-                      {item.previewImage && (
-                        <PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
-                      )}
-                      <PreviewContent>
-                        {item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
-                        {item.previewDescription && (
-                          <PreviewDescription>{item.previewDescription}</PreviewDescription>
+                {item.url && (
+                  (item.previewImage || item.previewTitle || item.previewDescription) ? (
+                    <PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
+                      <PreviewContentWrapper>
+                        {item.previewImage && (
+                          <PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
                         )}
-                      </PreviewContent>
-                    </PreviewContentWrapper>
-                  </PreviewCard>
+                        <PreviewContent>
+                          {item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
+                          {item.previewDescription && (
+                            <PreviewDescription>{item.previewDescription}</PreviewDescription>
+                          )}
+                        </PreviewContent>
+                      </PreviewContentWrapper>
+                    </PreviewCard>
+                  ) : (
+                    <FallbackLink href={item.url} target="_blank" rel="noopener noreferrer">
+                      Click here to view the product. Unfortunately, we failed to generate a preview.
+                    </FallbackLink>
+                  )
                 )}
               </ItemCard>
             ))

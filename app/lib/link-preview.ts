@@ -3,35 +3,7 @@
  * DO NOT import this file in client components
  */
 
-import { getLinkPreview } from "link-preview-js";
-import dns from "node:dns";
-import { promisify } from "util";
 import { extractUrls } from "./link-preview-client";
-
-const resolve4 = promisify(dns.resolve4);
-const resolve6 = promisify(dns.resolve6);
-
-// Temporarily disable DNS resolution for Vercel serverless compatibility
-// Set to true to re-enable DNS resolution (SSRF protection)
-const ENABLE_DNS_RESOLUTION = false;
-
-// DNS resolution timeout in milliseconds
-const DNS_TIMEOUT_MS = 3000; // 3 seconds
-
-/**
- * Wrap DNS resolution with a timeout to prevent hanging
- */
-async function resolveWithTimeout<T>(
-	resolveFn: () => Promise<T>,
-	timeoutMs: number
-): Promise<T> {
-	return Promise.race([
-		resolveFn(),
-		new Promise<T>((_, reject) =>
-			setTimeout(() => reject(new Error("DNS resolution timeout")), timeoutMs)
-		),
-	]);
-}
 
 // List of blocked URL shortener domains
 const BLOCKED_SHORTENER_DOMAINS = [
@@ -55,6 +27,7 @@ export interface LinkPreviewData {
 	previewImage: string | null;
 	previewTitle: string | null;
 	previewDescription: string | null;
+	previewFavicon: string | null;
 }
 
 /**
@@ -77,71 +50,29 @@ export function isShortenerUrl(url: string): boolean {
 }
 
 /**
- * Resolve DNS hostname to prevent SSRF attacks
- * This function resolves the hostname to an IP address before making requests
+ * Extract domain from URL for favicon generation
  */
-async function resolveDNSHost(url: string): Promise<string> {
-	// Skip DNS resolution if disabled (for serverless environments like Vercel)
-	if (!ENABLE_DNS_RESOLUTION) {
-		// Still validate URL format
-		new URL(url);
-		return url;
-	}
-
+function extractDomain(url: string): string | null {
 	try {
 		const urlObj = new URL(url);
-		const hostname = urlObj.hostname;
-
-		// Resolve hostname to IP addresses
-		// Try IPv4 first, then IPv6
-		// Both wrapped with timeout to prevent hanging
-		try {
-			const addresses = await resolveWithTimeout(
-				() => resolve4(hostname),
-				DNS_TIMEOUT_MS
-			);
-			if (addresses && addresses.length > 0) {
-				// Return the original URL - the resolution itself prevents SSRF
-				// by ensuring the hostname resolves to a valid IP
-				return url;
-			}
-		} catch {
-			// IPv4 failed, try IPv6
-		}
-
-		try {
-			const addresses = await resolveWithTimeout(
-				() => resolve6(hostname),
-				DNS_TIMEOUT_MS
-			);
-			if (addresses && addresses.length > 0) {
-				return url;
-			}
-		} catch {
-			// IPv6 also failed
-		}
-
-		throw new Error(`Failed to resolve hostname: ${hostname}`);
-	} catch (error) {
-		throw new Error(`Invalid URL or DNS resolution failed: ${error instanceof Error ? error.message : String(error)}`);
+		let hostname = urlObj.hostname.toLowerCase();
+		// Remove 'www.' prefix if present
+		hostname = hostname.replace(/^www\./, "");
+		return hostname;
+	} catch {
+		return null;
 	}
 }
 
 /**
- * Type guard to check if preview has images, title, and description
+ * Generate favicon URL using Google's free favicon service
  */
-function hasPreviewData(
-	preview: Awaited<ReturnType<typeof getLinkPreview>>
-): preview is Awaited<ReturnType<typeof getLinkPreview>> & {
-	images: string[];
-	title: string;
-	description: string | undefined;
-} {
-	return (
-		'images' in preview &&
-		'title' in preview &&
-		'description' in preview
-	);
+function generateFaviconUrl(url: string): string | null {
+	const domain = extractDomain(url);
+	if (!domain) {
+		return null;
+	}
+	return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
 }
 
 /**
@@ -150,43 +81,83 @@ function hasPreviewData(
  */
 export async function generateLinkPreview(url: string): Promise<LinkPreviewData | null> {
 	try {
-		// Resolve DNS first to prevent SSRF (if enabled)
-		await resolveDNSHost(url);
+		// Validate URL format
+		new URL(url);
 
-		// Generate preview using link-preview-js
+		// Get API key from environment
+		const apiKey = process.env.LINKPREVIEW_API_KEY;
+		if (!apiKey) {
+			console.error("LINKPREVIEW_API_KEY is not set");
+			return null;
+		}
+
+		// Call LinkPreview.net API
+		const endpoint = `https://api.linkpreview.net/?key=${apiKey}&q=${encodeURIComponent(url)}`;
+		
 		// Set timeout to 5 seconds to prevent HTTP requests from hanging
-		const previewOptions: Parameters<typeof getLinkPreview>[1] = {
-			timeout: 5000, // 5 seconds timeout for HTTP requests
-		};
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-		// Only add resolveDNSHost option if DNS resolution is enabled
-		if (ENABLE_DNS_RESOLUTION) {
-			previewOptions.resolveDNSHost = async (urlToResolve: string) => {
-				await resolveDNSHost(urlToResolve);
-				return urlToResolve;
-			};
+		const response = await fetch(endpoint, {
+			signal: controller.signal,
+		});
+
+		clearTimeout(timeoutId);
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error(`LinkPreview API error: ${response.status} ${response.statusText}`, errorText);
+			return null;
 		}
 
-		const preview = await getLinkPreview(url, previewOptions);
+		const contentType = response.headers.get("content-type");
+		const isJson = contentType && contentType.includes("application/json");
 
-		// Validate that preview has the required properties (images, title, description)
-		if (!hasPreviewData(preview)) {
-			return {
-				url,
-				previewImage: null,
-				previewTitle: null,
-				previewDescription: null,
-			};
+		let preview;
+		if (isJson) {
+			preview = await response.json();
+		} else {
+			const text = await response.text();
+			console.error(`LinkPreview API returned non-JSON response: ${contentType}`, text);
+			return null;
 		}
 
-		return {
-			url,
-			previewImage: preview.images?.[0] || null,
-			previewTitle: preview.title || null,
-			previewDescription: preview.description || null,
+		// Debug: Log the API response to see what we're getting
+		console.log("LinkPreview API response:", JSON.stringify(preview, null, 2));
+
+		// Check if API returned an error
+		if (preview.error) {
+			console.error(`LinkPreview API error: ${preview.error}`);
+			return null;
+		}
+
+		// Generate favicon URL using Google's free favicon service
+		const faviconUrl = generateFaviconUrl(url);
+
+		// Map API response to LinkPreviewData interface
+		// Handle empty strings as null, and check for different possible field names
+		const previewImage = preview.image || preview.images?.[0] || null;
+		const previewTitle = preview.title || null;
+		const previewDescription = preview.description || null;
+
+		// Convert empty strings to null
+		const result = {
+			url: preview.url || url,
+			previewImage: previewImage && previewImage.trim() !== "" ? previewImage : null,
+			previewTitle: previewTitle && previewTitle.trim() !== "" ? previewTitle : null,
+			previewDescription: previewDescription && previewDescription.trim() !== "" ? previewDescription : null,
+			previewFavicon: faviconUrl,
 		};
+
+		console.log("Processed preview data:", JSON.stringify(result, null, 2));
+
+		return result;
 	} catch (error) {
-		console.error("Error generating link preview:", error);
+		if (error instanceof Error && error.name === 'AbortError') {
+			console.error("Link preview request timed out");
+		} else {
+			console.error("Error generating link preview:", error);
+		}
 		return null;
 	}
 }

@@ -718,6 +718,26 @@ const PreviewDescription = styled.div`
 	-webkit-box-orient: vertical;
 `;
 
+const FallbackLink = styled.a`
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+	border-radius: 6px;
+	background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
+	text-decoration: none;
+	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.875rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-color: ${(props) => props.theme.lightMode.colors.foreground};
+		color: ${(props) => props.theme.lightMode.colors.foreground};
+	}
+`;
+
 const EmptyWishlistText = styled.p`
 	margin: 0;
 	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
@@ -2300,9 +2320,9 @@ export default function GiftExchangeDetailPage() {
 											Anonymity settings cannot be changed after the exchange has started.
 										</div>
 									)}
-									<div style={{ 
-										display: "flex", 
-										alignItems: "flex-start", 
+									<div style={{
+										display: "flex",
+										alignItems: "flex-start",
 										gap: "0.75rem",
 										padding: "1rem",
 										border: "1px solid",
@@ -2313,11 +2333,11 @@ export default function GiftExchangeDetailPage() {
 										background: showRecipientNames ? "rgba(0, 0, 0, 0.03)" : "transparent",
 										opacity: (exchange?.status === "started" || exchange?.status === "ended") ? 0.5 : 1
 									}}
-									onClick={() => {
-										if (exchange?.status !== "started" && exchange?.status !== "ended" && !saving) {
-											handleToggleShowRecipientNames();
-										}
-									}}
+										onClick={() => {
+											if (exchange?.status !== "started" && exchange?.status !== "ended" && !saving) {
+												handleToggleShowRecipientNames();
+											}
+										}}
 									>
 										<input
 											type="checkbox"
@@ -2425,20 +2445,26 @@ export default function GiftExchangeDetailPage() {
 													return item.description;
 												})()}
 											</WishlistItemDescription>
-											{item.url && (item.previewImage || item.previewTitle || item.previewDescription) && (
-												<PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
-													<PreviewContentWrapper>
-														{item.previewImage && (
-															<PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
-														)}
-														<PreviewContent>
-															{item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
-															{item.previewDescription && (
-																<PreviewDescription>{item.previewDescription}</PreviewDescription>
+											{item.url && (
+												(item.previewImage || item.previewTitle || item.previewDescription) ? (
+													<PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
+														<PreviewContentWrapper>
+															{item.previewImage && (
+																<PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
 															)}
-														</PreviewContent>
-													</PreviewContentWrapper>
-												</PreviewCard>
+															<PreviewContent>
+																{item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
+																{item.previewDescription && (
+																	<PreviewDescription>{item.previewDescription}</PreviewDescription>
+																)}
+															</PreviewContent>
+														</PreviewContentWrapper>
+													</PreviewCard>
+												) : (
+													<FallbackLink href={item.url} target="_blank" rel="noopener noreferrer">
+														Click here to view the product. Unfortunately, we failed to generate a preview.
+													</FallbackLink>
+												)
 											)}
 										</WishlistItem>
 									))}

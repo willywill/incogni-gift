@@ -28,7 +28,6 @@
 		"better-auth": "^1.0.0",
 		"drizzle-orm": "^0.44.7",
 		"form-data": "^4.0.4",
-		"link-preview-js": "^3.0.5",
 		"lucide-react": "^0.552.0",
 		"mailgun.js": "^12.1.1",
 		"next": "^15.0.0",
