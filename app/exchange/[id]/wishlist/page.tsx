@@ -5,6 +5,8 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { Plus, Trash2, ArrowLeft } from "lucide-react";
 import ExchangeStepper from "@/app/components/ExchangeStepper";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import FallbackLinkComponent from "@/app/components/FallbackLink";
 import {
 	extractUrls,
 	extractDomain,
@@ -293,25 +295,6 @@ const PreviewDescription = styled.div`
   -webkit-box-orient: vertical;
 `;
 
-const FallbackLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-  border-radius: 6px;
-  background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
-  text-decoration: none;
-  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.875rem;
-  color: ${(props) => props.theme.lightMode.colors.secondary};
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: ${(props) => props.theme.lightMode.colors.foreground};
-    color: ${(props) => props.theme.lightMode.colors.foreground};
-  }
-`;
 
 const DeleteButton = styled.button`
   display: flex;
@@ -555,15 +538,7 @@ export default function WishlistPage() {
 	};
 
 	if (fetching) {
-		return (
-			<WishlistContainer>
-				<WishlistCard>
-					<WishlistHeader>
-						<WishlistTitle>Loading...</WishlistTitle>
-					</WishlistHeader>
-				</WishlistCard>
-			</WishlistContainer>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (
@@ -712,14 +687,7 @@ export default function WishlistPage() {
 											</PreviewContentWrapper>
 										</PreviewCard>
 									) : (
-										<FallbackLink
-											href={item.url}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											Click here to view the product. Unfortunately, we failed
-											to generate a preview.
-										</FallbackLink>
+										<FallbackLinkComponent url={item.url} />
 									))}
 							</ItemCard>
 						))

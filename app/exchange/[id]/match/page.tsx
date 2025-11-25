@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { Gift, Check, Home, Clock, Edit } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
 import ExchangeStepper from "@/app/components/ExchangeStepper";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import FallbackLinkComponent from "@/app/components/FallbackLink";
 import Confetti from "react-confetti";
 import {
 	extractUrls,
@@ -300,25 +302,6 @@ const PreviewDescription = styled.div`
   -webkit-box-orient: vertical;
 `;
 
-const FallbackLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-  border-radius: 6px;
-  background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
-  text-decoration: none;
-  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.875rem;
-  color: ${(props) => props.theme.lightMode.colors.secondary};
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: ${(props) => props.theme.lightMode.colors.foreground};
-    color: ${(props) => props.theme.lightMode.colors.foreground};
-  }
-`;
 
 const Checkbox = styled.button<{ $checked: boolean }>`
   display: flex;
@@ -353,12 +336,6 @@ const EmptyWishlistText = styled.p`
   margin: 0;
 `;
 
-const LoadingText = styled.p`
-  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.9375rem;
-  color: ${(props) => props.theme.lightMode.colors.secondary};
-  text-align: center;
-`;
 
 const ErrorMessage = styled.div`
   padding: 0.875rem 1rem;
@@ -424,7 +401,7 @@ const NotStartedBanner = styled.div`
 
 const NotStartedTitle = styled.h2`
   font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0 0 1rem 0;
@@ -432,24 +409,23 @@ const NotStartedTitle = styled.h2`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
   text-align: center;
 
   @media (max-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 
   svg {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
   }
 `;
 
 const NotStartedText = styled.p`
   font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0.5rem 0;
   line-height: 1.6;
@@ -461,10 +437,6 @@ const ButtonContainer = styled.div`
   gap: 0.75rem;
   margin-top: 2rem;
   width: 100%;
-
-  @media (min-width: 480px) {
-    flex-direction: row;
-  }
 `;
 
 const PrimaryButton = styled.button`
@@ -472,17 +444,18 @@ const PrimaryButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
+  padding: 0.875rem 1.5rem;
   border: none;
   border-radius: 8px;
   background: ${(props) => props.theme.lightMode.colors.foreground};
   color: ${(props) => props.theme.lightMode.colors.background};
   font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  white-space: nowrap;
 
   &:hover {
     opacity: 0.9;
@@ -495,8 +468,9 @@ const PrimaryButton = styled.button`
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
 `;
 
@@ -505,17 +479,18 @@ const SecondaryButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
+  padding: 0.875rem 1.5rem;
   border: 1px solid ${(props) => props.theme.lightMode.colors.border};
   border-radius: 8px;
   background: ${(props) => props.theme.lightMode.colors.background};
   color: ${(props) => props.theme.lightMode.colors.foreground};
   font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  white-space: nowrap;
 
   &:hover {
     background: ${(props) => props.theme.lightMode.colors.muted};
@@ -529,8 +504,9 @@ const SecondaryButton = styled.button`
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
 `;
 
@@ -709,15 +685,7 @@ export default function MatchPage() {
 	};
 
 	if (loading) {
-		return (
-			<MatchContainer>
-				<ContentWrapper>
-					<MatchCard>
-						<LoadingText>Loading your match&apos;s gift ideas...</LoadingText>
-					</MatchCard>
-				</ContentWrapper>
-			</MatchContainer>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (
@@ -932,14 +900,7 @@ export default function MatchPage() {
 															</PreviewContentWrapper>
 														</PreviewCard>
 													) : (
-														<FallbackLink
-															href={item.url}
-															target="_blank"
-															rel="noopener noreferrer"
-														>
-															Click here to view the product. Unfortunately, we
-															failed to generate a preview.
-														</FallbackLink>
+														<FallbackLinkComponent url={item.url} />
 													))}
 											</WishlistItemContainer>
 										))}
@@ -1093,14 +1054,7 @@ export default function MatchPage() {
 															</PreviewContentWrapper>
 														</PreviewCard>
 													) : (
-														<FallbackLink
-															href={item.url}
-															target="_blank"
-															rel="noopener noreferrer"
-														>
-															Click here to view the product. Unfortunately, we
-															failed to generate a preview.
-														</FallbackLink>
+														<FallbackLinkComponent url={item.url} />
 													))}
 											</WishlistItemContainer>
 										))}

@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { User, ArrowLeft } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
 import ExchangeStepper from "@/app/components/ExchangeStepper";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 const RegisterContainer = styled.div`
   min-height: 100vh;
@@ -168,13 +169,13 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
-  background: ${(props) => props.theme.lightMode.colors.foreground};
-  color: ${(props) => props.theme.lightMode.colors.background};
+  background: ${(props) => props.theme.lightMode.colors.primary};
+  color: white;
 
   &:hover:not(:disabled) {
-    background: ${(props) => props.theme.lightMode.colors.gray800};
+    background: ${(props) => props.theme.lightMode.colors.primaryHover};
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(192, 108, 85, 0.25);
   }
 
   &:active:not(:disabled) {
@@ -362,15 +363,7 @@ export default function RegisterPage() {
 	const isDisabled = loading || exchangeLoading;
 
 	if (exchangeLoading) {
-		return (
-			<RegisterContainer>
-				<RegisterCard>
-					<RegisterHeader>
-						<RegisterTitle>Loading...</RegisterTitle>
-					</RegisterHeader>
-				</RegisterCard>
-			</RegisterContainer>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

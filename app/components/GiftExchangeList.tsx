@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Gift, Calendar, Key, ArrowRight, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "./LoadingSpinner";
 import * as motion from "motion/react-client";
 
 const ListContainer = styled.div`
@@ -192,36 +193,6 @@ const DetailItem = styled.div`
 	}
 `;
 
-const LoadingState = styled.div`
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	padding: 4rem 2rem;
-	min-height: 400px;
-	gap: 1rem;
-`;
-
-const LoadingSpinner = styled.div`
-	width: 40px;
-	height: 40px;
-	border: 3px solid ${(props) => props.theme.lightMode.colors.border};
-	border-top-color: ${(props) => props.theme.lightMode.colors.accent};
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
-`;
-
-const LoadingText = styled.p`
-	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 0.9375rem;
-	color: ${(props) => props.theme.lightMode.colors.secondary};
-`;
 
 const emptyStateVariants = {
 	hidden: { opacity: 0, y: 20 },
@@ -336,12 +307,7 @@ export default function GiftExchangeList({
 	};
 
 	if (loading) {
-		return (
-			<LoadingState>
-				<LoadingSpinner />
-				<LoadingText>Loading exchanges...</LoadingText>
-			</LoadingState>
-		);
+		return <LoadingSpinner fullPage={false} />;
 	}
 
 	if (error) {

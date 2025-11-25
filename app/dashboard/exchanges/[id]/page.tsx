@@ -6,6 +6,8 @@ import { useSession } from "@/app/lib/auth";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import CreateExchangeWizard from "@/app/components/CreateExchangeWizard";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import FallbackLinkComponent from "@/app/components/FallbackLink";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
 import { QRCodeSVG } from "qrcode.react";
@@ -93,20 +95,6 @@ const PageSubtitle = styled.p`
 	line-height: 1.6;
 `;
 
-const LoadingContainer = styled.div`
-	min-height: 100vh;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 2rem;
-	background: ${(props) => props.theme.lightMode.colors.background};
-`;
-
-const LoadingText = styled.p`
-	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 0.9375rem;
-	color: ${(props) => props.theme.lightMode.colors.secondary};
-`;
 
 const AccessDeniedContainer = styled.div`
 	min-height: 100vh;
@@ -383,13 +371,13 @@ const Button = styled.button`
 `;
 
 const PrimaryButton = styled(Button)`
-	background: ${(props) => props.theme.lightMode.colors.foreground};
-	color: ${(props) => props.theme.lightMode.colors.background};
+	background: ${(props) => props.theme.lightMode.colors.primary};
+	color: white;
 
 	&:hover:not(:disabled) {
-		background: ${(props) => props.theme.lightMode.colors.gray800};
+		background: ${(props) => props.theme.lightMode.colors.primaryHover};
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 4px 12px rgba(192, 108, 85, 0.25);
 	}
 
 	&:active:not(:disabled) {
@@ -744,25 +732,6 @@ const PreviewDescription = styled.div`
 	-webkit-box-orient: vertical;
 `;
 
-const FallbackLink = styled.a`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	border-radius: 6px;
-	background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
-	text-decoration: none;
-	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 0.875rem;
-	color: ${(props) => props.theme.lightMode.colors.secondary};
-	transition: all 0.2s ease;
-
-	&:hover {
-		border-color: ${(props) => props.theme.lightMode.colors.foreground};
-		color: ${(props) => props.theme.lightMode.colors.foreground};
-	}
-`;
 
 const EmptyWishlistText = styled.p`
 	margin: 0;
@@ -983,16 +952,16 @@ const SelectScrollButton = styled(Select.ScrollUpButton)`
 `;
 
 const StartExchangeButton = styled(Button)`
-	background: ${(props) => props.theme.lightMode.colors.foreground};
-	color: ${(props) => props.theme.lightMode.colors.background};
+	background: ${(props) => props.theme.lightMode.colors.primary};
+	color: white;
 	font-size: 1rem;
 	padding: 1rem 2rem;
 	font-weight: 600;
 
 	&:hover {
-		background: ${(props) => props.theme.lightMode.colors.gray800};
+		background: ${(props) => props.theme.lightMode.colors.primaryHover};
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 4px 12px rgba(192, 108, 85, 0.25);
 	}
 
 	&:active {
@@ -1473,13 +1442,7 @@ export default function GiftExchangeDetailPage() {
 	};
 
 	if (isPending || loading) {
-		return (
-			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
-				<LoadingContainer>
-					<LoadingText>Loading...</LoadingText>
-				</LoadingContainer>
-			</DashboardLayout>
-		);
+		return <LoadingSpinner />;
 	}
 
 	if (!session?.user) {
@@ -2762,14 +2725,7 @@ export default function GiftExchangeDetailPage() {
 														</PreviewContentWrapper>
 													</PreviewCard>
 												) : (
-													<FallbackLink
-														href={item.url}
-														target="_blank"
-														rel="noopener noreferrer"
-													>
-														Click here to view the product. Unfortunately, we
-														failed to generate a preview.
-													</FallbackLink>
+													<FallbackLinkComponent url={item.url} />
 												))}
 										</WishlistItem>
 									))}

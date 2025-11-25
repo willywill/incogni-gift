@@ -6,6 +6,7 @@ import { useSession } from "@/app/lib/auth";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import GiftExchangeList from "@/app/components/GiftExchangeList";
 import CreateExchangeWizard from "@/app/components/CreateExchangeWizard";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 import { Plus } from "lucide-react";
 
 const PageHeader = styled.div`
@@ -45,8 +46,8 @@ const CreateButton = styled.button`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	background: ${(props) => props.theme.lightMode.colors.foreground};
-	color: ${(props) => props.theme.lightMode.colors.background};
+	background: ${(props) => props.theme.lightMode.colors.primary};
+	color: white;
 	padding: 0.875rem 1.5rem;
 	border: none;
 	border-radius: 8px;
@@ -59,9 +60,9 @@ const CreateButton = styled.button`
 	margin-bottom: 2rem;
 
 	&:hover {
-		background: ${(props) => props.theme.lightMode.colors.gray800};
+		background: ${(props) => props.theme.lightMode.colors.primaryHover};
 		transform: translateY(-2px);
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 8px 24px rgba(192, 108, 85, 0.25);
 	}
 
 	&:active {
@@ -84,20 +85,6 @@ const HeaderActions = styled.div`
 	gap: 1rem;
 `;
 
-const LoadingContainer = styled.div`
-	min-height: 100vh;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 2rem;
-	background: ${(props) => props.theme.lightMode.colors.background};
-`;
-
-const LoadingText = styled.p`
-	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 0.9375rem;
-	color: ${(props) => props.theme.lightMode.colors.secondary};
-`;
 
 const AccessDeniedContainer = styled.div`
 	min-height: 100vh;
@@ -141,11 +128,7 @@ export default function DashboardPage() {
 	const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 	if (isPending) {
-		return (
-			<LoadingContainer>
-				<LoadingText>Loading...</LoadingText>
-			</LoadingContainer>
-		);
+		return <LoadingSpinner />;
 	}
 
 	if (!session?.user) {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { User, Key, Gift } from "lucide-react";
 import { getVisitorId } from "@/app/lib/fingerprint";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 const JoinContainer = styled.div`
   min-height: 100vh;
@@ -136,13 +137,13 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
-  background: ${(props) => props.theme.lightMode.colors.foreground};
-  color: ${(props) => props.theme.lightMode.colors.background};
+  background: ${(props) => props.theme.lightMode.colors.primary};
+  color: white;
 
   &:hover:not(:disabled) {
-    background: ${(props) => props.theme.lightMode.colors.gray800};
+    background: ${(props) => props.theme.lightMode.colors.primaryHover};
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(192, 108, 85, 0.25);
   }
 
   &:active:not(:disabled) {
@@ -638,15 +639,7 @@ export default function JoinPage() {
 
 	// Show loading while checking visitor
 	if (checkingVisitor) {
-		return (
-			<JoinContainer>
-				<JoinCard>
-					<JoinHeader>
-						<JoinTitle>Loading...</JoinTitle>
-					</JoinHeader>
-				</JoinCard>
-			</JoinContainer>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

@@ -60,24 +60,24 @@ const OptionsContainer = styled.div`
   gap: 1rem;
 `;
 
-const OptionButton = styled.button`
+const OptionButton = styled.button<{ $primary?: boolean }>`
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
   padding: 1.5rem;
-  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border: 2px solid ${(props) => props.$primary ? props.theme.lightMode.colors.primary : props.theme.lightMode.colors.border};
   border-radius: 8px;
-  background: ${(props) => props.theme.lightMode.colors.background};
+  background: ${(props) => props.$primary ? props.theme.lightMode.colors.primaryLight : props.theme.lightMode.colors.background};
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
 
   &:hover {
-    border-color: ${(props) => props.theme.lightMode.colors.foreground};
-    background: ${(props) => props.theme.lightMode.colors.muted};
+    border-color: ${(props) => props.$primary ? props.theme.lightMode.colors.primaryHover : props.theme.lightMode.colors.foreground};
+    background: ${(props) => props.$primary ? props.theme.lightMode.colors.primaryLight : props.theme.lightMode.colors.muted};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: ${(props) => props.$primary ? '0 4px 12px rgba(192, 108, 85, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.1)'};
   }
 
   &:active {
@@ -87,7 +87,7 @@ const OptionButton = styled.button`
   svg {
     width: 24px;
     height: 24px;
-    color: ${(props) => props.theme.lightMode.colors.foreground};
+    color: ${(props) => props.$primary ? props.theme.lightMode.colors.primary : props.theme.lightMode.colors.foreground};
     flex-shrink: 0;
   }
 `;
@@ -128,7 +128,7 @@ export default function StartPage() {
 				</StartHeader>
 
 				<OptionsContainer>
-					<OptionButton onClick={() => router.push("/auth")}>
+					<OptionButton $primary onClick={() => router.push("/auth")}>
 						<Gift />
 						<OptionContent>
 							<OptionTitle>Create or manage a gift exchange</OptionTitle>

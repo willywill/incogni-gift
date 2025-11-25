@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { Mail, Sparkles } from "lucide-react";
 import { authClient } from "../lib/auth";
+import LoadingSpinner from "../components/LoadingSpinner";
 import * as motion from "motion/react-client";
 
 const AuthContainer = styled.div`
@@ -208,13 +209,13 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   letter-spacing: -0.01em;
-  background: ${(props) => props.theme.lightMode.colors.foreground};
-  color: ${(props) => props.theme.lightMode.colors.background};
+  background: ${(props) => props.theme.lightMode.colors.primary};
+  color: white;
 
   &:hover:not(:disabled) {
-    background: ${(props) => props.theme.lightMode.colors.gray800};
+    background: ${(props) => props.theme.lightMode.colors.primaryHover};
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(192, 108, 85, 0.25);
   }
 
   &:active:not(:disabled) {
@@ -492,17 +493,7 @@ const AuthPageContent = () => {
 
 const AuthPage = () => {
 	return (
-		<Suspense
-			fallback={
-				<AuthContainer>
-					<AuthCard>
-						<AuthHeader>
-							<AuthTitle>Loading...</AuthTitle>
-						</AuthHeader>
-					</AuthCard>
-				</AuthContainer>
-			}
-		>
+		<Suspense fallback={<LoadingSpinner />}>
 			<AuthPageContent />
 		</Suspense>
 	);
