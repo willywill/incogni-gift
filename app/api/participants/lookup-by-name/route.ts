@@ -10,24 +10,36 @@ export async function POST(request: Request) {
 		const { exchangeId, firstName, lastName } = body;
 
 		// Validate inputs
-		if (!exchangeId || typeof exchangeId !== "string" || exchangeId.trim().length === 0) {
+		if (
+			!exchangeId ||
+			typeof exchangeId !== "string" ||
+			exchangeId.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Exchange ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
-		if (!firstName || typeof firstName !== "string" || firstName.trim().length === 0) {
+		if (
+			!firstName ||
+			typeof firstName !== "string" ||
+			firstName.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "First name is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
-		if (!lastName || typeof lastName !== "string" || lastName.trim().length === 0) {
+		if (
+			!lastName ||
+			typeof lastName !== "string" ||
+			lastName.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Last name is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -53,8 +65,8 @@ export async function POST(request: Request) {
 					eq(participants.exchangeId, normalizedExchangeId),
 					sql`${participants.firstName} ILIKE ${normalizedFirstName}`,
 					sql`${participants.lastName} ILIKE ${normalizedLastName}`,
-					isNotNull(participants.lastName)
-				)
+					isNotNull(participants.lastName),
+				),
 			)
 			.limit(1);
 
@@ -82,8 +94,7 @@ export async function POST(request: Request) {
 		console.error("Error looking up participant by name:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

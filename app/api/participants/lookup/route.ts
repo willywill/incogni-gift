@@ -10,10 +10,14 @@ export async function POST(request: Request) {
 		const { visitorId } = body;
 
 		// Validate inputs
-		if (!visitorId || typeof visitorId !== "string" || visitorId.trim().length === 0) {
+		if (
+			!visitorId ||
+			typeof visitorId !== "string" ||
+			visitorId.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Visitor ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -35,8 +39,8 @@ export async function POST(request: Request) {
 			.where(
 				and(
 					eq(participants.visitorId, normalizedVisitorId),
-					isNotNull(participants.visitorId)
-				)
+					isNotNull(participants.visitorId),
+				),
 			)
 			.orderBy(desc(participants.createdAt))
 			.limit(1);
@@ -47,7 +51,8 @@ export async function POST(request: Request) {
 				found: true,
 				exchange: {
 					participantId: latestParticipant.participantId,
-					participantName: `${latestParticipant.participantFirstName} ${latestParticipant.participantLastName || ""}`.trim(),
+					participantName:
+						`${latestParticipant.participantFirstName} ${latestParticipant.participantLastName || ""}`.trim(),
 					exchangeId: latestParticipant.exchangeId,
 					exchangeName: latestParticipant.exchangeName,
 				},
@@ -62,8 +67,7 @@ export async function POST(request: Request) {
 		console.error("Error looking up participant by visitor ID:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

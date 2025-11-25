@@ -6,7 +6,7 @@ import { getSession } from "@/app/lib/auth-server";
 
 export async function GET(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id: participantId } = await params;
@@ -21,7 +21,7 @@ export async function GET(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -35,24 +35,21 @@ export async function GET(
 		console.error("Error fetching participant:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function DELETE(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Get the current session
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		const { id: participantId } = await params;
@@ -67,7 +64,7 @@ export async function DELETE(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -78,33 +75,30 @@ export async function DELETE(
 			.where(
 				and(
 					eq(giftExchanges.id, participant.exchangeId),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Delete the participant (wishlist items will cascade automatically)
-		await db
-			.delete(participants)
-			.where(eq(participants.id, participantId));
+		await db.delete(participants).where(eq(participants.id, participantId));
 
 		return NextResponse.json(
 			{ message: "Participant deleted successfully" },
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (error) {
 		console.error("Error deleting participant:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

@@ -34,7 +34,7 @@ const StartHeader = styled.div`
 `;
 
 const StartTitle = styled.h1`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -47,7 +47,7 @@ const StartTitle = styled.h1`
 `;
 
 const StartSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0;
@@ -100,7 +100,7 @@ const OptionContent = styled.div`
 `;
 
 const OptionTitle = styled.div`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1rem;
   font-weight: 600;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -108,46 +108,49 @@ const OptionTitle = styled.div`
 `;
 
 const OptionDescription = styled.div`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   line-height: 1.5;
 `;
 
 export default function StartPage() {
-  const router = useRouter();
+	const router = useRouter();
 
-  return (
-    <StartContainer>
-      <StartCard>
-        <StartHeader>
-          <StartTitle>Get Started</StartTitle>
-          <StartSubtitle>Choose how you&apos;d like to get started with your gift exchange</StartSubtitle>
-        </StartHeader>
+	return (
+		<StartContainer>
+			<StartCard>
+				<StartHeader>
+					<StartTitle>Get Started</StartTitle>
+					<StartSubtitle>
+						Choose how you&apos;d like to get started with your gift exchange
+					</StartSubtitle>
+				</StartHeader>
 
-        <OptionsContainer>
-          <OptionButton onClick={() => router.push("/auth")}>
-            <Gift />
-            <OptionContent>
-              <OptionTitle>Create or manage a gift exchange</OptionTitle>
-              <OptionDescription>
-                Set up a new gift exchange or access your existing ones. You&apos;ll need to sign in to manage exchanges.
-              </OptionDescription>
-            </OptionContent>
-          </OptionButton>
+				<OptionsContainer>
+					<OptionButton onClick={() => router.push("/auth")}>
+						<Gift />
+						<OptionContent>
+							<OptionTitle>Create or manage a gift exchange</OptionTitle>
+							<OptionDescription>
+								Set up a new gift exchange or access your existing ones.
+								You&apos;ll need to sign in to manage exchanges.
+							</OptionDescription>
+						</OptionContent>
+					</OptionButton>
 
-          <OptionButton onClick={() => router.push("/join")}>
-            <Users />
-            <OptionContent>
-              <OptionTitle>Join or view a gift exchange</OptionTitle>
-              <OptionDescription>
-                Enter the organizer&apos;s information to find, join, or view an existing gift exchange.
-              </OptionDescription>
-            </OptionContent>
-          </OptionButton>
-        </OptionsContainer>
-      </StartCard>
-    </StartContainer>
-  );
+					<OptionButton onClick={() => router.push("/join")}>
+						<Users />
+						<OptionContent>
+							<OptionTitle>Join or view a gift exchange</OptionTitle>
+							<OptionDescription>
+								Enter the organizer&apos;s information to find, join, or view an
+								existing gift exchange.
+							</OptionDescription>
+						</OptionContent>
+					</OptionButton>
+				</OptionsContainer>
+			</StartCard>
+		</StartContainer>
+	);
 }
-

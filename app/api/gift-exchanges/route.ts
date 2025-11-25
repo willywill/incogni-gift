@@ -11,22 +11,17 @@ export async function POST(request: Request) {
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		// Parse request body
 		const body = await request.json();
-		const { name, spendingLimit, currency, magicWord, showRecipientNames } = body;
+		const { name, spendingLimit, currency, magicWord, showRecipientNames } =
+			body;
 
 		// Validate inputs
 		if (!name || typeof name !== "string" || name.trim().length === 0) {
-			return NextResponse.json(
-				{ error: "Name is required" },
-				{ status: 400 }
-			);
+			return NextResponse.json({ error: "Name is required" }, { status: 400 });
 		}
 
 		if (
@@ -36,22 +31,31 @@ export async function POST(request: Request) {
 			spendingLimit % 5 !== 0
 		) {
 			return NextResponse.json(
-				{ error: "Spending limit must be a positive number in increments of 5" },
-				{ status: 400 }
+				{
+					error: "Spending limit must be a positive number in increments of 5",
+				},
+				{ status: 400 },
 			);
 		}
 
 		if (!currency || typeof currency !== "string") {
 			return NextResponse.json(
 				{ error: "Currency is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
-		if (!magicWord || typeof magicWord !== "string" || magicWord.trim().length < 3) {
+		if (
+			!magicWord ||
+			typeof magicWord !== "string" ||
+			magicWord.trim().length < 3
+		) {
 			return NextResponse.json(
-				{ error: "Magic word is required and must be at least 3 characters long" },
-				{ status: 400 }
+				{
+					error:
+						"Magic word is required and must be at least 3 characters long",
+				},
+				{ status: 400 },
 			);
 		}
 
@@ -79,15 +83,18 @@ export async function POST(request: Request) {
 						isNotNull(user.lastName),
 						sql`${giftExchanges.magicWord} ILIKE ${normalizedMagicWord}`,
 						sql`${user.lastName} ILIKE ${normalizedLastName}`,
-						eq(giftExchanges.status, "active")
-					)
+						eq(giftExchanges.status, "active"),
+					),
 				)
 				.limit(1);
 
 			if (duplicateCheck.length > 0) {
 				return NextResponse.json(
-					{ error: "An exchange with this magic word already exists. Please choose a different magic word." },
-					{ status: 400 }
+					{
+						error:
+							"An exchange with this magic word already exists. Please choose a different magic word.",
+					},
+					{ status: 400 },
 				);
 			}
 		}
@@ -125,13 +132,13 @@ export async function POST(request: Request) {
 				createdAt: newExchange.createdAt,
 				updatedAt: newExchange.updatedAt,
 			},
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (error) {
 		console.error("Error creating gift exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -142,10 +149,7 @@ export async function GET(request: Request) {
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		// Get all active, started, and ended gift exchanges for this user
@@ -158,9 +162,9 @@ export async function GET(request: Request) {
 					or(
 						eq(giftExchanges.status, "active"),
 						eq(giftExchanges.status, "started"),
-						eq(giftExchanges.status, "ended")
-					)
-				)
+						eq(giftExchanges.status, "ended"),
+					),
+				),
 			)
 			.orderBy(desc(giftExchanges.createdAt));
 
@@ -176,14 +180,13 @@ export async function GET(request: Request) {
 				createdBy: exchange.createdBy,
 				createdAt: exchange.createdAt,
 				updatedAt: exchange.updatedAt,
-			}))
+			})),
 		);
 	} catch (error) {
 		console.error("Error fetching gift exchanges:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

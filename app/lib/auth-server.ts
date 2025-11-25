@@ -12,7 +12,10 @@ export function isAuthBypassEnabled(): boolean {
 	return process.env.NEXT_PUBLIC_SKIP_AUTH === "true";
 }
 
-function createMagicLinkEmail(magicLinkUrl: string): { html: string; text: string } {
+function createMagicLinkEmail(magicLinkUrl: string): {
+	html: string;
+	text: string;
+} {
 	const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -83,7 +86,9 @@ Anonymous gift pairing made simple.`;
 
 function createMailgunClient() {
 	if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
-		throw new Error("Mailgun configuration is missing. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.");
+		throw new Error(
+			"Mailgun configuration is missing. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.",
+		);
 	}
 
 	const mailgun = new Mailgun(FormData);
@@ -102,8 +107,9 @@ function getTrustedOrigins(): string[] {
 	if (process.env.BETTER_AUTH_URL) {
 		origins.push(process.env.BETTER_AUTH_URL);
 		// Add the www version of the URL
-		origins.push(process.env.BETTER_AUTH_URL
-			.replace("https://", "https://www."));
+		origins.push(
+			process.env.BETTER_AUTH_URL.replace("https://", "https://www."),
+		);
 	}
 
 	return origins;
@@ -127,7 +133,8 @@ export const auth = betterAuth({
 				try {
 					const { client, domain } = createMailgunClient();
 					const { html, text } = createMagicLinkEmail(url);
-					const from = process.env.MAILGUN_FROM || "IncogniGift <[email protected]>";
+					const from =
+						process.env.MAILGUN_FROM || "IncogniGift <[email protected]>";
 
 					await client.messages.create(domain, {
 						from: from,
@@ -139,7 +146,7 @@ export const auth = betterAuth({
 				} catch (error) {
 					const mailgunError = new Error(
 						"Failed to send email via Mailgun. " +
-						"Please check your MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM environment variables."
+							"Please check your MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM environment variables.",
 					);
 					console.error(mailgunError);
 					(mailgunError as any).originalError = error;
@@ -159,7 +166,11 @@ export async function createBypassSession() {
 	const mockUserFirstName = "Mock";
 	const mockUserLastName = "User";
 
-	let mockUserRecord = await db.select().from(user).where(eq(user.email, mockUserEmail)).limit(1);
+	const mockUserRecord = await db
+		.select()
+		.from(user)
+		.where(eq(user.email, mockUserEmail))
+		.limit(1);
 
 	let userId: string;
 	if (mockUserRecord.length === 0) {
@@ -175,8 +186,11 @@ export async function createBypassSession() {
 	} else {
 		userId = mockUserRecord[0].id;
 
-		const existingSessions = await db.select().from(session).where(eq(session.userId, userId));
-		const validSession = existingSessions.find(s => s.expiresAt > new Date());
+		const existingSessions = await db
+			.select()
+			.from(session)
+			.where(eq(session.userId, userId));
+		const validSession = existingSessions.find((s) => s.expiresAt > new Date());
 
 		if (validSession) {
 			const userData = mockUserRecord[0];
@@ -199,7 +213,11 @@ export async function createBypassSession() {
 		userAgent: null,
 	});
 
-	const userRecord = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+	const userRecord = await db
+		.select()
+		.from(user)
+		.where(eq(user.id, userId))
+		.limit(1);
 	const userData = userRecord[0];
 
 	const newSession = {
@@ -222,26 +240,31 @@ function buildSessionResponse(userData: any, sessionData: any) {
 				firstName: userData.firstName,
 				lastName: userData.lastName,
 				emailVerified: userData.emailVerified,
-				createdAt: userData.createdAt instanceof Date
-					? userData.createdAt.toISOString()
-					: new Date(userData.createdAt).toISOString(),
-				updatedAt: userData.updatedAt instanceof Date
-					? userData.updatedAt.toISOString()
-					: new Date(userData.updatedAt).toISOString(),
+				createdAt:
+					userData.createdAt instanceof Date
+						? userData.createdAt.toISOString()
+						: new Date(userData.createdAt).toISOString(),
+				updatedAt:
+					userData.updatedAt instanceof Date
+						? userData.updatedAt.toISOString()
+						: new Date(userData.updatedAt).toISOString(),
 			},
 			session: {
 				id: sessionData.id,
 				userId: sessionData.userId,
-				expiresAt: sessionData.expiresAt instanceof Date
-					? sessionData.expiresAt.toISOString()
-					: sessionData.expiresAt,
+				expiresAt:
+					sessionData.expiresAt instanceof Date
+						? sessionData.expiresAt.toISOString()
+						: sessionData.expiresAt,
 				token: sessionData.token,
 			},
 		},
 	};
 }
 
-export async function getSession(params: { headers: Headers | Record<string, string> }) {
+export async function getSession(params: {
+	headers: Headers | Record<string, string>;
+}) {
 	if (isAuthBypassEnabled()) {
 		const { response } = await createBypassSession();
 		return response;
@@ -249,4 +272,3 @@ export async function getSession(params: { headers: Headers | Record<string, str
 
 	return await auth.api.getSession(params);
 }
-

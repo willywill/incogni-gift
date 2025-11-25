@@ -22,7 +22,7 @@ const PageHeader = styled.div`
 `;
 
 const PageTitle = styled.h1`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 2rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -35,7 +35,7 @@ const PageTitle = styled.h1`
 `;
 
 const PageSubtitle = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -52,7 +52,7 @@ const LoadingContainer = styled.div`
 `;
 
 const LoadingText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 `;
@@ -77,7 +77,7 @@ const AccessDeniedCard = styled.div`
 `;
 
 const AccessDeniedTitle = styled.h1`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.75rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -86,7 +86,7 @@ const AccessDeniedTitle = styled.h1`
 `;
 
 const AccessDeniedText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -101,7 +101,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.25rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -110,7 +110,7 @@ const SectionTitle = styled.h2`
 `;
 
 const SectionDescription = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -136,7 +136,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 500;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -146,7 +146,7 @@ const Input = styled.input`
 	padding: 0.875rem 1rem;
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.background};
@@ -170,7 +170,7 @@ const Button = styled.button`
 	padding: 0.875rem 1.5rem;
 	border: none;
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -242,20 +242,20 @@ const InfoRow = styled.div`
 `;
 
 const InfoLabel = styled.span`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	font-weight: 500;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 `;
 
 const InfoValue = styled.span`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 `;
 
 const WarningText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0 0 1.5rem 0;
@@ -294,7 +294,7 @@ const ModalContent = styled(Dialog.Content)`
 `;
 
 const ModalTitle = styled(Dialog.Title)`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -303,7 +303,7 @@ const ModalTitle = styled(Dialog.Title)`
 `;
 
 const ModalDescription = styled(Dialog.Description)`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0 0 1.5rem 0;
@@ -337,7 +337,7 @@ const ModalCloseButton = styled(Dialog.Close)`
 `;
 
 const ErrorMessage = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0 0 1rem 0;
@@ -348,7 +348,7 @@ const ErrorMessage = styled.p`
 `;
 
 const SuccessMessage = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	margin: 0 0 1rem 0;
@@ -512,7 +512,9 @@ export default function SettingsPage() {
 				<AccessDeniedContainer>
 					<AccessDeniedCard>
 						<AccessDeniedTitle>Access Denied</AccessDeniedTitle>
-						<AccessDeniedText>Please sign in to access settings.</AccessDeniedText>
+						<AccessDeniedText>
+							Please sign in to access settings.
+						</AccessDeniedText>
 					</AccessDeniedCard>
 				</AccessDeniedContainer>
 			</DashboardLayout>
@@ -524,7 +526,9 @@ export default function SettingsPage() {
 			<PageHeader>
 				<div>
 					<PageTitle>Settings</PageTitle>
-					<PageSubtitle>Manage your account settings and preferences</PageSubtitle>
+					<PageSubtitle>
+						Manage your account settings and preferences
+					</PageSubtitle>
 				</div>
 			</PageHeader>
 
@@ -534,7 +538,9 @@ export default function SettingsPage() {
 			<Section>
 				<div>
 					<SectionTitle>Profile</SectionTitle>
-					<SectionDescription>Update your personal information</SectionDescription>
+					<SectionDescription>
+						Update your personal information
+					</SectionDescription>
 				</div>
 				<Card>
 					<FormGroup>
@@ -609,13 +615,14 @@ export default function SettingsPage() {
 				<div>
 					<SectionTitle>Delete Account</SectionTitle>
 					<SectionDescription>
-						Permanently delete your account and all associated data. This action cannot be undone.
+						Permanently delete your account and all associated data. This action
+						cannot be undone.
 					</SectionDescription>
 				</div>
 				<Card>
 					<WarningText>
-						Deleting your account will permanently remove all your gift exchanges and associated data.
-						This action cannot be undone.
+						Deleting your account will permanently remove all your gift
+						exchanges and associated data. This action cannot be undone.
 					</WarningText>
 					<DangerButton onClick={() => setDeleteConfirmOpen(true)}>
 						<Trash2 />
@@ -634,8 +641,9 @@ export default function SettingsPage() {
 					</ModalCloseButton>
 					<ModalTitle>Delete Account</ModalTitle>
 					<ModalDescription>
-						Are you sure you want to delete your account? This will permanently delete all your gift
-						exchanges and cannot be undone. Type <strong>DELETE</strong> to confirm.
+						Are you sure you want to delete your account? This will permanently
+						delete all your gift exchanges and cannot be undone. Type{" "}
+						<strong>DELETE</strong> to confirm.
 					</ModalDescription>
 					<DeleteConfirmInput
 						type="text"
@@ -647,11 +655,24 @@ export default function SettingsPage() {
 						placeholder="Type DELETE to confirm"
 					/>
 					{error && <ErrorMessage>{error}</ErrorMessage>}
-					<div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "1rem" }}>
-						<SecondaryButton onClick={() => setDeleteConfirmOpen(false)} disabled={deleting}>
+					<div
+						style={{
+							display: "flex",
+							gap: "0.75rem",
+							justifyContent: "flex-end",
+							marginTop: "1rem",
+						}}
+					>
+						<SecondaryButton
+							onClick={() => setDeleteConfirmOpen(false)}
+							disabled={deleting}
+						>
 							Cancel
 						</SecondaryButton>
-						<DangerButton onClick={handleDeleteAccount} disabled={deleting || deleteConfirmText !== "DELETE"}>
+						<DangerButton
+							onClick={handleDeleteAccount}
+							disabled={deleting || deleteConfirmText !== "DELETE"}
+						>
 							{deleting ? "Deleting..." : "Delete Account"}
 						</DangerButton>
 					</div>
@@ -669,4 +690,3 @@ export default function SettingsPage() {
 		</DashboardLayout>
 	);
 }
-

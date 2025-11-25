@@ -75,7 +75,7 @@ const RegisterHeader = styled.div`
 `;
 
 const RegisterTitle = styled.h1`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -88,7 +88,7 @@ const RegisterTitle = styled.h1`
 `;
 
 const RegisterSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0;
@@ -108,7 +108,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -139,7 +139,7 @@ const Input = styled.input`
   padding: 0.875rem 1rem 0.875rem 2.75rem;
   border: 1px solid ${(props) => props.theme.lightMode.colors.border};
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   background: ${(props) => props.theme.lightMode.colors.background};
@@ -162,7 +162,7 @@ const SubmitButton = styled.button`
   padding: 0.875rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
@@ -190,7 +190,7 @@ const SubmitButton = styled.button`
 const ErrorMessage = styled.div`
   padding: 0.875rem 1rem;
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   background: ${(props) => props.theme.lightMode.colors.error || "#fee2e2"};
   color: ${(props) => props.theme.lightMode.colors.errorText || "#991b1b"};
@@ -205,7 +205,7 @@ const ExchangeInfo = styled.div`
 `;
 
 const ExchangeInfoText = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0.5rem 0 0 0;
@@ -213,238 +213,261 @@ const ExchangeInfoText = styled.p`
 `;
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const params = useParams();
-  const exchangeId = params?.id as string;
+	const router = useRouter();
+	const params = useParams();
+	const exchangeId = params?.id as string;
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [exchange, setExchange] = useState<{
-    name: string;
-    spendingLimit: number;
-    currency: string;
-    status: string;
-  } | null>(null);
-  const [exchangeLoading, setExchangeLoading] = useState(true);
-  const [visitorId, setVisitorId] = useState<string | null>(null);
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [exchange, setExchange] = useState<{
+		name: string;
+		spendingLimit: number;
+		currency: string;
+		status: string;
+	} | null>(null);
+	const [exchangeLoading, setExchangeLoading] = useState(true);
+	const [visitorId, setVisitorId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!exchangeId) {
-      router.push("/join");
-      return;
-    }
+	useEffect(() => {
+		if (!exchangeId) {
+			router.push("/join");
+			return;
+		}
 
-    // Get visitor ID on mount
-    getVisitorId()
-      .then((id) => {
-        setVisitorId(id);
-      })
-      .catch((err) => {
-        console.error("Error getting visitor ID:", err);
-      });
+		// Get visitor ID on mount
+		getVisitorId()
+			.then((id) => {
+				setVisitorId(id);
+			})
+			.catch((err) => {
+				console.error("Error getting visitor ID:", err);
+			});
 
-    // Fetch exchange details to check status
-    const fetchExchange = async () => {
-      try {
-        const response = await fetch(`/api/gift-exchanges/${exchangeId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setExchange({
-            name: data.name,
-            spendingLimit: data.spendingLimit,
-            currency: data.currency,
-            status: data.status,
-          });
-        } else {
-          setError("Exchange not found");
-        }
-      } catch (err) {
-        console.error("Error fetching exchange:", err);
-        setError("Failed to load exchange details");
-      } finally {
-        setExchangeLoading(false);
-      }
-    };
+		// Fetch exchange details to check status
+		const fetchExchange = async () => {
+			try {
+				const response = await fetch(`/api/gift-exchanges/${exchangeId}`);
+				if (response.ok) {
+					const data = await response.json();
+					setExchange({
+						name: data.name,
+						spendingLimit: data.spendingLimit,
+						currency: data.currency,
+						status: data.status,
+					});
+				} else {
+					setError("Exchange not found");
+				}
+			} catch (err) {
+				console.error("Error fetching exchange:", err);
+				setError("Failed to load exchange details");
+			} finally {
+				setExchangeLoading(false);
+			}
+		};
 
-    fetchExchange();
-  }, [exchangeId, router]);
+		fetchExchange();
+	}, [exchangeId, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // If exchange has started, use participant lookup instead
-    if (exchange?.status === "started") {
-      setError(null);
-      setLoading(true);
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
 
-      try {
-        const response = await fetch("/api/participants/lookup-by-name", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            exchangeId,
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-          }),
-        });
+		// If exchange has started, use participant lookup instead
+		if (exchange?.status === "started") {
+			setError(null);
+			setLoading(true);
 
-        if (!response.ok) {
-          const data = await response.json();
-          setError(data.error || "No participant found with that name");
-          setLoading(false);
-          return;
-        }
+			try {
+				const response = await fetch("/api/participants/lookup-by-name", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						exchangeId,
+						firstName: firstName.trim(),
+						lastName: lastName.trim(),
+					}),
+				});
 
-        const data = await response.json();
-        if (data.found && data.participant) {
-          // Redirect to match page
-          router.push(`/exchange/${exchangeId}/match?participantId=${data.participant.id}`);
-        } else {
-          setError("No participant found with that name");
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error looking up participant:", error);
-        setError("An error occurred while looking up the participant. Please try again.");
-        setLoading(false);
-      }
-      return;
-    }
+				if (!response.ok) {
+					const data = await response.json();
+					setError(data.error || "No participant found with that name");
+					setLoading(false);
+					return;
+				}
 
-    setError(null);
-    setLoading(true);
+				const data = await response.json();
+				if (data.found && data.participant) {
+					// Redirect to match page
+					router.push(
+						`/exchange/${exchangeId}/match?participantId=${data.participant.id}`,
+					);
+				} else {
+					setError("No participant found with that name");
+					setLoading(false);
+				}
+			} catch (error) {
+				console.error("Error looking up participant:", error);
+				setError(
+					"An error occurred while looking up the participant. Please try again.",
+				);
+				setLoading(false);
+			}
+			return;
+		}
 
-    try {
-      const response = await fetch("/api/participants", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          exchangeId,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          visitorId: visitorId,
-        }),
-      });
+		setError(null);
+		setLoading(true);
 
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "An error occurred while registering. Please try again.");
-        setLoading(false);
-        return;
-      }
+		try {
+			const response = await fetch("/api/participants", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					exchangeId,
+					firstName: firstName.trim(),
+					lastName: lastName.trim(),
+					visitorId: visitorId,
+				}),
+			});
 
-      const participant = await response.json();
-      // Redirect to wishlist page with participant ID
-      router.push(`/exchange/${exchangeId}/wishlist?participantId=${participant.id}`);
-    } catch (error) {
-      console.error("Error registering participant:", error);
-      setError("An error occurred while registering. Please try again.");
-      setLoading(false);
-    }
-  };
+			if (!response.ok) {
+				const data = await response.json();
+				setError(
+					data.error ||
+						"An error occurred while registering. Please try again.",
+				);
+				setLoading(false);
+				return;
+			}
 
-  const isExchangeStarted = exchange?.status === "started";
-  const isDisabled = loading || exchangeLoading;
+			const participant = await response.json();
+			// Redirect to wishlist page with participant ID
+			router.push(
+				`/exchange/${exchangeId}/wishlist?participantId=${participant.id}`,
+			);
+		} catch (error) {
+			console.error("Error registering participant:", error);
+			setError("An error occurred while registering. Please try again.");
+			setLoading(false);
+		}
+	};
 
-  if (exchangeLoading) {
-    return (
-      <RegisterContainer>
-        <RegisterCard>
-          <RegisterHeader>
-            <RegisterTitle>Loading...</RegisterTitle>
-          </RegisterHeader>
-        </RegisterCard>
-      </RegisterContainer>
-    );
-  }
+	const isExchangeStarted = exchange?.status === "started";
+	const isDisabled = loading || exchangeLoading;
 
-  return (
-    <RegisterContainer>
-      <RegisterCard>
-        <HeaderRow>
-          <BackButton onClick={() => router.push(`/join`)} aria-label="Go back">
-            <ArrowLeft />
-          </BackButton>
-        </HeaderRow>
-        <ExchangeStepper currentStep={2} />
-        <RegisterHeader>
-          <RegisterTitle>
-            {isExchangeStarted ? "Find Your Participant" : "Join the Exchange"}
-          </RegisterTitle>
-          <RegisterSubtitle>
-            {isExchangeStarted
-              ? "This exchange has already started. Enter your name to view your match and gift ideas."
-              : "Enter your name to join the gift exchange"}
-          </RegisterSubtitle>
-        </RegisterHeader>
+	if (exchangeLoading) {
+		return (
+			<RegisterContainer>
+				<RegisterCard>
+					<RegisterHeader>
+						<RegisterTitle>Loading...</RegisterTitle>
+					</RegisterHeader>
+				</RegisterCard>
+			</RegisterContainer>
+		);
+	}
 
-        {exchange && (
-          <ExchangeInfo>
-            <strong style={{ fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem", color: "inherit" }}>
-              {exchange.name}
-            </strong>
-            <ExchangeInfoText>
-              Spending Limit: {new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: exchange.currency,
-              }).format(exchange.spendingLimit)}
-            </ExchangeInfoText>
-          </ExchangeInfo>
-        )}
+	return (
+		<RegisterContainer>
+			<RegisterCard>
+				<HeaderRow>
+					<BackButton onClick={() => router.push(`/join`)} aria-label="Go back">
+						<ArrowLeft />
+					</BackButton>
+				</HeaderRow>
+				<ExchangeStepper currentStep={2} />
+				<RegisterHeader>
+					<RegisterTitle>
+						{isExchangeStarted ? "Find Your Participant" : "Join the Exchange"}
+					</RegisterTitle>
+					<RegisterSubtitle>
+						{isExchangeStarted
+							? "This exchange has already started. Enter your name to view your match and gift ideas."
+							: "Enter your name to join the gift exchange"}
+					</RegisterSubtitle>
+				</RegisterHeader>
 
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="firstName">First Name *</Label>
-            <InputWrapper>
-              <InputIcon>
-                <User />
-              </InputIcon>
-              <Input
-                id="firstName"
-                type="text"
-                placeholder="John"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-                disabled={isDisabled}
-              />
-            </InputWrapper>
-          </FormGroup>
+				{exchange && (
+					<ExchangeInfo>
+						<strong
+							style={{
+								fontFamily:
+									"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+								fontSize: "0.9375rem",
+								color: "inherit",
+							}}
+						>
+							{exchange.name}
+						</strong>
+						<ExchangeInfoText>
+							Spending Limit:{" "}
+							{new Intl.NumberFormat("en-US", {
+								style: "currency",
+								currency: exchange.currency,
+							}).format(exchange.spendingLimit)}
+						</ExchangeInfoText>
+					</ExchangeInfo>
+				)}
 
-          <FormGroup>
-            <Label htmlFor="lastName">Last Name *</Label>
-            <InputWrapper>
-              <InputIcon>
-                <User />
-              </InputIcon>
-              <Input
-                id="lastName"
-                type="text"
-                placeholder="Doe"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-                disabled={isDisabled}
-              />
-            </InputWrapper>
-          </FormGroup>
+				<Form onSubmit={handleSubmit}>
+					<FormGroup>
+						<Label htmlFor="firstName">First Name *</Label>
+						<InputWrapper>
+							<InputIcon>
+								<User />
+							</InputIcon>
+							<Input
+								id="firstName"
+								type="text"
+								placeholder="John"
+								value={firstName}
+								onChange={(e) => setFirstName(e.target.value)}
+								required
+								disabled={isDisabled}
+							/>
+						</InputWrapper>
+					</FormGroup>
 
-          {error && <ErrorMessage>{error}</ErrorMessage>}
+					<FormGroup>
+						<Label htmlFor="lastName">Last Name *</Label>
+						<InputWrapper>
+							<InputIcon>
+								<User />
+							</InputIcon>
+							<Input
+								id="lastName"
+								type="text"
+								placeholder="Doe"
+								value={lastName}
+								onChange={(e) => setLastName(e.target.value)}
+								required
+								disabled={isDisabled}
+							/>
+						</InputWrapper>
+					</FormGroup>
 
-          <SubmitButton type="submit" disabled={isDisabled || !firstName.trim() || !lastName.trim()}>
-            {loading
-              ? (isExchangeStarted ? "Looking up..." : "Joining...")
-              : (isExchangeStarted ? "Find My Match" : "Continue")}
-          </SubmitButton>
-        </Form>
-      </RegisterCard>
-    </RegisterContainer>
-  );
+					{error && <ErrorMessage>{error}</ErrorMessage>}
+
+					<SubmitButton
+						type="submit"
+						disabled={isDisabled || !firstName.trim() || !lastName.trim()}
+					>
+						{loading
+							? isExchangeStarted
+								? "Looking up..."
+								: "Joining..."
+							: isExchangeStarted
+								? "Find My Match"
+								: "Continue"}
+					</SubmitButton>
+				</Form>
+			</RegisterCard>
+		</RegisterContainer>
+	);
 }
-

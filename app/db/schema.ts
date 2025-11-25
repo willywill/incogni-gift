@@ -96,7 +96,9 @@ export const wishlistItems = pgTable("wishlist_items", {
 	previewTitle: text("preview_title"),
 	previewDescription: text("preview_description"),
 	completed: boolean("completed").notNull().default(false),
-	completedBy: text("completed_by").references(() => participants.id, { onDelete: "set null" }),
+	completedBy: text("completed_by").references(() => participants.id, {
+		onDelete: "set null",
+	}),
 	completedAt: timestamp("completed_at"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -117,4 +119,3 @@ export const assignments = pgTable("assignments", {
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
-

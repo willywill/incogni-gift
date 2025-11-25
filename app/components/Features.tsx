@@ -1,81 +1,94 @@
 "use client";
 
 import styled from "styled-components";
-import { Lock, Gift, Shield, Sparkles, Eye } from "lucide-react";
+import { Lock, Shield, Sparkles, Eye } from "lucide-react";
+import * as motion from "motion/react-client";
 
 const FeaturesSection = styled.section`
   max-width: 1200px;
   margin: 0 auto;
   padding: 6rem 2rem;
-  background: ${(props) => props.theme.lightMode.colors.muted};
+  background: ${(props) => props.theme.lightMode.colors.background};
 
   @media (max-width: 768px) {
     padding: 4rem 1.5rem;
   }
 `;
 
-const SectionTitle = styled.h2`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 700;
+const SectionHeader = styled.div`
   text-align: center;
+  margin-bottom: 4rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const SectionLabel = styled.span`
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.accent};
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 1rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 500;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0 0 1rem 0;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 
   @media (max-width: 768px) {
     font-size: 2rem;
-    letter-spacing: -0.025em;
   }
 `;
 
 const SectionSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(1rem, 1.5vw, 1.125rem);
-  text-align: center;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.0625rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
-  margin: 0 0 4rem 0;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0;
   line-height: 1.7;
-  font-weight: 400;
-  letter-spacing: -0.01em;
 `;
 
 const FeaturesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 `;
 
 const FeatureCard = styled.div`
-  background: ${(props) => props.theme.lightMode.colors.background};
+  background: ${(props) => props.theme.lightMode.colors.surface};
   padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid ${(props) => props.theme.lightMode.colors.border};
+  border-radius: ${(props) => props.theme.lightMode.radii.xl};
   transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    border-color: ${(props) => props.theme.lightMode.colors.gray300};
+    transform: translateY(-2px);
+    box-shadow: ${(props) => props.theme.lightMode.shadows.lg};
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
   }
 `;
 
 const IconWrapper = styled.div`
   width: 48px;
   height: 48px;
-  background: ${(props) => props.theme.lightMode.colors.foreground};
-  color: ${(props) => props.theme.lightMode.colors.background};
-  border-radius: 10px;
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.accent};
+  border-radius: ${(props) => props.theme.lightMode.radii.lg};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,67 +101,124 @@ const IconWrapper = styled.div`
 `;
 
 const FeatureTitle = styled.h3`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), Georgia, serif;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 500;
   color: ${(props) => props.theme.lightMode.colors.foreground};
-  margin: 0 0 0.75rem 0;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  margin: 0 0 0.625rem 0;
+  letter-spacing: -0.01em;
 `;
 
 const FeatureDescription = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   line-height: 1.7;
   margin: 0;
-  font-weight: 400;
-  letter-spacing: -0.01em;
 `;
 
 const features = [
-  {
-    icon: Lock,
-    title: "Flexible Anonymity",
-    description: "By default, identities stay secret until the big reveal. Creators can optionally enable a mode where participants see who they're buying gifts for right away.",
-  },
-  {
-    icon: Shield,
-    title: "Zero Personal Info Exposed",
-    description: "Your privacy is our priority. Share interests without sharing identity. Your match partner never sees your personal information.",
-  },
-  {
-    icon: Sparkles,
-    title: "Clean & Modern UI",
-    description: "Enjoy a beautiful, intuitive interface designed to make your gift exchange experience delightful and effortless.",
-  },
-  {
-    icon: Eye,
-    title: "Controlled Reveal",
-    description: "Exchange creators have full control over anonymity settings. Choose whether to keep identities secret or show recipient names immediately after matching.",
-  },
+	{
+		icon: Lock,
+		title: "Flexible Anonymity",
+		description:
+			"Identities stay secret until the reveal. Creators can optionally let participants see who they're buying for right away.",
+	},
+	{
+		icon: Shield,
+		title: "Privacy-First",
+		description:
+			"Share interests without sharing identity. Your match partner never sees your personal information.",
+	},
+	{
+		icon: Sparkles,
+		title: "Effortless Experience",
+		description:
+			"Beautiful, intuitive design that makes organizing gift exchanges simple and delightful.",
+	},
+	{
+		icon: Eye,
+		title: "Controlled Reveal",
+		description:
+			"Full control over anonymity settings. Choose when and how identities are revealed.",
+	},
 ];
 
-export default function Features() {
-  return (
-    <FeaturesSection id="features">
-      <SectionTitle>Everything you need for the perfect gift exchange</SectionTitle>
-      <SectionSubtitle>
-        Thoughtfully designed features that make anonymous gifting fun, secure, and memorable.
-      </SectionSubtitle>
-      <FeaturesGrid>
-        {features.map((feature, index) => (
-          <FeatureCard key={index}>
-            <IconWrapper>
-              <feature.icon />
-            </IconWrapper>
-            <FeatureTitle>{feature.title}</FeatureTitle>
-            <FeatureDescription>{feature.description}</FeatureDescription>
-          </FeatureCard>
-        ))}
-      </FeaturesGrid>
-    </FeaturesSection>
-  );
-}
+const sectionHeaderVariants = {
+	hidden: { opacity: 0, y: 40 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			duration: 0.7,
+			ease: [0.22, 1, 0.36, 1],
+		},
+	},
+};
 
+const gridVariants = {
+	hidden: { opacity: 0 },
+	visible: {
+		opacity: 1,
+		transition: {
+			staggerChildren: 0.12,
+			delayChildren: 0.2,
+		},
+	},
+};
+
+const cardVariants = {
+	hidden: { opacity: 0, y: 40, scale: 0.95 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		scale: 1,
+		transition: {
+			duration: 0.5,
+			ease: [0.22, 1, 0.36, 1],
+		},
+	},
+};
+
+export default function Features() {
+	return (
+		<FeaturesSection id="features">
+			<motion.div
+				initial="hidden"
+				whileInView="visible"
+				viewport={{ once: true, margin: "-100px" }}
+				variants={sectionHeaderVariants}
+			>
+				<SectionHeader>
+					<SectionLabel>Features</SectionLabel>
+					<SectionTitle>
+						Everything you need for thoughtful exchanges
+					</SectionTitle>
+					<SectionSubtitle>
+						Simple tools that make anonymous gifting secure and memorable.
+					</SectionSubtitle>
+				</SectionHeader>
+			</motion.div>
+			<motion.div
+				initial="hidden"
+				whileInView="visible"
+				viewport={{ once: true, margin: "-50px" }}
+				variants={gridVariants}
+			>
+				<FeaturesGrid>
+					{features.map((feature, index) => (
+						<motion.div key={index} variants={cardVariants}>
+							<FeatureCard>
+								<IconWrapper>
+									<feature.icon />
+								</IconWrapper>
+								<FeatureTitle>{feature.title}</FeatureTitle>
+								<FeatureDescription>{feature.description}</FeatureDescription>
+							</FeatureCard>
+						</motion.div>
+					))}
+				</FeaturesGrid>
+			</motion.div>
+		</FeaturesSection>
+	);
+}

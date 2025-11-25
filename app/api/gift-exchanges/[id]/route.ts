@@ -6,7 +6,7 @@ import { eq, and, sql, isNotNull, ne } from "drizzle-orm";
 
 export async function GET(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id } = await params;
@@ -21,7 +21,7 @@ export async function GET(
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -41,31 +41,29 @@ export async function GET(
 		console.error("Error fetching gift exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function PATCH(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Get the current session
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		const { id } = await params;
 
 		// Parse request body
 		const body = await request.json();
-		const { name, spendingLimit, currency, magicWord, showRecipientNames } = body;
+		const { name, spendingLimit, currency, magicWord, showRecipientNames } =
+			body;
 
 		// First, verify the user owns this exchange
 		const [existingExchange] = await db
@@ -74,15 +72,15 @@ export async function PATCH(
 			.where(
 				and(
 					eq(giftExchanges.id, id),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!existingExchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -102,7 +100,7 @@ export async function PATCH(
 			if (typeof name !== "string" || name.trim().length === 0) {
 				return NextResponse.json(
 					{ error: "Name must be a non-empty string" },
-					{ status: 400 }
+					{ status: 400 },
 				);
 			}
 			updates.name = name.trim();
@@ -115,8 +113,11 @@ export async function PATCH(
 				spendingLimit % 5 !== 0
 			) {
 				return NextResponse.json(
-					{ error: "Spending limit must be a positive number in increments of 5" },
-					{ status: 400 }
+					{
+						error:
+							"Spending limit must be a positive number in increments of 5",
+					},
+					{ status: 400 },
 				);
 			}
 			updates.spendingLimit = spendingLimit;
@@ -126,7 +127,7 @@ export async function PATCH(
 			if (typeof currency !== "string") {
 				return NextResponse.json(
 					{ error: "Currency must be a string" },
-					{ status: 400 }
+					{ status: 400 },
 				);
 			}
 			updates.currency = currency;
@@ -136,7 +137,7 @@ export async function PATCH(
 			if (typeof magicWord !== "string" || magicWord.trim().length < 3) {
 				return NextResponse.json(
 					{ error: "Magic word must be at least 3 characters long" },
-					{ status: 400 }
+					{ status: 400 },
 				);
 			}
 
@@ -165,15 +166,18 @@ export async function PATCH(
 							isNotNull(user.lastName),
 							sql`${giftExchanges.magicWord} ILIKE ${normalizedMagicWord}`,
 							sql`${user.lastName} ILIKE ${normalizedLastName}`,
-							eq(giftExchanges.status, "active")
-						)
+							eq(giftExchanges.status, "active"),
+						),
 					)
 					.limit(1);
 
 				if (duplicateCheck.length > 0) {
 					return NextResponse.json(
-						{ error: "An exchange with this magic word already exists. Please choose a different magic word." },
-						{ status: 400 }
+						{
+							error:
+								"An exchange with this magic word already exists. Please choose a different magic word.",
+						},
+						{ status: 400 },
 					);
 				}
 			}
@@ -185,14 +189,20 @@ export async function PATCH(
 			if (typeof showRecipientNames !== "boolean") {
 				return NextResponse.json(
 					{ error: "showRecipientNames must be a boolean" },
-					{ status: 400 }
+					{ status: 400 },
 				);
 			}
 			// Only allow toggling if exchange is NOT started or ended
-			if (existingExchange.status === "started" || existingExchange.status === "ended") {
+			if (
+				existingExchange.status === "started" ||
+				existingExchange.status === "ended"
+			) {
 				return NextResponse.json(
-					{ error: "Cannot change recipient name visibility after exchange has started" },
-					{ status: 400 }
+					{
+						error:
+							"Cannot change recipient name visibility after exchange has started",
+					},
+					{ status: 400 },
 				);
 			}
 			updates.showRecipientNames = showRecipientNames;
@@ -221,24 +231,21 @@ export async function PATCH(
 		console.error("Error updating gift exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function DELETE(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Get the current session
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		const { id } = await params;
@@ -250,33 +257,30 @@ export async function DELETE(
 			.where(
 				and(
 					eq(giftExchanges.id, id),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!existingExchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Delete the exchange (cascading deletes will handle participants, assignments, wishlist items)
-		await db
-			.delete(giftExchanges)
-			.where(eq(giftExchanges.id, id));
+		await db.delete(giftExchanges).where(eq(giftExchanges.id, id));
 
 		return NextResponse.json(
 			{ message: "Exchange deleted successfully" },
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (error) {
 		console.error("Error deleting gift exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

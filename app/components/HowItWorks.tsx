@@ -2,10 +2,10 @@
 
 import styled from "styled-components";
 import { UserPlus, Users, Heart, Gift } from "lucide-react";
+import * as motion from "motion/react-client";
 
 const HowItWorksSection = styled.section`
-  max-width: 1200px;
-  margin: 0 auto;
+  background: ${(props) => props.theme.lightMode.colors.surface};
   padding: 6rem 2rem;
 
   @media (max-width: 768px) {
@@ -13,166 +13,234 @@ const HowItWorksSection = styled.section`
   }
 `;
 
-const SectionTitle = styled.h2`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 700;
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+const SectionHeader = styled.div`
   text-align: center;
+  margin-bottom: 4rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const SectionLabel = styled.span`
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.lightMode.colors.accent};
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 1rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 500;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   margin: 0 0 1rem 0;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 
   @media (max-width: 768px) {
     font-size: 2rem;
-    letter-spacing: -0.025em;
   }
 `;
 
 const SectionSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(1rem, 1.5vw, 1.125rem);
-  text-align: center;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.0625rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
-  margin: 0 0 4rem 0;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0;
   line-height: 1.7;
-  font-weight: 400;
-  letter-spacing: -0.01em;
 `;
 
 const StepsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 3rem;
-  margin-top: 4rem;
-  position: relative;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 968px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2rem;
   }
 `;
 
 const StepCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   text-align: center;
-  position: relative;
 `;
 
 const StepNumber = styled.div`
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: ${(props) => props.theme.lightMode.colors.foreground};
-  color: ${(props) => props.theme.lightMode.colors.background};
+  background: ${(props) => props.theme.lightMode.colors.background};
+  color: ${(props) => props.theme.lightMode.colors.accent};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: 2;
-  letter-spacing: -0.02em;
-`;
+  margin: 0 auto 1.25rem;
+  transition: all 0.3s ease;
 
-const IconWrapper = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
   svg {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
+  }
+  
+  ${StepCard}:hover & {
+    background: ${(props) => props.theme.lightMode.colors.accentLight};
   }
 `;
 
 const StepTitle = styled.h3`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 500;
   color: ${(props) => props.theme.lightMode.colors.foreground};
-  margin: 0 0 0.75rem 0;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-`;
-
-const StepDescription = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.9375rem;
-  color: ${(props) => props.theme.lightMode.colors.secondary};
-  line-height: 1.7;
-  margin: 0;
-  max-width: 280px;
-  font-weight: 400;
+  margin: 0 0 0.5rem 0;
   letter-spacing: -0.01em;
 `;
 
-const ConnectorLine = styled.div`
-  position: absolute;
-  top: 40px;
-  left: 50%;
-  width: calc(100% - 160px);
-  height: 2px;
-  background: ${(props) => props.theme.lightMode.colors.border};
-  z-index: 1;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
+const StepDescription = styled.p`
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  color: ${(props) => props.theme.lightMode.colors.secondary};
+  line-height: 1.6;
+  margin: 0;
 `;
 
 const steps = [
-  {
-    icon: UserPlus,
-    title: "Create & Manage",
-    description: "Create a gift exchange with just an email—no password needed. Manage everything, set spending limits, and control when to start and end.",
-  },
-  {
-    icon: Users,
-    title: "Easy Participation",
-    description: "Participants join conveniently without needing an account. They simply add their interests and preferences.",
-  },
-  {
-    icon: Heart,
-    title: "Smart Anonymous Matching",
-    description: "Participants are matched anonymously using our smart matching system with your defined spending limits.",
-  },
-  {
-    icon: Gift,
-    title: "Exchange & Reveal",
-    description: "When the exchange ends, it's revealed who should receive the gifts. The surprise moment everyone's been waiting for!",
-  },
+	{
+		icon: UserPlus,
+		title: "Create",
+		description:
+			"Set up your exchange with spending limits and privacy settings.",
+	},
+	{
+		icon: Users,
+		title: "Invite",
+		description: "Share your link. Participants join without needing accounts.",
+	},
+	{
+		icon: Heart,
+		title: "Match",
+		description: "Our algorithm pairs everyone anonymously.",
+	},
+	{
+		icon: Gift,
+		title: "Reveal",
+		description: "When the time comes, discover who had who!",
+	},
 ];
 
-export default function HowItWorks() {
-  return (
-    <HowItWorksSection id="how-it-works">
-      <SectionTitle>How It Works</SectionTitle>
-      <SectionSubtitle>
-        Simple and seamless gift exchange from creation to reveal
-      </SectionSubtitle>
-      <StepsContainer>
-        {steps.map((step, index) => (
-          <StepCard key={index}>
-            <StepNumber>
-              <IconWrapper>
-                <step.icon />
-              </IconWrapper>
-            </StepNumber>
-            <StepTitle>{step.title}</StepTitle>
-            <StepDescription>{step.description}</StepDescription>
-          </StepCard>
-        ))}
-      </StepsContainer>
-    </HowItWorksSection>
-  );
-}
+const headerVariants = {
+	hidden: { opacity: 0, y: 40 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			duration: 0.7,
+			ease: [0.22, 1, 0.36, 1],
+		},
+	},
+};
 
+const stepsContainerVariants = {
+	hidden: { opacity: 0 },
+	visible: {
+		opacity: 1,
+		transition: {
+			staggerChildren: 0.15,
+			delayChildren: 0.2,
+		},
+	},
+};
+
+const stepVariants = {
+	hidden: { opacity: 0, y: 50 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			duration: 0.6,
+			ease: [0.22, 1, 0.36, 1],
+		},
+	},
+};
+
+const stepIconVariants = {
+	hidden: { scale: 0, opacity: 0 },
+	visible: {
+		scale: 1,
+		opacity: 1,
+		transition: {
+			type: "spring",
+			stiffness: 300,
+			damping: 20,
+		},
+	},
+};
+
+export default function HowItWorks() {
+	return (
+		<HowItWorksSection id="how-it-works">
+			<Container>
+				<motion.div
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true, margin: "-100px" }}
+					variants={headerVariants}
+				>
+					<SectionHeader>
+						<SectionLabel>How It Works</SectionLabel>
+						<SectionTitle>Simple from start to finish</SectionTitle>
+						<SectionSubtitle>
+							Get your gift exchange running in minutes.
+						</SectionSubtitle>
+					</SectionHeader>
+				</motion.div>
+				<motion.div
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true, margin: "-50px" }}
+					variants={stepsContainerVariants}
+				>
+					<StepsContainer>
+						{steps.map((step, index) => (
+							<motion.div key={index} variants={stepVariants}>
+								<StepCard>
+									<motion.div
+										variants={stepIconVariants}
+										whileHover={{
+											scale: 1.1,
+											transition: {
+												type: "spring",
+												stiffness: 400,
+												damping: 10,
+											},
+										}}
+									>
+										<StepNumber>
+											<step.icon />
+										</StepNumber>
+									</motion.div>
+									<StepTitle>{step.title}</StepTitle>
+									<StepDescription>{step.description}</StepDescription>
+								</StepCard>
+							</motion.div>
+						))}
+					</StepsContainer>
+				</motion.div>
+			</Container>
+		</HowItWorksSection>
+	);
+}

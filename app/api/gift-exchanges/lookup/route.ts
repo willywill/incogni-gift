@@ -10,17 +10,25 @@ export async function POST(request: Request) {
 		const { lastName, magicWord } = body;
 
 		// Validate inputs
-		if (!lastName || typeof lastName !== "string" || lastName.trim().length === 0) {
+		if (
+			!lastName ||
+			typeof lastName !== "string" ||
+			lastName.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Last name is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
-		if (!magicWord || typeof magicWord !== "string" || magicWord.trim().length === 0) {
+		if (
+			!magicWord ||
+			typeof magicWord !== "string" ||
+			magicWord.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Magic word is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -51,8 +59,11 @@ export async function POST(request: Request) {
 					isNotNull(user.lastName),
 					sql`${giftExchanges.magicWord} ILIKE ${normalizedMagicWord}`,
 					sql`${user.lastName} ILIKE ${normalizedLastName}`,
-					or(eq(giftExchanges.status, "active"), eq(giftExchanges.status, "started"))
-				)
+					or(
+						eq(giftExchanges.status, "active"),
+						eq(giftExchanges.status, "started"),
+					),
+				),
 			)
 			.limit(1);
 
@@ -60,7 +71,7 @@ export async function POST(request: Request) {
 		if (result.length === 0) {
 			return NextResponse.json(
 				{ error: "No exchange found matching the provided information" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -79,8 +90,7 @@ export async function POST(request: Request) {
 		console.error("Error looking up gift exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

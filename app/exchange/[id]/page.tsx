@@ -63,7 +63,7 @@ const HeaderInfo = styled.div`
 `;
 
 const HeaderLabel = styled.span`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
   color: ${(props) => props.theme.lightMode.colors.secondary};
@@ -72,7 +72,7 @@ const HeaderLabel = styled.span`
 `;
 
 const HeaderValue = styled.span`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -102,7 +102,7 @@ const ExchangeHeader = styled.div`
 `;
 
 const ExchangeTitle = styled.h1`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -129,7 +129,7 @@ const ExchangeTitle = styled.h1`
 `;
 
 const ExchangeSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0;
@@ -150,7 +150,7 @@ const InfoItem = styled.div`
 `;
 
 const InfoLabel = styled.div`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   color: ${(props) => props.theme.lightMode.colors.secondary};
@@ -160,13 +160,13 @@ const InfoLabel = styled.div`
 `;
 
 const InfoValue = styled.div`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.125rem;
   color: ${(props) => props.theme.lightMode.colors.foreground};
 `;
 
 const LoadingText = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   text-align: center;
@@ -175,7 +175,7 @@ const LoadingText = styled.p`
 const ErrorMessage = styled.div`
   padding: 0.875rem 1rem;
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   background: ${(props) => props.theme.lightMode.colors.error || "#fee2e2"};
   color: ${(props) => props.theme.lightMode.colors.errorText || "#991b1b"};
@@ -192,7 +192,7 @@ const PrimaryButton = styled.button`
   border-radius: 8px;
   background: ${(props) => props.theme.lightMode.colors.foreground};
   color: ${(props) => props.theme.lightMode.colors.background};
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -217,114 +217,114 @@ const PrimaryButton = styled.button`
 `;
 
 export default function ExchangePage() {
-  const router = useRouter();
-  const params = useParams();
-  const exchangeId = params?.id as string;
+	const router = useRouter();
+	const params = useParams();
+	const exchangeId = params?.id as string;
 
-  const [exchange, setExchange] = useState<{
-    name: string;
-    spendingLimit: number;
-    currency: string;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [exchange, setExchange] = useState<{
+		name: string;
+		spendingLimit: number;
+		currency: string;
+	} | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!exchangeId) return;
+	useEffect(() => {
+		if (!exchangeId) return;
 
-    const fetchExchange = async () => {
-      try {
-        const response = await fetch(`/api/gift-exchanges/${exchangeId}`);
+		const fetchExchange = async () => {
+			try {
+				const response = await fetch(`/api/gift-exchanges/${exchangeId}`);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch exchange details");
-        }
+				if (!response.ok) {
+					throw new Error("Failed to fetch exchange details");
+				}
 
-        const data = await response.json();
-        setExchange({
-          name: data.name,
-          spendingLimit: data.spendingLimit,
-          currency: data.currency,
-        });
-      } catch (err) {
-        console.error("Error fetching exchange:", err);
-        setError("Failed to load exchange details. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
+				const data = await response.json();
+				setExchange({
+					name: data.name,
+					spendingLimit: data.spendingLimit,
+					currency: data.currency,
+				});
+			} catch (err) {
+				console.error("Error fetching exchange:", err);
+				setError("Failed to load exchange details. Please try again.");
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    fetchExchange();
-  }, [exchangeId]);
+		fetchExchange();
+	}, [exchangeId]);
 
-  if (loading) {
-    return (
-      <ExchangeContainer>
-        <ContentWrapper>
-          <ExchangeCard>
-            <ExchangeHeader>
-              <LoadingText>Loading...</LoadingText>
-            </ExchangeHeader>
-          </ExchangeCard>
-        </ContentWrapper>
-      </ExchangeContainer>
-    );
-  }
+	if (loading) {
+		return (
+			<ExchangeContainer>
+				<ContentWrapper>
+					<ExchangeCard>
+						<ExchangeHeader>
+							<LoadingText>Loading...</LoadingText>
+						</ExchangeHeader>
+					</ExchangeCard>
+				</ContentWrapper>
+			</ExchangeContainer>
+		);
+	}
 
-  if (error || !exchange) {
-    return (
-      <ExchangeContainer>
-        <ContentWrapper>
-          <ExchangeCard>
-            <ExchangeHeader>
-              {error && <ErrorMessage>{error}</ErrorMessage>}
-              {!error && <ErrorMessage>Exchange not found</ErrorMessage>}
-            </ExchangeHeader>
-          </ExchangeCard>
-        </ContentWrapper>
-      </ExchangeContainer>
-    );
-  }
+	if (error || !exchange) {
+		return (
+			<ExchangeContainer>
+				<ContentWrapper>
+					<ExchangeCard>
+						<ExchangeHeader>
+							{error && <ErrorMessage>{error}</ErrorMessage>}
+							{!error && <ErrorMessage>Exchange not found</ErrorMessage>}
+						</ExchangeHeader>
+					</ExchangeCard>
+				</ContentWrapper>
+			</ExchangeContainer>
+		);
+	}
 
-  return (
-    <ExchangeContainer>
-      <HeaderSection>
-        {exchange.name && (
-          <HeaderInfo>
-            <HeaderLabel>Gift Exchange</HeaderLabel>
-            <HeaderValue>{exchange.name}</HeaderValue>
-          </HeaderInfo>
-        )}
-      </HeaderSection>
+	return (
+		<ExchangeContainer>
+			<HeaderSection>
+				{exchange.name && (
+					<HeaderInfo>
+						<HeaderLabel>Gift Exchange</HeaderLabel>
+						<HeaderValue>{exchange.name}</HeaderValue>
+					</HeaderInfo>
+				)}
+			</HeaderSection>
 
-      <ContentWrapper>
-        <ExchangeCard>
-          <ExchangeHeader>
-            <ExchangeTitle>
-              <Gift />
-              {exchange.name}
-            </ExchangeTitle>
-            <ExchangeSubtitle>
-              You have successfully joined this gift exchange. We&apos;re waiting for the organizer to start the gift exchange.
-            </ExchangeSubtitle>
-          </ExchangeHeader>
+			<ContentWrapper>
+				<ExchangeCard>
+					<ExchangeHeader>
+						<ExchangeTitle>
+							<Gift />
+							{exchange.name}
+						</ExchangeTitle>
+						<ExchangeSubtitle>
+							You have successfully joined this gift exchange. We&apos;re
+							waiting for the organizer to start the gift exchange.
+						</ExchangeSubtitle>
+					</ExchangeHeader>
 
-          <InfoSection>
-            <InfoItem>
-              <InfoLabel>Spending Limit</InfoLabel>
-              <InfoValue>
-                {exchange.currency} {exchange.spendingLimit}
-              </InfoValue>
-            </InfoItem>
-          </InfoSection>
+					<InfoSection>
+						<InfoItem>
+							<InfoLabel>Spending Limit</InfoLabel>
+							<InfoValue>
+								{exchange.currency} {exchange.spendingLimit}
+							</InfoValue>
+						</InfoItem>
+					</InfoSection>
 
-          <PrimaryButton onClick={() => router.push("/")}>
-            <Home />
-            Go Home
-          </PrimaryButton>
-        </ExchangeCard>
-      </ContentWrapper>
-    </ExchangeContainer>
-  );
+					<PrimaryButton onClick={() => router.push("/")}>
+						<Home />
+						Go Home
+					</PrimaryButton>
+				</ExchangeCard>
+			</ContentWrapper>
+		</ExchangeContainer>
+	);
 }
-

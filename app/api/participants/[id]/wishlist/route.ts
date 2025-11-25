@@ -14,7 +14,7 @@ export const maxDuration = 15; // 15 seconds
 
 export async function POST(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id: participantId } = await params;
@@ -24,10 +24,14 @@ export async function POST(
 		const { description } = body;
 
 		// Validate inputs
-		if (!description || typeof description !== "string" || description.trim().length === 0) {
+		if (
+			!description ||
+			typeof description !== "string" ||
+			description.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Description is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -41,7 +45,7 @@ export async function POST(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -53,8 +57,10 @@ export async function POST(
 
 		if (existingItems.length >= MAX_ITEMS_PER_PARTICIPANT) {
 			return NextResponse.json(
-				{ error: `Maximum of ${MAX_ITEMS_PER_PARTICIPANT} items allowed per participant` },
-				{ status: 400 }
+				{
+					error: `Maximum of ${MAX_ITEMS_PER_PARTICIPANT} items allowed per participant`,
+				},
+				{ status: 400 },
 			);
 		}
 
@@ -67,10 +73,7 @@ export async function POST(
 		} catch (error) {
 			// If shortener detected or other error, return error response
 			if (error instanceof Error && error.message.includes("URL shorteners")) {
-				return NextResponse.json(
-					{ error: error.message },
-					{ status: 400 }
-				);
+				return NextResponse.json({ error: error.message }, { status: 400 });
 			}
 			// For other errors (network failures, etc.), continue without preview
 			console.error("Error processing link preview:", error);
@@ -111,20 +114,20 @@ export async function POST(
 				createdAt: newItem.createdAt,
 				updatedAt: newItem.updatedAt,
 			},
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (error) {
 		console.error("Error creating wishlist item:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function GET(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id: participantId } = await params;
@@ -139,7 +142,7 @@ export async function GET(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -160,20 +163,20 @@ export async function GET(
 				previewDescription: item.previewDescription,
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,
-			}))
+			})),
 		);
 	} catch (error) {
 		console.error("Error fetching wishlist items:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
 export async function DELETE(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id: participantId } = await params;
@@ -185,7 +188,7 @@ export async function DELETE(
 		if (!itemId || typeof itemId !== "string") {
 			return NextResponse.json(
 				{ error: "Item ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -199,7 +202,7 @@ export async function DELETE(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -213,25 +216,22 @@ export async function DELETE(
 		if (!item || item.participantId !== participantId) {
 			return NextResponse.json(
 				{ error: "Wishlist item not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Delete the item
-		await db
-			.delete(wishlistItems)
-			.where(eq(wishlistItems.id, itemId));
+		await db.delete(wishlistItems).where(eq(wishlistItems.id, itemId));
 
 		return NextResponse.json(
 			{ message: "Wishlist item deleted successfully" },
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (error) {
 		console.error("Error deleting wishlist item:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

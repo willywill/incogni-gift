@@ -12,24 +12,36 @@ export async function POST(request: Request) {
 		const { exchangeId, firstName, lastName, visitorId } = body;
 
 		// Validate inputs
-		if (!exchangeId || typeof exchangeId !== "string" || exchangeId.trim().length === 0) {
+		if (
+			!exchangeId ||
+			typeof exchangeId !== "string" ||
+			exchangeId.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Exchange ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
-		if (!firstName || typeof firstName !== "string" || firstName.trim().length === 0) {
+		if (
+			!firstName ||
+			typeof firstName !== "string" ||
+			firstName.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "First name is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
-		if (!lastName || typeof lastName !== "string" || lastName.trim().length === 0) {
+		if (
+			!lastName ||
+			typeof lastName !== "string" ||
+			lastName.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Last name is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -43,12 +55,13 @@ export async function POST(request: Request) {
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Normalize visitor ID if provided
-		const normalizedVisitorId = visitorId && typeof visitorId === "string" ? visitorId.trim() : null;
+		const normalizedVisitorId =
+			visitorId && typeof visitorId === "string" ? visitorId.trim() : null;
 
 		// If visitor ID is provided, clear it from all previous participant records
 		// This ensures only the most recent participant is associated with that visitor ID
@@ -85,13 +98,13 @@ export async function POST(request: Request) {
 				createdAt: newParticipant.createdAt,
 				updatedAt: newParticipant.updatedAt,
 			},
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (error) {
 		console.error("Error creating participant:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -102,20 +115,21 @@ export async function GET(request: Request) {
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		// Parse query parameters
 		const { searchParams } = new URL(request.url);
 		const exchangeId = searchParams.get("exchangeId");
 
-		if (!exchangeId || typeof exchangeId !== "string" || exchangeId.trim().length === 0) {
+		if (
+			!exchangeId ||
+			typeof exchangeId !== "string" ||
+			exchangeId.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Exchange ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -126,15 +140,15 @@ export async function GET(request: Request) {
 			.where(
 				and(
 					eq(giftExchanges.id, exchangeId),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -153,14 +167,13 @@ export async function GET(request: Request) {
 				lastName: participant.lastName,
 				createdAt: participant.createdAt,
 				updatedAt: participant.updatedAt,
-			}))
+			})),
 		);
 	} catch (error) {
 		console.error("Error fetching participants:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

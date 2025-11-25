@@ -21,7 +21,7 @@ const PageHeader = styled.div`
 `;
 
 const PageTitle = styled.h1`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 2rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -34,7 +34,7 @@ const PageTitle = styled.h1`
 `;
 
 const PageSubtitle = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -50,7 +50,7 @@ const CreateButton = styled.button`
 	padding: 0.875rem 1.5rem;
 	border: none;
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -94,7 +94,7 @@ const LoadingContainer = styled.div`
 `;
 
 const LoadingText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 `;
@@ -119,7 +119,7 @@ const AccessDeniedCard = styled.div`
 `;
 
 const AccessDeniedTitle = styled.h1`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.75rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -128,7 +128,7 @@ const AccessDeniedTitle = styled.h1`
 `;
 
 const AccessDeniedText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -153,7 +153,9 @@ export default function DashboardPage() {
 			<AccessDeniedContainer>
 				<AccessDeniedCard>
 					<AccessDeniedTitle>Access Denied</AccessDeniedTitle>
-					<AccessDeniedText>Please sign in to access your dashboard.</AccessDeniedText>
+					<AccessDeniedText>
+						Please sign in to access your dashboard.
+					</AccessDeniedText>
 				</AccessDeniedCard>
 			</AccessDeniedContainer>
 		);
@@ -190,4 +192,3 @@ export default function DashboardPage() {
 		</DashboardLayout>
 	);
 }
-

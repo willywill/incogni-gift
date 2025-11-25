@@ -79,7 +79,9 @@ function generateFaviconUrl(url: string): string | null {
  * Generate link preview for a URL
  * Returns preview data or null if generation fails
  */
-export async function generateLinkPreview(url: string): Promise<LinkPreviewData | null> {
+export async function generateLinkPreview(
+	url: string,
+): Promise<LinkPreviewData | null> {
 	try {
 		// Validate URL format
 		new URL(url);
@@ -93,7 +95,7 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 
 		// Call LinkPreview.net API
 		const endpoint = `https://api.linkpreview.net/?key=${apiKey}&q=${encodeURIComponent(url)}`;
-		
+
 		// Set timeout to 5 seconds to prevent HTTP requests from hanging
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -106,7 +108,10 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error(`LinkPreview API error: ${response.status} ${response.statusText}`, errorText);
+			console.error(
+				`LinkPreview API error: ${response.status} ${response.statusText}`,
+				errorText,
+			);
 			return null;
 		}
 
@@ -118,7 +123,10 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 			preview = await response.json();
 		} else {
 			const text = await response.text();
-			console.error(`LinkPreview API returned non-JSON response: ${contentType}`, text);
+			console.error(
+				`LinkPreview API returned non-JSON response: ${contentType}`,
+				text,
+			);
 			return null;
 		}
 
@@ -143,9 +151,14 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 		// Convert empty strings to null
 		const result = {
 			url: preview.url || url,
-			previewImage: previewImage && previewImage.trim() !== "" ? previewImage : null,
-			previewTitle: previewTitle && previewTitle.trim() !== "" ? previewTitle : null,
-			previewDescription: previewDescription && previewDescription.trim() !== "" ? previewDescription : null,
+			previewImage:
+				previewImage && previewImage.trim() !== "" ? previewImage : null,
+			previewTitle:
+				previewTitle && previewTitle.trim() !== "" ? previewTitle : null,
+			previewDescription:
+				previewDescription && previewDescription.trim() !== ""
+					? previewDescription
+					: null,
 			previewFavicon: faviconUrl,
 		};
 
@@ -153,7 +166,7 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
 
 		return result;
 	} catch (error) {
-		if (error instanceof Error && error.name === 'AbortError') {
+		if (error instanceof Error && error.name === "AbortError") {
 			console.error("Link preview request timed out");
 		} else {
 			console.error("Error generating link preview:", error);
@@ -167,7 +180,9 @@ export async function generateLinkPreview(url: string): Promise<LinkPreviewData 
  * Returns preview data if URL is found and preview is generated successfully
  * Throws error if shortener is detected
  */
-export async function processLinkPreview(text: string): Promise<LinkPreviewData | null> {
+export async function processLinkPreview(
+	text: string,
+): Promise<LinkPreviewData | null> {
 	const urls = extractUrls(text);
 
 	if (urls.length === 0) {
@@ -179,10 +194,11 @@ export async function processLinkPreview(text: string): Promise<LinkPreviewData 
 
 	// Check if URL is a shortener
 	if (isShortenerUrl(url)) {
-		throw new Error("URL shorteners are not supported. Please use the full product URL.");
+		throw new Error(
+			"URL shorteners are not supported. Please use the full product URL.",
+		);
 	}
 
 	// Generate preview
 	return await generateLinkPreview(url);
 }
-

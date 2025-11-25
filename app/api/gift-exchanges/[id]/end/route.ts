@@ -6,17 +6,14 @@ import { eq, and } from "drizzle-orm";
 
 export async function POST(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Get the current session
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		const { id } = await params;
@@ -28,23 +25,25 @@ export async function POST(
 			.where(
 				and(
 					eq(giftExchanges.id, id),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Check exchange status - must be "started" to end it
 		if (exchange.status !== "started") {
 			return NextResponse.json(
-				{ error: `Exchange cannot be ended. Current status: ${exchange.status}` },
-				{ status: 400 }
+				{
+					error: `Exchange cannot be ended. Current status: ${exchange.status}`,
+				},
+				{ status: 400 },
 			);
 		}
 
@@ -71,8 +70,7 @@ export async function POST(
 		console.error("Error ending exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

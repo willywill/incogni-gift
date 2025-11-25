@@ -21,54 +21,66 @@ const Sidebar = styled.aside`
 	display: none;
 	width: 260px;
 	border-right: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	background: ${(props) => props.theme.lightMode.colors.background};
-	padding: 2rem 0;
+	background: ${(props) => props.theme.lightMode.colors.backgroundAlt};
+	padding: 0;
 	flex-shrink: 0;
+	flex-direction: column;
 
 	@media (min-width: 768px) {
 		display: flex;
-		flex-direction: column;
 	}
 `;
 
 const SidebarHeader = styled.div`
-	padding: 0 2rem 2rem 2rem;
+	padding: 1.5rem;
 	border-bottom: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	margin-bottom: 2rem;
 `;
 
 const Brand = styled(Link)`
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 1.5rem;
-	font-weight: 700;
+	gap: 0.5rem;
+	font-family: var(--font-playfair), Georgia, serif;
+	font-size: 1.375rem;
+	font-weight: 600;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	cursor: pointer;
 	letter-spacing: -0.01em;
 	text-decoration: none;
+	transition: opacity 0.2s ease;
+
+	&:hover {
+		opacity: 0.8;
+	}
 
 	svg {
-		width: 28px;
-		height: 28px;
+		width: 22px;
+		height: 22px;
+		color: ${(props) => props.theme.lightMode.colors.primary};
 	}
+`;
+
+const NavSection = styled.div`
+	flex: 1;
+	padding: 1.5rem 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 `;
 
 const NavList = styled.nav`
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
-	padding: 0 1rem;
+	gap: 0.25rem;
 `;
 
 const NavItem = styled(Link)<{ $active?: boolean }>`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	padding: 0.875rem 1rem;
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	padding: 0.75rem 1rem;
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 500;
 	color: ${(props) =>
@@ -76,42 +88,52 @@ const NavItem = styled(Link)<{ $active?: boolean }>`
 			? props.theme.lightMode.colors.foreground
 			: props.theme.lightMode.colors.secondary};
 	background: ${(props) =>
-		props.$active ? props.theme.lightMode.colors.muted : "transparent"};
+		props.$active ? props.theme.lightMode.colors.surface : "transparent"};
 	cursor: pointer;
 	transition: all 0.2s ease;
-	letter-spacing: -0.01em;
 	text-decoration: none;
 
 	svg {
 		width: 20px;
 		height: 20px;
+		color: ${(props) =>
+			props.$active
+				? props.theme.lightMode.colors.accent
+				: props.theme.lightMode.colors.secondary};
 	}
 
 	&:hover {
-		background: ${(props) => props.theme.lightMode.colors.muted};
+		background: ${(props) => props.theme.lightMode.colors.surface};
 		color: ${(props) => props.theme.lightMode.colors.foreground};
 	}
 `;
 
-const NavButton = styled.button<{ $active?: boolean }>`
+const NavButton = styled.button<{
+	$active?: boolean;
+	$variant?: "default" | "primary";
+}>`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	padding: 0.875rem 1rem;
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	padding: 0.75rem 1rem;
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
-	font-weight: 500;
-	color: ${(props) =>
-		props.$active
+	font-weight: ${(props) => (props.$variant === "primary" ? "600" : "500")};
+	color: ${(props) => {
+		if (props.$variant === "primary") return "white";
+		return props.$active
 			? props.theme.lightMode.colors.foreground
-			: props.theme.lightMode.colors.secondary};
-	background: ${(props) =>
-		props.$active ? props.theme.lightMode.colors.muted : "transparent"};
+			: props.theme.lightMode.colors.secondary;
+	}};
+	background: ${(props) => {
+		if (props.$variant === "primary")
+			return props.theme.lightMode.colors.primary;
+		return props.$active ? props.theme.lightMode.colors.surface : "transparent";
+	}};
 	border: none;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	letter-spacing: -0.01em;
 	width: 100%;
 	text-align: left;
 
@@ -121,9 +143,21 @@ const NavButton = styled.button<{ $active?: boolean }>`
 	}
 
 	&:hover {
-		background: ${(props) => props.theme.lightMode.colors.muted};
-		color: ${(props) => props.theme.lightMode.colors.foreground};
+		background: ${(props) => {
+			if (props.$variant === "primary")
+				return props.theme.lightMode.colors.primaryHover;
+			return props.theme.lightMode.colors.surface;
+		}};
+		color: ${(props) => {
+			if (props.$variant === "primary") return "white";
+			return props.theme.lightMode.colors.foreground;
+		}};
 	}
+`;
+
+const SidebarFooter = styled.div`
+	padding: 1rem;
+	border-top: 1px solid ${(props) => props.theme.lightMode.colors.border};
 `;
 
 const MainContent = styled.main`
@@ -143,7 +177,7 @@ const ContentArea = styled.div`
 	padding: 2rem;
 
 	@media (min-width: 768px) {
-		padding: 3rem;
+		padding: 2.5rem 3rem;
 	}
 `;
 
@@ -153,12 +187,10 @@ const BottomNav = styled.nav`
 	left: 0;
 	right: 0;
 	display: flex;
-	background: ${(props) => props.theme.lightMode.colors.background};
+	background: ${(props) => props.theme.lightMode.colors.backgroundAlt};
 	border-top: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	padding: 0.75rem 0;
+	padding: 0.5rem 0;
 	z-index: 100;
-	backdrop-filter: blur(8px);
-	background: rgba(255, 255, 255, 0.95);
 
 	@media (min-width: 768px) {
 		display: none;
@@ -173,16 +205,15 @@ const BottomNavItem = styled(Link)<{ $active?: boolean }>`
 	justify-content: center;
 	gap: 0.25rem;
 	padding: 0.5rem;
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 0.75rem;
-	font-weight: 500;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.6875rem;
+	font-weight: 600;
 	color: ${(props) =>
 		props.$active
-			? props.theme.lightMode.colors.foreground
+			? props.theme.lightMode.colors.primary
 			: props.theme.lightMode.colors.secondary};
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: color 0.2s ease;
 	text-decoration: none;
 
 	svg {
@@ -191,7 +222,7 @@ const BottomNavItem = styled(Link)<{ $active?: boolean }>`
 	}
 
 	&:hover {
-		color: ${(props) => props.theme.lightMode.colors.foreground};
+		color: ${(props) => props.theme.lightMode.colors.primary};
 	}
 `;
 
@@ -203,17 +234,16 @@ const BottomNavButton = styled.button<{ $active?: boolean }>`
 	justify-content: center;
 	gap: 0.25rem;
 	padding: 0.5rem;
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 0.75rem;
-	font-weight: 500;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.6875rem;
+	font-weight: 600;
 	color: ${(props) =>
 		props.$active
-			? props.theme.lightMode.colors.foreground
+			? props.theme.lightMode.colors.primary
 			: props.theme.lightMode.colors.secondary};
 	border: none;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: color 0.2s ease;
 	background: transparent;
 
 	svg {
@@ -222,7 +252,7 @@ const BottomNavButton = styled.button<{ $active?: boolean }>`
 	}
 
 	&:hover {
-		color: ${(props) => props.theme.lightMode.colors.foreground};
+		color: ${(props) => props.theme.lightMode.colors.primary};
 	}
 `;
 
@@ -231,15 +261,17 @@ interface DashboardLayoutProps {
 	onCreateClick?: () => void;
 }
 
-export default function DashboardLayout({ children, onCreateClick }: DashboardLayoutProps) {
+export default function DashboardLayout({
+	children,
+	onCreateClick,
+}: DashboardLayoutProps) {
 	const pathname = usePathname();
 	const router = useRouter();
 
 	const handleSignOut = async () => {
 		const isBypassMode = process.env.NEXT_PUBLIC_SKIP_AUTH === "true";
-		
+
 		if (isBypassMode) {
-			// For bypass mode, clear the session cookie via API
 			try {
 				await fetch("/api/auth/sign-out-bypass", {
 					method: "POST",
@@ -248,15 +280,13 @@ export default function DashboardLayout({ children, onCreateClick }: DashboardLa
 				console.error("Error signing out in bypass mode:", error);
 			}
 		} else {
-			// For normal mode, use better-auth signOut
 			try {
 				await signOut();
 			} catch (error) {
 				console.error("Error signing out:", error);
 			}
 		}
-		
-		// Redirect to home page
+
 		router.push("/");
 	};
 
@@ -269,31 +299,41 @@ export default function DashboardLayout({ children, onCreateClick }: DashboardLa
 						<span>IncogniGift</span>
 					</Brand>
 				</SidebarHeader>
-				<NavList>
-					<NavItem href="/dashboard" $active={pathname === "/dashboard"}>
-						<Gift />
-						<span>Exchanges</span>
-					</NavItem>
-					{onCreateClick ? (
-						<NavButton onClick={onCreateClick} $active={false}>
-							<Plus />
-							<span>Create</span>
-						</NavButton>
-					) : (
-						<NavItem href="/dashboard/create" $active={pathname === "/dashboard/create"}>
-							<Plus />
-							<span>Create</span>
+				<NavSection>
+					<NavList>
+						<NavItem href="/dashboard" $active={pathname === "/dashboard"}>
+							<Gift />
+							<span>My Exchanges</span>
 						</NavItem>
-					)}
-					<NavItem href="/dashboard/settings" $active={pathname === "/dashboard/settings"}>
-						<Settings />
-						<span>Settings</span>
-					</NavItem>
+						{onCreateClick ? (
+							<NavButton onClick={onCreateClick} $variant="primary">
+								<Plus />
+								<span>Create Exchange</span>
+							</NavButton>
+						) : (
+							<NavItem
+								href="/dashboard/create"
+								$active={pathname === "/dashboard/create"}
+							>
+								<Plus />
+								<span>Create</span>
+							</NavItem>
+						)}
+						<NavItem
+							href="/dashboard/settings"
+							$active={pathname === "/dashboard/settings"}
+						>
+							<Settings />
+							<span>Settings</span>
+						</NavItem>
+					</NavList>
+				</NavSection>
+				<SidebarFooter>
 					<NavButton onClick={handleSignOut} $active={false}>
 						<LogOut />
 						<span>Sign Out</span>
 					</NavButton>
-				</NavList>
+				</SidebarFooter>
 			</Sidebar>
 
 			<MainContent>
@@ -311,12 +351,18 @@ export default function DashboardLayout({ children, onCreateClick }: DashboardLa
 						<span>Create</span>
 					</BottomNavButton>
 				) : (
-					<BottomNavItem href="/dashboard/create" $active={pathname === "/dashboard/create"}>
+					<BottomNavItem
+						href="/dashboard/create"
+						$active={pathname === "/dashboard/create"}
+					>
 						<Plus />
 						<span>Create</span>
 					</BottomNavItem>
 				)}
-				<BottomNavItem href="/dashboard/settings" $active={pathname === "/dashboard/settings"}>
+				<BottomNavItem
+					href="/dashboard/settings"
+					$active={pathname === "/dashboard/settings"}
+				>
 					<Settings />
 					<span>Settings</span>
 				</BottomNavItem>
@@ -328,4 +374,3 @@ export default function DashboardLayout({ children, onCreateClick }: DashboardLa
 		</DashboardWrapper>
 	);
 }
-

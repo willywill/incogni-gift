@@ -25,8 +25,14 @@ import {
 	Check,
 	Rocket,
 	CheckCircle,
+	Gift,
 } from "lucide-react";
-import { extractUrls, extractDomain, formatDomainName, getFaviconUrl } from "@/app/lib/link-preview-client";
+import {
+	extractUrls,
+	extractDomain,
+	formatDomainName,
+	getFaviconUrl,
+} from "@/app/lib/link-preview-client";
 
 const PageHeader = styled.div`
 	display: flex;
@@ -49,7 +55,7 @@ const BackButton = styled.button`
 	padding: 0.5rem 0;
 	border: none;
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -67,7 +73,7 @@ const BackButton = styled.button`
 `;
 
 const PageTitle = styled.h1`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 2rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -80,7 +86,7 @@ const PageTitle = styled.h1`
 `;
 
 const PageSubtitle = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -97,7 +103,7 @@ const LoadingContainer = styled.div`
 `;
 
 const LoadingText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 `;
@@ -122,7 +128,7 @@ const AccessDeniedCard = styled.div`
 `;
 
 const AccessDeniedTitle = styled.h1`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.75rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -131,7 +137,7 @@ const AccessDeniedTitle = styled.h1`
 `;
 
 const AccessDeniedText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -148,7 +154,7 @@ const ErrorState = styled.div`
 `;
 
 const ErrorTitle = styled.h2`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -157,7 +163,7 @@ const ErrorTitle = styled.h2`
 `;
 
 const ErrorText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -198,7 +204,7 @@ const TabButton = styled.button<{ $active: boolean }>`
 	border-bottom: 2px solid
 		${(props) => (props.$active ? props.theme.lightMode.colors.foreground : "transparent")};
 	background: transparent;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 500;
 	color: ${(props) =>
@@ -245,7 +251,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.25rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -254,7 +260,7 @@ const SectionTitle = styled.h2`
 `;
 
 const SectionDescription = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -269,7 +275,7 @@ const Card = styled.div`
 `;
 
 const ParticipantCount = styled.div`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.125rem;
 	font-weight: 600;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -289,7 +295,7 @@ const ParticipantItem = styled.div`
 	padding: 0.75rem;
 	background: ${(props) => props.theme.lightMode.colors.muted};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	cursor: pointer;
@@ -314,7 +320,7 @@ const InviteLinkContainer = styled.div`
 const CopySuccessMessage = styled.div`
 	padding: 0.75rem 1rem;
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.muted};
@@ -339,7 +345,7 @@ const LinkInput = styled.input`
 	padding: 0.875rem 1rem;
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.background};
@@ -358,7 +364,7 @@ const Button = styled.button`
 	padding: 0.875rem 1.5rem;
 	border: none;
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -429,7 +435,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 500;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -439,7 +445,7 @@ const Input = styled.input`
 	padding: 0.875rem 1rem;
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.background};
@@ -466,7 +472,7 @@ const DangerButton = styled(Button)`
 `;
 
 const WarningText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0 0 1.5rem 0;
@@ -534,13 +540,33 @@ const QrModalCloseButton = styled(Dialog.Close)`
 `;
 
 const QrModalTitle = styled(Dialog.Title)`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	margin: 0;
 	letter-spacing: -0.02em;
 	text-align: center;
+`;
+
+const QrModalBrand = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	font-family: var(--font-playfair), Georgia, serif;
+	font-size: 1.75rem;
+	font-weight: 600;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	letter-spacing: -0.01em;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+
+	svg {
+		width: 32px;
+		height: 32px;
+		color: ${(props) => props.theme.lightMode.colors.primary};
+	}
 `;
 
 const ParticipantModalOverlay = styled(Dialog.Overlay)`
@@ -599,7 +625,7 @@ const ParticipantModalCloseButton = styled(Dialog.Close)`
 `;
 
 const ParticipantModalTitle = styled(Dialog.Title)`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -620,14 +646,14 @@ const WishlistItem = styled.div`
 	padding: 1rem;
 	background: ${(props) => props.theme.lightMode.colors.muted};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	line-height: 1.6;
 `;
 
 const WishlistItemDescription = styled.div`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	line-height: 1.6;
@@ -654,7 +680,7 @@ const PreviewSource = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.8125rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 `;
@@ -694,7 +720,7 @@ const PreviewContent = styled.div`
 `;
 
 const PreviewTitle = styled.div`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -707,7 +733,7 @@ const PreviewTitle = styled.div`
 `;
 
 const PreviewDescription = styled.div`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.8125rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	line-height: 1.4;
@@ -727,7 +753,7 @@ const FallbackLink = styled.a`
 	border-radius: 6px;
 	background: ${(props) => props.theme.lightMode.colors.muted || "#f9fafb"};
 	text-decoration: none;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	transition: all 0.2s ease;
@@ -740,7 +766,7 @@ const FallbackLink = styled.a`
 
 const EmptyWishlistText = styled.p`
 	margin: 0;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	text-align: center;
@@ -823,7 +849,7 @@ const DeleteConfirmModalCloseButton = styled(Dialog.Close)`
 `;
 
 const DeleteConfirmModalTitle = styled(Dialog.Title)`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -832,7 +858,7 @@ const DeleteConfirmModalTitle = styled(Dialog.Title)`
 `;
 
 const DeleteConfirmModalDescription = styled(Dialog.Description)`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0 0 1.5rem 0;
@@ -840,7 +866,7 @@ const DeleteConfirmModalDescription = styled(Dialog.Description)`
 `;
 
 const DeleteConfirmError = styled.div`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0 0 1rem 0;
@@ -881,7 +907,7 @@ const SelectTrigger = styled(Select.Trigger)`
 	padding: 0.875rem 1rem;
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.background};
@@ -927,7 +953,7 @@ const SelectViewport = styled(Select.Viewport)`
 const SelectItem = styled(Select.Item)`
 	padding: 0.75rem 1rem;
 	border-radius: 6px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	cursor: pointer;
@@ -987,7 +1013,7 @@ const EndedNotice = styled.div`
 	background: ${(props) => props.theme.lightMode.colors.muted};
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 
 	@media (max-width: 768px) {
 		width: 100%;
@@ -1065,7 +1091,7 @@ const StartExchangeModalCloseButton = styled(Dialog.Close)`
 `;
 
 const StartExchangeModalTitle = styled(Dialog.Title)`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -1080,7 +1106,7 @@ const StartExchangeSection = styled.div`
 `;
 
 const StartExchangeSectionTitle = styled.h3`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 1rem;
 	font-weight: 600;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -1088,7 +1114,7 @@ const StartExchangeSectionTitle = styled.h3`
 `;
 
 const StartExchangeText = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
@@ -1098,7 +1124,7 @@ const StartExchangeText = styled.p`
 const StartExchangeError = styled.div`
 	padding: 1rem;
 	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	background: ${(props) => (props.theme.lightMode.colors as any).error || "#fee2e2"};
 	color: ${(props) => (props.theme.lightMode.colors as any).errorText || "#991b1b"};
@@ -1117,7 +1143,7 @@ const StartExchangeParticipantItem = styled.div`
 	padding: 0.5rem 0.75rem;
 	background: ${(props) => props.theme.lightMode.colors.muted};
 	border-radius: 6px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 `;
@@ -1216,39 +1242,52 @@ export default function GiftExchangeDetailPage() {
 	const [participants, setParticipants] = useState<Participant[]>([]);
 	const [participantsLoading, setParticipantsLoading] = useState(false);
 	const [participantModalOpen, setParticipantModalOpen] = useState(false);
-	const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
-	const [wishlistItems, setWishlistItems] = useState<{
-		id: string;
-		description: string;
-		url?: string | null;
-		previewImage?: string | null;
-		previewTitle?: string | null;
-		previewDescription?: string | null;
-	}[]>([]);
+	const [selectedParticipant, setSelectedParticipant] =
+		useState<Participant | null>(null);
+	const [wishlistItems, setWishlistItems] = useState<
+		{
+			id: string;
+			description: string;
+			url?: string | null;
+			previewImage?: string | null;
+			previewTitle?: string | null;
+			previewDescription?: string | null;
+		}[]
+	>([]);
 	const [wishlistLoading, setWishlistLoading] = useState(false);
 	const [wizardOpen, setWizardOpen] = useState(false);
 	const [copySuccess, setCopySuccess] = useState(false);
 	const [qrCodeGenerated, setQrCodeGenerated] = useState(false);
 	const [startExchangeModalOpen, setStartExchangeModalOpen] = useState(false);
 	const [endExchangeModalOpen, setEndExchangeModalOpen] = useState(false);
-	const [removingParticipantId, setRemovingParticipantId] = useState<string | null>(null);
+	const [removingParticipantId, setRemovingParticipantId] = useState<
+		string | null
+	>(null);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-	const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
+	const [participantToDelete, setParticipantToDelete] =
+		useState<Participant | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
-	const [deleteExchangeConfirmOpen, setDeleteExchangeConfirmOpen] = useState(false);
-	const [deleteExchangeError, setDeleteExchangeError] = useState<string | null>(null);
+	const [deleteExchangeConfirmOpen, setDeleteExchangeConfirmOpen] =
+		useState(false);
+	const [deleteExchangeError, setDeleteExchangeError] = useState<string | null>(
+		null,
+	);
 	const [deletingExchange, setDeletingExchange] = useState(false);
-	const [assignmentsList, setAssignmentsList] = useState<Array<{
-		id: string;
-		participantId: string;
-		assignedToParticipantId: string;
-		giverName: string;
-		receiverName: string;
-	}>>([]);
+	const [assignmentsList, setAssignmentsList] = useState<
+		Array<{
+			id: string;
+			participantId: string;
+			assignedToParticipantId: string;
+			giverName: string;
+			receiverName: string;
+		}>
+	>([]);
 	const [assignmentsLoading, setAssignmentsLoading] = useState(false);
 
 	// Generate invitation link dynamically using NEXT_PUBLIC_BASE_URL or fallback to window.location.origin
-	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+	const baseUrl =
+		process.env.NEXT_PUBLIC_BASE_URL ||
+		(typeof window !== "undefined" ? window.location.origin : "");
 	const inviteLink = id ? `${baseUrl}/exchange/${id}/register` : "";
 
 	useEffect(() => {
@@ -1266,11 +1305,17 @@ export default function GiftExchangeDetailPage() {
 			setShowRecipientNames(exchange.showRecipientNames);
 
 			// If exchange is started or ended and we're on the invite tab, switch to activity tab
-			if ((exchange.status === "started" || exchange.status === "ended") && activeTab === "invite") {
+			if (
+				(exchange.status === "started" || exchange.status === "ended") &&
+				activeTab === "invite"
+			) {
 				setActiveTab("activity");
 			}
 			// If exchange is started or ended and we're editing spending limit, close the edit form
-			if ((exchange.status === "started" || exchange.status === "ended") && isEditingSpendingLimit) {
+			if (
+				(exchange.status === "started" || exchange.status === "ended") &&
+				isEditingSpendingLimit
+			) {
 				setIsEditingSpendingLimit(false);
 			}
 			// If exchange is ended and we're editing magic word, close the edit form
@@ -1301,7 +1346,9 @@ export default function GiftExchangeDetailPage() {
 
 		try {
 			setParticipantsLoading(true);
-			const response = await fetch(`/api/participants?exchangeId=${exchange.id}`);
+			const response = await fetch(
+				`/api/participants?exchangeId=${exchange.id}`,
+			);
 			if (response.ok) {
 				const data = await response.json();
 				setParticipants(data);
@@ -1322,7 +1369,9 @@ export default function GiftExchangeDetailPage() {
 
 		try {
 			setAssignmentsLoading(true);
-			const response = await fetch(`/api/assignments?exchangeId=${exchange.id}`);
+			const response = await fetch(
+				`/api/assignments?exchangeId=${exchange.id}`,
+			);
 			if (response.ok) {
 				const data = await response.json();
 				setAssignmentsList(data);
@@ -1345,7 +1394,9 @@ export default function GiftExchangeDetailPage() {
 		setWishlistItems([]);
 
 		try {
-			const response = await fetch(`/api/participants/${participant.id}/wishlist`);
+			const response = await fetch(
+				`/api/participants/${participant.id}/wishlist`,
+			);
 			if (response.ok) {
 				const items = await response.json();
 				setWishlistItems(items);
@@ -1437,7 +1488,9 @@ export default function GiftExchangeDetailPage() {
 				<AccessDeniedContainer>
 					<AccessDeniedCard>
 						<AccessDeniedTitle>Access Denied</AccessDeniedTitle>
-						<AccessDeniedText>Please sign in to access this page.</AccessDeniedText>
+						<AccessDeniedText>
+							Please sign in to access this page.
+						</AccessDeniedText>
 					</AccessDeniedCard>
 				</AccessDeniedContainer>
 			</DashboardLayout>
@@ -1460,7 +1513,9 @@ export default function GiftExchangeDetailPage() {
 			<DashboardLayout onCreateClick={() => router.push("/dashboard")}>
 				<ErrorState>
 					<ErrorTitle>Exchange Not Found</ErrorTitle>
-					<ErrorText>The gift exchange you're looking for doesn't exist.</ErrorText>
+					<ErrorText>
+						The gift exchange you're looking for doesn't exist.
+					</ErrorText>
 				</ErrorState>
 			</DashboardLayout>
 		);
@@ -1539,7 +1594,11 @@ export default function GiftExchangeDetailPage() {
 			// Redirect to dashboard on success
 			router.push("/dashboard");
 		} catch (err) {
-			setDeleteExchangeError(err instanceof Error ? err.message : "An error occurred while deleting the exchange");
+			setDeleteExchangeError(
+				err instanceof Error
+					? err.message
+					: "An error occurred while deleting the exchange",
+			);
 		} finally {
 			setDeletingExchange(false);
 		}
@@ -1581,14 +1640,20 @@ export default function GiftExchangeDetailPage() {
 			setIsEditingMagicWord(false);
 			setMagicWordError(null);
 		} catch (err) {
-			setMagicWordError(err instanceof Error ? err.message : "An error occurred");
+			setMagicWordError(
+				err instanceof Error ? err.message : "An error occurred",
+			);
 		} finally {
 			setSaving(false);
 		}
 	};
 
 	const handleSaveSpendingLimit = async () => {
-		if (!editSpendingLimit || editSpendingLimit <= 0 || editSpendingLimit % 5 !== 0) {
+		if (
+			!editSpendingLimit ||
+			editSpendingLimit <= 0 ||
+			editSpendingLimit % 5 !== 0
+		) {
 			setError("Spending limit must be a positive number in increments of 5");
 			return;
 		}
@@ -1696,7 +1761,11 @@ export default function GiftExchangeDetailPage() {
 			// Close modal
 			setStartExchangeModalOpen(false);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "An error occurred while starting the exchange");
+			setError(
+				err instanceof Error
+					? err.message
+					: "An error occurred while starting the exchange",
+			);
 			console.error("Error starting exchange:", err);
 		} finally {
 			setLoading(false);
@@ -1736,7 +1805,11 @@ export default function GiftExchangeDetailPage() {
 			// Close modal
 			setEndExchangeModalOpen(false);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "An error occurred while ending the exchange");
+			setError(
+				err instanceof Error
+					? err.message
+					: "An error occurred while ending the exchange",
+			);
 			console.error("Error ending exchange:", err);
 		} finally {
 			setLoading(false);
@@ -1759,9 +1832,12 @@ export default function GiftExchangeDetailPage() {
 			setDeleteError(null);
 			setRemovingParticipantId(participantToDelete.id);
 
-			const response = await fetch(`/api/participants/${participantToDelete.id}`, {
-				method: "DELETE",
-			});
+			const response = await fetch(
+				`/api/participants/${participantToDelete.id}`,
+				{
+					method: "DELETE",
+				},
+			);
 
 			if (!response.ok) {
 				const data = await response.json();
@@ -1773,7 +1849,11 @@ export default function GiftExchangeDetailPage() {
 			setParticipantToDelete(null);
 			await fetchParticipants();
 		} catch (err) {
-			setDeleteError(err instanceof Error ? err.message : "An error occurred while deleting the participant");
+			setDeleteError(
+				err instanceof Error
+					? err.message
+					: "An error occurred while deleting the participant",
+			);
 		} finally {
 			setRemovingParticipantId(null);
 		}
@@ -1809,7 +1889,8 @@ export default function GiftExchangeDetailPage() {
 							Exchange Ended
 						</EndedNoticeTitle>
 						<EndedNoticeDate>
-							Ended on {new Intl.DateTimeFormat("en-US", {
+							Ended on{" "}
+							{new Intl.DateTimeFormat("en-US", {
 								month: "long",
 								day: "numeric",
 								year: "numeric",
@@ -1824,16 +1905,25 @@ export default function GiftExchangeDetailPage() {
 			<TabsContainer>
 				<TabsList>
 					{exchange?.status === "active" && (
-						<TabButton $active={activeTab === "invite"} onClick={() => setActiveTab("invite")}>
+						<TabButton
+							$active={activeTab === "invite"}
+							onClick={() => setActiveTab("invite")}
+						>
 							<LinkIcon />
 							Invite
 						</TabButton>
 					)}
-					<TabButton $active={activeTab === "activity"} onClick={() => setActiveTab("activity")}>
+					<TabButton
+						$active={activeTab === "activity"}
+						onClick={() => setActiveTab("activity")}
+					>
 						<Users />
 						Activity
 					</TabButton>
-					<TabButton $active={activeTab === "manage"} onClick={() => setActiveTab("manage")}>
+					<TabButton
+						$active={activeTab === "manage"}
+						onClick={() => setActiveTab("manage")}
+					>
 						<Edit />
 						Manage
 					</TabButton>
@@ -1841,7 +1931,13 @@ export default function GiftExchangeDetailPage() {
 
 				<TabContent>
 					{error && (
-						<Card style={{ marginBottom: "2rem", borderLeft: "3px solid", borderLeftColor: "inherit" }}>
+						<Card
+							style={{
+								marginBottom: "2rem",
+								borderLeft: "3px solid",
+								borderLeftColor: "inherit",
+							}}
+						>
 							<p style={{ margin: 0, color: "inherit" }}>{error}</p>
 						</Card>
 					)}
@@ -1851,8 +1947,9 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Magic Word</SectionTitle>
 									<SectionDescription>
-										Exchangers will use this word along with your last name to join. The combination of your last name and magic word must be unique. Make sure to share
-										this with participants.
+										Exchangers will use this word along with your last name to
+										join. The combination of your last name and magic word must
+										be unique. Make sure to share this with participants.
 									</SectionDescription>
 								</div>
 								<Card>
@@ -1884,14 +1981,17 @@ export default function GiftExchangeDetailPage() {
 									) : (
 										<FormGroup>
 											<Label htmlFor="magic-word">Magic Word</Label>
-											<div style={{
-												fontSize: "0.8125rem",
-												color: "inherit",
-												opacity: 0.7,
-												marginTop: "-0.5rem",
-												marginBottom: "0.5rem"
-											}}>
-												The combination of your last name and magic word must be unique.
+											<div
+												style={{
+													fontSize: "0.8125rem",
+													color: "inherit",
+													opacity: 0.7,
+													marginTop: "-0.5rem",
+													marginBottom: "0.5rem",
+												}}
+											>
+												The combination of your last name and magic word must be
+												unique.
 											</div>
 											<Input
 												id="magic-word"
@@ -1905,20 +2005,28 @@ export default function GiftExchangeDetailPage() {
 												disabled={exchange?.status === "ended"}
 											/>
 											{magicWordError && (
-												<div style={{
-													fontSize: "0.875rem",
-													color: "inherit",
-													padding: "0.75rem 1rem",
-													background: "rgba(0, 0, 0, 0.05)",
-													borderRadius: "8px",
-													borderLeft: "3px solid",
-													borderLeftColor: "inherit",
-													marginTop: "0.5rem"
-												}}>
+												<div
+													style={{
+														fontSize: "0.875rem",
+														color: "inherit",
+														padding: "0.75rem 1rem",
+														background: "rgba(0, 0, 0, 0.05)",
+														borderRadius: "8px",
+														borderLeft: "3px solid",
+														borderLeftColor: "inherit",
+														marginTop: "0.5rem",
+													}}
+												>
 													{magicWordError}
 												</div>
 											)}
-											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+											<div
+												style={{
+													display: "flex",
+													gap: "0.75rem",
+													marginTop: "0.5rem",
+												}}
+											>
 												<PrimaryButton
 													onClick={handleSaveMagicWord}
 													disabled={saving || exchange?.status === "ended"}
@@ -1944,7 +2052,9 @@ export default function GiftExchangeDetailPage() {
 							<Section>
 								<div>
 									<SectionTitle>Invite via QR Code</SectionTitle>
-									<SectionDescription>Share this QR code for easy access</SectionDescription>
+									<SectionDescription>
+										Share this QR code for easy access
+									</SectionDescription>
 								</div>
 								<Card>
 									<QrCodeContainer>
@@ -1958,8 +2068,21 @@ export default function GiftExchangeDetailPage() {
 												/>
 											</QrCodeWrapper>
 										) : (
-											<QrCodeWrapper style={{ background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-												<QrCode style={{ width: "64px", height: "64px", opacity: 0.3 }} />
+											<QrCodeWrapper
+												style={{
+													background: "#f5f5f5",
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+												}}
+											>
+												<QrCode
+													style={{
+														width: "64px",
+														height: "64px",
+														opacity: 0.3,
+													}}
+												/>
 											</QrCodeWrapper>
 										)}
 										<PrimaryButton
@@ -1984,9 +2107,10 @@ export default function GiftExchangeDetailPage() {
 											</button>
 										</QrModalCloseButton>
 										<QrModalTitle>Scan to Join</QrModalTitle>
-										<div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem", marginTop: "-2.0rem", height: "65px" }}>
-											<img src="/logo.png" alt="IncogniGift" style={{ height: "120px", width: "auto" }} />
-										</div>
+										<QrModalBrand>
+											<Gift />
+											<span>IncogniGift</span>
+										</QrModalBrand>
 										{qrCodeGenerated && inviteLink ? (
 											<QrCodeLargeWrapper>
 												<QRCodeSVG
@@ -1997,8 +2121,21 @@ export default function GiftExchangeDetailPage() {
 												/>
 											</QrCodeLargeWrapper>
 										) : (
-											<QrCodeLargeWrapper style={{ background: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-												<QrCode style={{ width: "96px", height: "96px", opacity: 0.3 }} />
+											<QrCodeLargeWrapper
+												style={{
+													background: "#f5f5f5",
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+												}}
+											>
+												<QrCode
+													style={{
+														width: "96px",
+														height: "96px",
+														opacity: 0.3,
+													}}
+												/>
 											</QrCodeLargeWrapper>
 										)}
 									</QrModalContent>
@@ -2009,8 +2146,8 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Invite via Link</SectionTitle>
 									<SectionDescription>
-										Share this link to invite participants or view the link yourself to join the
-										exchange!
+										Share this link to invite participants or view the link
+										yourself to join the exchange!
 									</SectionDescription>
 								</div>
 								<Card>
@@ -2036,11 +2173,14 @@ export default function GiftExchangeDetailPage() {
 
 					{activeTab === "activity" && (
 						<>
-							{(exchange?.status === "started" || exchange?.status === "ended") && (
+							{(exchange?.status === "started" ||
+								exchange?.status === "ended") && (
 								<Section>
 									<div>
 										<SectionTitle>Gift Pairings</SectionTitle>
-										<SectionDescription>Who gives to whom in this exchange</SectionDescription>
+										<SectionDescription>
+											Who gives to whom in this exchange
+										</SectionDescription>
 									</div>
 									<Card>
 										{assignmentsLoading ? (
@@ -2048,27 +2188,45 @@ export default function GiftExchangeDetailPage() {
 										) : assignmentsList.length > 0 ? (
 											<ParticipantList>
 												{assignmentsList.map((assignment) => (
-													<div key={assignment.id} style={{
-														padding: "1rem",
-														border: "1px solid",
-														borderColor: "inherit",
-														borderRadius: "8px",
-														marginBottom: "0.75rem",
-														display: "flex",
-														alignItems: "center",
-														gap: "0.5rem",
-														fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
-														fontSize: "0.9375rem",
-														color: "inherit"
-													}}>
-														<span style={{ fontWeight: 600 }}>{assignment.giverName}</span>
-														<span style={{ opacity: 0.6, fontSize: "1.2rem" }}>↔</span>
-														<span style={{ fontWeight: 600 }}>{assignment.receiverName}</span>
+													<div
+														key={assignment.id}
+														style={{
+															padding: "1rem",
+															border: "1px solid",
+															borderColor: "inherit",
+															borderRadius: "8px",
+															marginBottom: "0.75rem",
+															display: "flex",
+															alignItems: "center",
+															gap: "0.5rem",
+															fontFamily:
+																"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+															fontSize: "0.9375rem",
+															color: "inherit",
+														}}
+													>
+														<span style={{ fontWeight: 600 }}>
+															{assignment.giverName}
+														</span>
+														<span style={{ opacity: 0.6, fontSize: "1.2rem" }}>
+															↔
+														</span>
+														<span style={{ fontWeight: 600 }}>
+															{assignment.receiverName}
+														</span>
 													</div>
 												))}
 											</ParticipantList>
 										) : (
-											<p style={{ margin: 0, color: "inherit", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem" }}>
+											<p
+												style={{
+													margin: 0,
+													color: "inherit",
+													fontFamily:
+														"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+													fontSize: "0.9375rem",
+												}}
+											>
 												No pairings found.
 											</p>
 										)}
@@ -2078,22 +2236,41 @@ export default function GiftExchangeDetailPage() {
 							<Section>
 								<div>
 									<SectionTitle>Participants</SectionTitle>
-									<SectionDescription>See all active participants in this exchange</SectionDescription>
+									<SectionDescription>
+										See all active participants in this exchange
+									</SectionDescription>
 								</div>
 								<Card>
 									{participantsLoading ? (
 										<ParticipantCount>Loading participants...</ParticipantCount>
 									) : (
 										<>
-											<ParticipantCount>{participants.length} Participant{participants.length !== 1 ? "s" : ""}</ParticipantCount>
+											<ParticipantCount>
+												{participants.length} Participant
+												{participants.length !== 1 ? "s" : ""}
+											</ParticipantCount>
 											{participants.length > 0 ? (
 												<ParticipantList>
 													{participants.map((participant) => {
-														const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
+														const fullName =
+															`${participant.firstName} ${participant.lastName || ""}`.trim();
 														return (
 															<ParticipantItemWithActions key={participant.id}>
-																<div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, cursor: "pointer" }} onClick={() => handleParticipantClick(participant)}>
-																	<Users style={{ width: "20px", height: "20px" }} />
+																<div
+																	style={{
+																		display: "flex",
+																		alignItems: "center",
+																		gap: "0.75rem",
+																		flex: 1,
+																		cursor: "pointer",
+																	}}
+																	onClick={() =>
+																		handleParticipantClick(participant)
+																	}
+																>
+																	<Users
+																		style={{ width: "20px", height: "20px" }}
+																	/>
 																	<ParticipantName>{fullName}</ParticipantName>
 																</div>
 																<RemoveParticipantButton
@@ -2101,7 +2278,9 @@ export default function GiftExchangeDetailPage() {
 																		e.stopPropagation();
 																		handleRemoveParticipant(participant.id);
 																	}}
-																	disabled={removingParticipantId === participant.id}
+																	disabled={
+																		removingParticipantId === participant.id
+																	}
 																	title="Remove participant"
 																>
 																	<Trash2 />
@@ -2111,7 +2290,15 @@ export default function GiftExchangeDetailPage() {
 													})}
 												</ParticipantList>
 											) : (
-												<p style={{ margin: 0, color: "inherit", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif", fontSize: "0.9375rem" }}>
+												<p
+													style={{
+														margin: 0,
+														color: "inherit",
+														fontFamily:
+															"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+														fontSize: "0.9375rem",
+													}}
+												>
 													No participants have joined this exchange yet.
 												</p>
 											)}
@@ -2127,7 +2314,9 @@ export default function GiftExchangeDetailPage() {
 							<Section>
 								<div>
 									<SectionTitle>Edit Name</SectionTitle>
-									<SectionDescription>Update the name of your gift exchange</SectionDescription>
+									<SectionDescription>
+										Update the name of your gift exchange
+									</SectionDescription>
 								</div>
 								<Card>
 									<FormGroup>
@@ -2158,7 +2347,8 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Edit Spending Limit</SectionTitle>
 									<SectionDescription>
-										{exchange?.status === "started" || exchange?.status === "ended"
+										{exchange?.status === "started" ||
+										exchange?.status === "ended"
 											? "Spending limit cannot be changed after the exchange has started."
 											: "Update the spending limit and currency for your gift exchange"}
 									</SectionDescription>
@@ -2181,22 +2371,30 @@ export default function GiftExchangeDetailPage() {
 													}).format(exchange?.spendingLimit || 0)}
 												</div>
 											</div>
-											{(exchange?.status === "started" || exchange?.status === "ended") && (
-												<div style={{
-													padding: "0.875rem 1rem",
-													borderRadius: "8px",
-													background: "rgba(0, 0, 0, 0.05)",
-													marginBottom: "1rem",
-													fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
-													fontSize: "0.875rem",
-													color: "inherit",
-												}}>
-													Spending limit cannot be changed after the exchange has started.
+											{(exchange?.status === "started" ||
+												exchange?.status === "ended") && (
+												<div
+													style={{
+														padding: "0.875rem 1rem",
+														borderRadius: "8px",
+														background: "rgba(0, 0, 0, 0.05)",
+														marginBottom: "1rem",
+														fontFamily:
+															"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+														fontSize: "0.875rem",
+														color: "inherit",
+													}}
+												>
+													Spending limit cannot be changed after the exchange
+													has started.
 												</div>
 											)}
 											<PrimaryButton
 												onClick={() => setIsEditingSpendingLimit(true)}
-												disabled={exchange?.status === "started" || exchange?.status === "ended"}
+												disabled={
+													exchange?.status === "started" ||
+													exchange?.status === "ended"
+												}
 											>
 												<Edit />
 												Edit Spending Limit
@@ -2204,17 +2402,22 @@ export default function GiftExchangeDetailPage() {
 										</>
 									) : (
 										<FormGroup>
-											{(exchange?.status === "started" || exchange?.status === "ended") && (
-												<div style={{
-													padding: "0.875rem 1rem",
-													borderRadius: "8px",
-													background: "rgba(0, 0, 0, 0.05)",
-													marginBottom: "1rem",
-													fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
-													fontSize: "0.875rem",
-													color: "inherit",
-												}}>
-													Spending limit cannot be changed after the exchange has started.
+											{(exchange?.status === "started" ||
+												exchange?.status === "ended") && (
+												<div
+													style={{
+														padding: "0.875rem 1rem",
+														borderRadius: "8px",
+														background: "rgba(0, 0, 0, 0.05)",
+														marginBottom: "1rem",
+														fontFamily:
+															"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+														fontSize: "0.875rem",
+														color: "inherit",
+													}}
+												>
+													Spending limit cannot be changed after the exchange
+													has started.
 												</div>
 											)}
 											<Label htmlFor="spending-limit">Spending Limit</Label>
@@ -2233,16 +2436,25 @@ export default function GiftExchangeDetailPage() {
 													}
 													setError(null);
 												}}
-												disabled={exchange?.status === "started" || exchange?.status === "ended"}
+												disabled={
+													exchange?.status === "started" ||
+													exchange?.status === "ended"
+												}
 											/>
 											<Label htmlFor="currency-select">Currency</Label>
 											<SelectRoot
 												value={editCurrency}
 												onValueChange={setEditCurrency}
 												defaultValue={editCurrency}
-												disabled={exchange?.status === "started" || exchange?.status === "ended"}
+												disabled={
+													exchange?.status === "started" ||
+													exchange?.status === "ended"
+												}
 											>
-												<SelectTrigger id="currency-select" aria-label="Currency">
+												<SelectTrigger
+													id="currency-select"
+													aria-label="Currency"
+												>
 													<SelectValue />
 													<Select.Icon>
 														<ChevronDown />
@@ -2258,7 +2470,9 @@ export default function GiftExchangeDetailPage() {
 														<SelectViewport>
 															{currencies.map((curr) => (
 																<SelectItem key={curr.value} value={curr.value}>
-																	<Select.ItemText>{curr.label}</Select.ItemText>
+																	<Select.ItemText>
+																		{curr.label}
+																	</Select.ItemText>
 																	<Select.ItemIndicator>
 																		<Check />
 																	</Select.ItemIndicator>
@@ -2273,10 +2487,20 @@ export default function GiftExchangeDetailPage() {
 													</SelectContent>
 												</Select.Portal>
 											</SelectRoot>
-											<div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+											<div
+												style={{
+													display: "flex",
+													gap: "0.75rem",
+													marginTop: "0.5rem",
+												}}
+											>
 												<PrimaryButton
 													onClick={handleSaveSpendingLimit}
-													disabled={saving || exchange?.status === "started" || exchange?.status === "ended"}
+													disabled={
+														saving ||
+														exchange?.status === "started" ||
+														exchange?.status === "ended"
+													}
 												>
 													{saving ? "Saving..." : "Save"}
 												</PrimaryButton>
@@ -2301,40 +2525,61 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Anonymity Settings</SectionTitle>
 									<SectionDescription>
-										{exchange?.status === "started" || exchange?.status === "ended"
+										{exchange?.status === "started" ||
+										exchange?.status === "ended"
 											? "Anonymity settings cannot be changed after the exchange has started."
 											: "Control whether participants can see who they're buying gifts for before the exchange ends."}
 									</SectionDescription>
 								</div>
 								<Card>
-									{(exchange?.status === "started" || exchange?.status === "ended") && (
-										<div style={{
-											padding: "0.875rem 1rem",
-											borderRadius: "8px",
-											background: "rgba(0, 0, 0, 0.05)",
-											marginBottom: "1rem",
-											fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif",
-											fontSize: "0.875rem",
-											color: "inherit",
-										}}>
-											Anonymity settings cannot be changed after the exchange has started.
+									{(exchange?.status === "started" ||
+										exchange?.status === "ended") && (
+										<div
+											style={{
+												padding: "0.875rem 1rem",
+												borderRadius: "8px",
+												background: "rgba(0, 0, 0, 0.05)",
+												marginBottom: "1rem",
+												fontFamily:
+													"var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+												fontSize: "0.875rem",
+												color: "inherit",
+											}}
+										>
+											Anonymity settings cannot be changed after the exchange
+											has started.
 										</div>
 									)}
-									<div style={{
-										display: "flex",
-										alignItems: "flex-start",
-										gap: "0.75rem",
-										padding: "1rem",
-										border: "1px solid",
-										borderColor: "inherit",
-										borderRadius: "8px",
-										cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer",
-										transition: "all 0.2s ease",
-										background: showRecipientNames ? "rgba(0, 0, 0, 0.03)" : "transparent",
-										opacity: (exchange?.status === "started" || exchange?.status === "ended") ? 0.5 : 1
-									}}
+									<div
+										style={{
+											display: "flex",
+											alignItems: "flex-start",
+											gap: "0.75rem",
+											padding: "1rem",
+											border: "1px solid",
+											borderColor: "inherit",
+											borderRadius: "8px",
+											cursor:
+												exchange?.status === "started" ||
+												exchange?.status === "ended"
+													? "not-allowed"
+													: "pointer",
+											transition: "all 0.2s ease",
+											background: showRecipientNames
+												? "rgba(0, 0, 0, 0.03)"
+												: "transparent",
+											opacity:
+												exchange?.status === "started" ||
+												exchange?.status === "ended"
+													? 0.5
+													: 1,
+										}}
 										onClick={() => {
-											if (exchange?.status !== "started" && exchange?.status !== "ended" && !saving) {
+											if (
+												exchange?.status !== "started" &&
+												exchange?.status !== "ended" &&
+												!saving
+											) {
 												handleToggleShowRecipientNames();
 											}
 										}}
@@ -2344,25 +2589,58 @@ export default function GiftExchangeDetailPage() {
 											id="showRecipientNames"
 											checked={showRecipientNames}
 											onChange={handleToggleShowRecipientNames}
-											disabled={exchange?.status === "started" || exchange?.status === "ended" || saving}
+											disabled={
+												exchange?.status === "started" ||
+												exchange?.status === "ended" ||
+												saving
+											}
 											style={{
 												width: "20px",
 												height: "20px",
-												cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer",
-												marginTop: "2px"
+												cursor:
+													exchange?.status === "started" ||
+													exchange?.status === "ended"
+														? "not-allowed"
+														: "pointer",
+												marginTop: "2px",
 											}}
 										/>
-										<div style={{ flex: 1, cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer" }}>
-											<Label htmlFor="showRecipientNames" style={{ cursor: (exchange?.status === "started" || exchange?.status === "ended") ? "not-allowed" : "pointer", display: "block", marginBottom: "0.25rem" }}>
+										<div
+											style={{
+												flex: 1,
+												cursor:
+													exchange?.status === "started" ||
+													exchange?.status === "ended"
+														? "not-allowed"
+														: "pointer",
+											}}
+										>
+											<Label
+												htmlFor="showRecipientNames"
+												style={{
+													cursor:
+														exchange?.status === "started" ||
+														exchange?.status === "ended"
+															? "not-allowed"
+															: "pointer",
+													display: "block",
+													marginBottom: "0.25rem",
+												}}
+											>
 												Show recipient names to participants
 											</Label>
-											<div style={{
-												fontSize: "0.875rem",
-												color: "inherit",
-												opacity: 0.7,
-												lineHeight: "1.5"
-											}}>
-												When enabled, participants will see the name of who they&apos;re buying gifts for as soon as the exchange starts. When the exchange ends, they&apos;ll also see who was buying gifts for them.
+											<div
+												style={{
+													fontSize: "0.875rem",
+													color: "inherit",
+													opacity: 0.7,
+													lineHeight: "1.5",
+												}}
+											>
+												When enabled, participants will see the name of who
+												they&apos;re buying gifts for as soon as the exchange
+												starts. When the exchange ends, they&apos;ll also see
+												who was buying gifts for them.
 											</div>
 										</div>
 									</div>
@@ -2373,13 +2651,14 @@ export default function GiftExchangeDetailPage() {
 								<div>
 									<SectionTitle>Delete Exchange</SectionTitle>
 									<SectionDescription>
-										Permanently delete this gift exchange. This action cannot be undone.
+										Permanently delete this gift exchange. This action cannot be
+										undone.
 									</SectionDescription>
 								</div>
 								<Card>
 									<WarningText>
-										Deleting this exchange will remove all participants and associated data. This
-										action cannot be undone.
+										Deleting this exchange will remove all participants and
+										associated data. This action cannot be undone.
 									</WarningText>
 									<ButtonContainer>
 										<DangerButton onClick={handleDeleteExchange}>
@@ -2394,7 +2673,10 @@ export default function GiftExchangeDetailPage() {
 				</TabContent>
 			</TabsContainer>
 
-			<Dialog.Root open={participantModalOpen} onOpenChange={setParticipantModalOpen}>
+			<Dialog.Root
+				open={participantModalOpen}
+				onOpenChange={setParticipantModalOpen}
+			>
 				<ParticipantModalOverlay />
 				<ParticipantModalContent>
 					<ParticipantModalCloseButton asChild>
@@ -2405,7 +2687,8 @@ export default function GiftExchangeDetailPage() {
 					{selectedParticipant && (
 						<>
 							<ParticipantModalTitle>
-								{`${selectedParticipant.firstName} ${selectedParticipant.lastName || ""}`.trim()}'s Gift Ideas
+								{`${selectedParticipant.firstName} ${selectedParticipant.lastName || ""}`.trim()}
+								's Gift Ideas
 							</ParticipantModalTitle>
 							{wishlistLoading ? (
 								<EmptyWishlistText>Loading wishlist items...</EmptyWishlistText>
@@ -2431,7 +2714,10 @@ export default function GiftExchangeDetailPage() {
 																			return (
 																				<span key={index}>
 																					<span>From </span>
-																					<FaviconImage src={faviconUrl} alt={domainName} />
+																					<FaviconImage
+																						src={faviconUrl}
+																						alt={domainName}
+																					/>
 																					<span>{domainName}</span>
 																				</span>
 																			);
@@ -2445,27 +2731,46 @@ export default function GiftExchangeDetailPage() {
 													return item.description;
 												})()}
 											</WishlistItemDescription>
-											{item.url && (
-												(item.previewImage || item.previewTitle || item.previewDescription) ? (
-													<PreviewCard href={item.url} target="_blank" rel="noopener noreferrer">
+											{item.url &&
+												(item.previewImage ||
+												item.previewTitle ||
+												item.previewDescription ? (
+													<PreviewCard
+														href={item.url}
+														target="_blank"
+														rel="noopener noreferrer"
+													>
 														<PreviewContentWrapper>
 															{item.previewImage && (
-																<PreviewImage src={item.previewImage} alt={item.previewTitle || "Preview"} />
+																<PreviewImage
+																	src={item.previewImage}
+																	alt={item.previewTitle || "Preview"}
+																/>
 															)}
 															<PreviewContent>
-																{item.previewTitle && <PreviewTitle>{item.previewTitle}</PreviewTitle>}
+																{item.previewTitle && (
+																	<PreviewTitle>
+																		{item.previewTitle}
+																	</PreviewTitle>
+																)}
 																{item.previewDescription && (
-																	<PreviewDescription>{item.previewDescription}</PreviewDescription>
+																	<PreviewDescription>
+																		{item.previewDescription}
+																	</PreviewDescription>
 																)}
 															</PreviewContent>
 														</PreviewContentWrapper>
 													</PreviewCard>
 												) : (
-													<FallbackLink href={item.url} target="_blank" rel="noopener noreferrer">
-														Click here to view the product. Unfortunately, we failed to generate a preview.
+													<FallbackLink
+														href={item.url}
+														target="_blank"
+														rel="noopener noreferrer"
+													>
+														Click here to view the product. Unfortunately, we
+														failed to generate a preview.
 													</FallbackLink>
-												)
-											)}
+												))}
 										</WishlistItem>
 									))}
 								</WishlistItemsList>
@@ -2479,7 +2784,10 @@ export default function GiftExchangeDetailPage() {
 				</ParticipantModalContent>
 			</Dialog.Root>
 
-			<Dialog.Root open={startExchangeModalOpen} onOpenChange={setStartExchangeModalOpen}>
+			<Dialog.Root
+				open={startExchangeModalOpen}
+				onOpenChange={setStartExchangeModalOpen}
+			>
 				<StartExchangeModalOverlay />
 				<StartExchangeModalContent>
 					<StartExchangeModalCloseButton asChild>
@@ -2495,17 +2803,22 @@ export default function GiftExchangeDetailPage() {
 								You need at least 2 participants to start the exchange.
 							</StartExchangeError>
 							<StartExchangeText>
-								Currently, you have {participants.length} participant{participants.length !== 1 ? "s" : ""}. Please invite more participants before starting the exchange.
+								Currently, you have {participants.length} participant
+								{participants.length !== 1 ? "s" : ""}. Please invite more
+								participants before starting the exchange.
 							</StartExchangeText>
 						</>
 					) : (
 						<>
 							<StartExchangeText>
-								Are you sure you want to start this exchange? Once started, no new participants can join.
+								Are you sure you want to start this exchange? Once started, no
+								new participants can join.
 							</StartExchangeText>
 
 							<StartExchangeSection>
-								<StartExchangeSectionTitle>Exchange Details</StartExchangeSectionTitle>
+								<StartExchangeSectionTitle>
+									Exchange Details
+								</StartExchangeSectionTitle>
 								<StartExchangeText>
 									<strong>Spending Limit:</strong>{" "}
 									{new Intl.NumberFormat("en-US", {
@@ -2518,7 +2831,8 @@ export default function GiftExchangeDetailPage() {
 								</StartExchangeText>
 								<StartExchangeParticipantsList>
 									{participants.map((participant) => {
-										const fullName = `${participant.firstName} ${participant.lastName || ""}`.trim();
+										const fullName =
+											`${participant.firstName} ${participant.lastName || ""}`.trim();
 										return (
 											<StartExchangeParticipantItem key={participant.id}>
 												{fullName}
@@ -2529,41 +2843,63 @@ export default function GiftExchangeDetailPage() {
 							</StartExchangeSection>
 
 							<StartExchangeSection>
-								<StartExchangeSectionTitle>Pairing Information</StartExchangeSectionTitle>
+								<StartExchangeSectionTitle>
+									Pairing Information
+								</StartExchangeSectionTitle>
 								{participants.length % 2 === 0 ? (
 									<>
 										<StartExchangeText>
-											<strong>Number of Pairs:</strong> {Math.floor(participants.length / 2)}
+											<strong>Number of Pairs:</strong>{" "}
+											{Math.floor(participants.length / 2)}
 										</StartExchangeText>
 										<StartExchangeText>
-											Each person will give a gift to one person and receive a gift from one person.
+											Each person will give a gift to one person and receive a
+											gift from one person.
 										</StartExchangeText>
 									</>
 								) : (
 									<>
 										<StartExchangeText>
-											<strong>Number of Pairs:</strong> {Math.floor(participants.length / 2)} pairs
+											<strong>Number of Pairs:</strong>{" "}
+											{Math.floor(participants.length / 2)} pairs
 										</StartExchangeText>
 										<StartExchangeText>
-											<strong>{Math.floor(participants.length / 2) === 1 ? '' : 'Plus '}1 three-way mini-circle</strong>
+											<strong>
+												{Math.floor(participants.length / 2) === 1
+													? ""
+													: "Plus "}
+												1 three-way mini-circle
+											</strong>
 										</StartExchangeText>
-										<StartExchangeText style={{ marginLeft: "1rem", marginTop: "0.5rem" }}>
-											Since you have an odd number of participants, one group of 3 will form a mini-circle: A → B → C → A
+										<StartExchangeText
+											style={{ marginLeft: "1rem", marginTop: "0.5rem" }}
+										>
+											Since you have an odd number of participants, one group of
+											3 will form a mini-circle: A → B → C → A
 										</StartExchangeText>
-										<StartExchangeText style={{ marginLeft: "1rem", fontSize: "0.875rem", opacity: 0.8 }}>
-											• A gives to B and receives from C<br />
-											• B gives to C and receives from A<br />
-											• C gives to A and receives from B
+										<StartExchangeText
+											style={{
+												marginLeft: "1rem",
+												fontSize: "0.875rem",
+												opacity: 0.8,
+											}}
+										>
+											• A gives to B and receives from C<br />• B gives to C and
+											receives from A<br />• C gives to A and receives from B
 										</StartExchangeText>
 										<StartExchangeText style={{ marginTop: "0.75rem" }}>
-											Everyone still gives one gift and receives one gift. Alternatively, you can invite another participant to make an even number.
+											Everyone still gives one gift and receives one gift.
+											Alternatively, you can invite another participant to make
+											an even number.
 										</StartExchangeText>
 									</>
 								)}
 							</StartExchangeSection>
 
 							<StartExchangeSection>
-								<StartExchangeSectionTitle>What Will Happen</StartExchangeSectionTitle>
+								<StartExchangeSectionTitle>
+									What Will Happen
+								</StartExchangeSectionTitle>
 								<StartExchangeText>
 									{participants.length % 2 === 0
 										? "We will randomly pair each person with another participant. Each person gives to one person and receives from one person. Once started, no new participants can join."
@@ -2587,7 +2923,10 @@ export default function GiftExchangeDetailPage() {
 				</StartExchangeModalContent>
 			</Dialog.Root>
 
-			<Dialog.Root open={endExchangeModalOpen} onOpenChange={setEndExchangeModalOpen}>
+			<Dialog.Root
+				open={endExchangeModalOpen}
+				onOpenChange={setEndExchangeModalOpen}
+			>
 				<StartExchangeModalOverlay />
 				<StartExchangeModalContent>
 					<StartExchangeModalCloseButton asChild>
@@ -2598,14 +2937,15 @@ export default function GiftExchangeDetailPage() {
 					<StartExchangeModalTitle>End Exchange?</StartExchangeModalTitle>
 
 					<StartExchangeText>
-						Are you sure you want to end this exchange? Once ended, participants will be able to see who their match is and can give their gifts.
+						Are you sure you want to end this exchange? Once ended, participants
+						will be able to see who their match is and can give their gifts.
 					</StartExchangeText>
 
 					<StartExchangeSection>
-						<StartExchangeSectionTitle>What Will Happen</StartExchangeSectionTitle>
-						<StartExchangeText>
-							When you end the exchange:
-						</StartExchangeText>
+						<StartExchangeSectionTitle>
+							What Will Happen
+						</StartExchangeSectionTitle>
+						<StartExchangeText>When you end the exchange:</StartExchangeText>
 						<StartExchangeText style={{ marginLeft: "1rem" }}>
 							• The name of their matched participant will be revealed
 						</StartExchangeText>
@@ -2654,9 +2994,12 @@ export default function GiftExchangeDetailPage() {
 								? `${participantToDelete.firstName} ${participantToDelete.lastName || ""}`.trim()
 								: "this participant"}
 						</strong>
-						? This action cannot be undone and will permanently delete the participant and all their wishlist items.
+						? This action cannot be undone and will permanently delete the
+						participant and all their wishlist items.
 					</DeleteConfirmModalDescription>
-					{deleteError && <DeleteConfirmError>{deleteError}</DeleteConfirmError>}
+					{deleteError && (
+						<DeleteConfirmError>{deleteError}</DeleteConfirmError>
+					)}
 					<DeleteConfirmButtonContainer>
 						<SecondaryButton
 							onClick={() => {
@@ -2672,7 +3015,9 @@ export default function GiftExchangeDetailPage() {
 							onClick={handleConfirmDeleteParticipant}
 							disabled={removingParticipantId !== null}
 						>
-							{removingParticipantId !== null ? "Removing..." : "Remove Participant"}
+							{removingParticipantId !== null
+								? "Removing..."
+								: "Remove Participant"}
 						</DangerButton>
 					</DeleteConfirmButtonContainer>
 				</DeleteConfirmModalContent>
@@ -2697,10 +3042,13 @@ export default function GiftExchangeDetailPage() {
 					<DeleteConfirmModalTitle>Delete Exchange</DeleteConfirmModalTitle>
 					<DeleteConfirmModalDescription>
 						Are you sure you want to delete{" "}
-						<strong>{exchange?.name || "this exchange"}</strong>
-						? This action cannot be undone and will permanently delete the exchange, all participants, assignments, and wishlist items.
+						<strong>{exchange?.name || "this exchange"}</strong>? This action
+						cannot be undone and will permanently delete the exchange, all
+						participants, assignments, and wishlist items.
 					</DeleteConfirmModalDescription>
-					{deleteExchangeError && <DeleteConfirmError>{deleteExchangeError}</DeleteConfirmError>}
+					{deleteExchangeError && (
+						<DeleteConfirmError>{deleteExchangeError}</DeleteConfirmError>
+					)}
 					<DeleteConfirmButtonContainer>
 						<SecondaryButton
 							onClick={() => {
@@ -2732,4 +3080,3 @@ export default function GiftExchangeDetailPage() {
 		</DashboardLayout>
 	);
 }
-

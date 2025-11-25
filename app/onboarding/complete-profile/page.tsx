@@ -36,7 +36,7 @@ const ProfileHeader = styled.div`
 `;
 
 const ProfileTitle = styled.h1`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -49,7 +49,7 @@ const ProfileTitle = styled.h1`
 `;
 
 const ProfileSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0;
@@ -65,7 +65,7 @@ const InfoBox = styled.div`
 `;
 
 const InfoText = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   margin: 0;
@@ -85,7 +85,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -116,7 +116,7 @@ const Input = styled.input`
   padding: 0.875rem 1rem 0.875rem 2.75rem;
   border: 1px solid ${(props) => props.theme.lightMode.colors.border};
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.foreground};
   background: ${(props) => props.theme.lightMode.colors.background};
@@ -139,7 +139,7 @@ const SubmitButton = styled.button`
   padding: 0.875rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
@@ -167,21 +167,21 @@ const SubmitButton = styled.button`
 const Message = styled.div<{ $type: "success" | "error" }>`
   padding: 0.875rem 1rem;
   border-radius: 8px;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   background: ${(props) =>
-    props.$type === "success"
-      ? props.theme.lightMode.colors.muted
-      : props.theme.lightMode.colors.muted};
+		props.$type === "success"
+			? props.theme.lightMode.colors.muted
+			: props.theme.lightMode.colors.muted};
   color: ${(props) =>
-    props.$type === "success"
-      ? props.theme.lightMode.colors.foreground
-      : props.theme.lightMode.colors.foreground};
+		props.$type === "success"
+			? props.theme.lightMode.colors.foreground
+			: props.theme.lightMode.colors.foreground};
   border: 1px solid
     ${(props) =>
-    props.$type === "success"
-      ? props.theme.lightMode.colors.border
-      : props.theme.lightMode.colors.border};
+			props.$type === "success"
+				? props.theme.lightMode.colors.border
+				: props.theme.lightMode.colors.border};
 `;
 
 const LoadingContainer = styled.div`
@@ -194,171 +194,179 @@ const LoadingContainer = styled.div`
 `;
 
 const LoadingText = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
 `;
 
 export default function CompleteProfilePage() {
-  const router = useRouter();
-  const { data: session, isPending } = useSession();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    null
-  );
-  const [checkingProfile, setCheckingProfile] = useState(true);
+	const router = useRouter();
+	const { data: session, isPending } = useSession();
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [message, setMessage] = useState<{
+		type: "success" | "error";
+		text: string;
+	} | null>(null);
+	const [checkingProfile, setCheckingProfile] = useState(true);
 
-  useEffect(() => {
-    if (isPending) return;
+	useEffect(() => {
+		if (isPending) return;
 
-    if (!session?.user) {
-      router.push("/auth");
-      return;
-    }
+		if (!session?.user) {
+			router.push("/auth");
+			return;
+		}
 
-    // Check if user already has first and last name
-    const checkProfile = async () => {
-      try {
-        const response = await fetch("/api/user/profile");
-        if (response.ok) {
-          const profile = await response.json();
-          if (profile.firstName && profile.lastName) {
-            // Profile already complete, redirect to dashboard
-            router.push("/dashboard");
-            return;
-          }
-          // Pre-fill if available
-          if (profile.firstName) setFirstName(profile.firstName);
-          if (profile.lastName) setLastName(profile.lastName);
-        }
-      } catch (error) {
-        console.error("Error checking profile:", error);
-      } finally {
-        setCheckingProfile(false);
-      }
-    };
+		// Check if user already has first and last name
+		const checkProfile = async () => {
+			try {
+				const response = await fetch("/api/user/profile");
+				if (response.ok) {
+					const profile = await response.json();
+					if (profile.firstName && profile.lastName) {
+						// Profile already complete, redirect to dashboard
+						router.push("/dashboard");
+						return;
+					}
+					// Pre-fill if available
+					if (profile.firstName) setFirstName(profile.firstName);
+					if (profile.lastName) setLastName(profile.lastName);
+				}
+			} catch (error) {
+				console.error("Error checking profile:", error);
+			} finally {
+				setCheckingProfile(false);
+			}
+		};
 
-    checkProfile();
-  }, [session, isPending, router]);
+		checkProfile();
+	}, [session, isPending, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage(null);
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setLoading(true);
+		setMessage(null);
 
-    if (!firstName.trim() || !lastName.trim()) {
-      setMessage({
-        type: "error",
-        text: "Please provide both first and last name.",
-      });
-      setLoading(false);
-      return;
-    }
+		if (!firstName.trim() || !lastName.trim()) {
+			setMessage({
+				type: "error",
+				text: "Please provide both first and last name.",
+			});
+			setLoading(false);
+			return;
+		}
 
-    try {
-      const response = await fetch("/api/user/profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        }),
-      });
+		try {
+			const response = await fetch("/api/user/profile", {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					firstName: firstName.trim(),
+					lastName: lastName.trim(),
+				}),
+			});
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update profile");
-      }
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || "Failed to update profile");
+			}
 
-      // Success - redirect to dashboard
-      router.push("/dashboard");
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Something went wrong. Please try again.",
-      });
-      setLoading(false);
-    }
-  };
+			// Success - redirect to dashboard
+			router.push("/dashboard");
+		} catch (error) {
+			setMessage({
+				type: "error",
+				text:
+					error instanceof Error
+						? error.message
+						: "Something went wrong. Please try again.",
+			});
+			setLoading(false);
+		}
+	};
 
-  if (isPending || checkingProfile) {
-    return (
-      <LoadingContainer>
-        <LoadingText>Loading...</LoadingText>
-      </LoadingContainer>
-    );
-  }
+	if (isPending || checkingProfile) {
+		return (
+			<LoadingContainer>
+				<LoadingText>Loading...</LoadingText>
+			</LoadingContainer>
+		);
+	}
 
-  if (!session?.user) {
-    return null; // Will redirect in useEffect
-  }
+	if (!session?.user) {
+		return null; // Will redirect in useEffect
+	}
 
-  return (
-    <ProfileContainer>
-      <ProfileCard>
-        <ProfileHeader>
-          <ProfileTitle>Complete Your Profile</ProfileTitle>
-          <ProfileSubtitle>
-            We need a few details to get you started
-          </ProfileSubtitle>
-        </ProfileHeader>
+	return (
+		<ProfileContainer>
+			<ProfileCard>
+				<ProfileHeader>
+					<ProfileTitle>Complete Your Profile</ProfileTitle>
+					<ProfileSubtitle>
+						We need a few details to get you started
+					</ProfileSubtitle>
+				</ProfileHeader>
 
-        <InfoBox>
-          <InfoText>
-            <strong>Note:</strong> Your last name will be used to look up gift exchanges. Make sure to use the same last name that the exchange organizer knows.
-          </InfoText>
-        </InfoBox>
+				<InfoBox>
+					<InfoText>
+						<strong>Note:</strong> Your last name will be used to look up gift
+						exchanges. Make sure to use the same last name that the exchange
+						organizer knows.
+					</InfoText>
+				</InfoBox>
 
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="firstName">First Name</Label>
-            <InputWrapper>
-              <InputIcon>
-                <User />
-              </InputIcon>
-              <Input
-                id="firstName"
-                type="text"
-                placeholder="John"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-                disabled={loading}
-                autoFocus
-              />
-            </InputWrapper>
-          </FormGroup>
+				<Form onSubmit={handleSubmit}>
+					<FormGroup>
+						<Label htmlFor="firstName">First Name</Label>
+						<InputWrapper>
+							<InputIcon>
+								<User />
+							</InputIcon>
+							<Input
+								id="firstName"
+								type="text"
+								placeholder="John"
+								value={firstName}
+								onChange={(e) => setFirstName(e.target.value)}
+								required
+								disabled={loading}
+								autoFocus
+							/>
+						</InputWrapper>
+					</FormGroup>
 
-          <FormGroup>
-            <Label htmlFor="lastName">Last Name</Label>
-            <InputWrapper>
-              <InputIcon>
-                <User />
-              </InputIcon>
-              <Input
-                id="lastName"
-                type="text"
-                placeholder="Doe"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </InputWrapper>
-          </FormGroup>
+					<FormGroup>
+						<Label htmlFor="lastName">Last Name</Label>
+						<InputWrapper>
+							<InputIcon>
+								<User />
+							</InputIcon>
+							<Input
+								id="lastName"
+								type="text"
+								placeholder="Doe"
+								value={lastName}
+								onChange={(e) => setLastName(e.target.value)}
+								required
+								disabled={loading}
+							/>
+						</InputWrapper>
+					</FormGroup>
 
-          {message && <Message $type={message.type}>{message.text}</Message>}
+					{message && <Message $type={message.type}>{message.text}</Message>}
 
-          <SubmitButton type="submit" disabled={loading || !firstName.trim() || !lastName.trim()}>
-            {loading ? "Saving..." : "Continue"}
-          </SubmitButton>
-        </Form>
-      </ProfileCard>
-    </ProfileContainer>
-  );
+					<SubmitButton
+						type="submit"
+						disabled={loading || !firstName.trim() || !lastName.trim()}
+					>
+						{loading ? "Saving..." : "Continue"}
+					</SubmitButton>
+				</Form>
+			</ProfileCard>
+		</ProfileContainer>
+	);
 }
-

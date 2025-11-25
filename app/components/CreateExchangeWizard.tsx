@@ -1,17 +1,36 @@
 "use client";
 
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
-import { ChevronDown, ChevronUp, Check, X, ArrowLeft, ArrowRight } from "lucide-react";
+import {
+	ChevronDown,
+	ChevronUp,
+	Check,
+	X,
+	ArrowLeft,
+	ArrowRight,
+	Gift,
+	AlertCircle,
+} from "lucide-react";
+
+const fadeIn = keyframes`
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+`;
 
 const Overlay = styled(Dialog.Overlay)`
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(54, 50, 48, 0.5);
 	backdrop-filter: blur(4px);
 	z-index: 1000;
+	animation: ${fadeIn} 0.2s ease;
 `;
 
 const Content = styled(Dialog.Content)`
@@ -20,21 +39,22 @@ const Content = styled(Dialog.Content)`
 	left: 50%;
 	transform: translate(-50%, -50%);
 	width: 90vw;
-	max-width: 500px;
+	max-width: 480px;
 	max-height: 85vh;
 	background: ${(props) => props.theme.lightMode.colors.background};
-	border-radius: 12px;
+	border-radius: ${(props) => props.theme.lightMode.radii.xl};
 	padding: 0;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow: ${(props) => props.theme.lightMode.shadows.xl};
 	z-index: 1001;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	animation: ${fadeIn} 0.2s ease;
 
 	@media (max-width: 768px) {
 		width: 95vw;
 		max-height: 90vh;
-		border-radius: 16px 16px 0 0;
+		border-radius: ${(props) => props.theme.lightMode.radii.xl} ${(props) => props.theme.lightMode.radii.xl} 0 0;
 		top: auto;
 		bottom: 0;
 		transform: translate(-50%, 0);
@@ -42,17 +62,32 @@ const Content = styled(Dialog.Content)`
 `;
 
 const Header = styled.div`
-	padding: 2rem 2rem 1.5rem 2rem;
+	padding: 1.5rem 1.5rem 1.25rem;
 	border-bottom: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 `;
 
+const HeaderContent = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const HeaderIcon = styled.div`
+	color: ${(props) => props.theme.lightMode.colors.primary};
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+`;
+
 const Title = styled(Dialog.Title)`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 1.5rem;
-	font-weight: 700;
+	font-family: var(--font-playfair), Georgia, serif;
+	font-size: 1.375rem;
+	font-weight: 500;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	margin: 0;
 	letter-spacing: -0.02em;
@@ -64,14 +99,14 @@ const CloseButton = styled(Dialog.Close)`
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	cursor: pointer;
 	padding: 0.5rem;
-	border-radius: 6px;
+	border-radius: ${(props) => props.theme.lightMode.radii.md};
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${(props) => props.theme.lightMode.colors.muted};
+		background: ${(props) => props.theme.lightMode.colors.surface};
 		color: ${(props) => props.theme.lightMode.colors.foreground};
 	}
 
@@ -81,25 +116,31 @@ const CloseButton = styled(Dialog.Close)`
 	}
 `;
 
+const ProgressSection = styled.div`
+	padding: 1rem 1.5rem;
+	background: ${(props) => props.theme.lightMode.colors.surface};
+`;
+
 const ProgressBar = styled.div`
-	height: 3px;
+	height: 4px;
 	background: ${(props) => props.theme.lightMode.colors.border};
-	position: relative;
-	margin: 0 2rem;
+	border-radius: 2px;
+	overflow: hidden;
 `;
 
 const ProgressFill = styled.div<{ $progress: number }>`
 	height: 100%;
-	background: ${(props) => props.theme.lightMode.colors.foreground};
+	background: ${(props) => props.theme.lightMode.colors.accent};
 	width: ${(props) => props.$progress}%;
 	transition: width 0.3s ease;
+	border-radius: 2px;
 `;
 
 const StepIndicator = styled.div`
 	display: flex;
 	justify-content: center;
 	gap: 0.5rem;
-	padding: 1.5rem 2rem 1rem 2rem;
+	margin-top: 0.75rem;
 `;
 
 const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
@@ -108,75 +149,77 @@ const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
 	border-radius: 50%;
 	background: ${(props) =>
 		props.$active || props.$completed
-			? props.theme.lightMode.colors.foreground
+			? props.theme.lightMode.colors.accent
 			: props.theme.lightMode.colors.border};
 	transition: all 0.2s ease;
 `;
 
 const FormContent = styled.div`
-	padding: 2rem;
+	padding: 1.5rem;
 	flex: 1;
 	overflow-y: auto;
 `;
 
 const StepContent = styled.div`
-	min-height: 200px;
+	min-height: 180px;
 	display: flex;
 	flex-direction: column;
-	gap: 1.5rem;
+	gap: 1.25rem;
+`;
+
+const StepHeader = styled.div`
+	margin-bottom: 0.25rem;
 `;
 
 const StepTitle = styled.h3`
-	font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
-	font-size: 1.25rem;
-	font-weight: 700;
+	font-family: var(--font-playfair), Georgia, serif;
+	font-size: 1.125rem;
+	font-weight: 500;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
-	margin: 0;
-	letter-spacing: -0.02em;
+	margin: 0 0 0.375rem 0;
+	letter-spacing: -0.01em;
 `;
 
 const StepDescription = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.secondary};
 	margin: 0;
-	line-height: 1.6;
+	line-height: 1.5;
 `;
 
 const FormGroup = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
-	font-weight: 500;
+	font-weight: 600;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
-	letter-spacing: -0.01em;
 `;
 
 const Input = styled.input`
 	width: 100%;
-	padding: 0.875rem 1rem;
+	padding: 0.75rem 1rem;
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.background};
 	transition: all 0.2s ease;
-	letter-spacing: -0.01em;
 
 	&:focus {
 		outline: none;
-		border-color: ${(props) => props.theme.lightMode.colors.foreground};
-		box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+		border-color: ${(props) => props.theme.lightMode.colors.primary};
+		box-shadow: 0 0 0 3px ${(props) => props.theme.lightMode.colors.ring};
 	}
 
 	&::placeholder {
-		color: ${(props) => props.theme.lightMode.colors.secondary};
+		color: ${(props) => props.theme.lightMode.colors.secondaryLight};
 	}
 `;
 
@@ -186,10 +229,10 @@ const SelectRoot = styled(Select.Root)`
 
 const SelectTrigger = styled(Select.Trigger)`
 	width: 100%;
-	padding: 0.875rem 1rem;
+	padding: 0.75rem 1rem;
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	background: ${(props) => props.theme.lightMode.colors.background};
@@ -200,12 +243,12 @@ const SelectTrigger = styled(Select.Trigger)`
 	transition: all 0.2s ease;
 
 	&:hover {
-		border-color: ${(props) => props.theme.lightMode.colors.foreground};
+		border-color: ${(props) => props.theme.lightMode.colors.borderLight};
 	}
 
 	&[data-state="open"] {
-		border-color: ${(props) => props.theme.lightMode.colors.foreground};
-		box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+		border-color: ${(props) => props.theme.lightMode.colors.primary};
+		box-shadow: 0 0 0 3px ${(props) => props.theme.lightMode.colors.ring};
 	}
 
 	svg {
@@ -222,9 +265,9 @@ const SelectValue = styled(Select.Value)`
 const SelectContent = styled(Select.Content)`
 	overflow: hidden;
 	background: ${(props) => props.theme.lightMode.colors.background};
-	border-radius: 8px;
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
 	border: 1px solid ${(props) => props.theme.lightMode.colors.border};
-	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	box-shadow: ${(props) => props.theme.lightMode.shadows.lg};
 	z-index: 1002;
 `;
 
@@ -233,9 +276,9 @@ const SelectViewport = styled(Select.Viewport)`
 `;
 
 const SelectItem = styled(Select.Item)`
-	padding: 0.75rem 1rem;
-	border-radius: 6px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	padding: 0.625rem 1rem;
+	border-radius: ${(props) => props.theme.lightMode.radii.md};
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	color: ${(props) => props.theme.lightMode.colors.foreground};
 	cursor: pointer;
@@ -243,14 +286,16 @@ const SelectItem = styled(Select.Item)`
 	align-items: center;
 	justify-content: space-between;
 	outline: none;
+	transition: background 0.15s ease;
 
 	&[data-highlighted] {
-		background: ${(props) => props.theme.lightMode.colors.muted};
+		background: ${(props) => props.theme.lightMode.colors.surface};
 	}
 
 	svg {
 		width: 16px;
 		height: 16px;
+		color: ${(props) => props.theme.lightMode.colors.accent};
 	}
 `;
 
@@ -264,8 +309,61 @@ const SelectScrollButton = styled(Select.ScrollUpButton)`
 	cursor: default;
 `;
 
+const CheckboxWrapper = styled.div<{ $checked: boolean }>`
+	display: flex;
+	align-items: flex-start;
+	gap: 0.875rem;
+	padding: 1rem;
+	border: 1px solid ${(props) =>
+		props.$checked
+			? props.theme.lightMode.colors.accent
+			: props.theme.lightMode.colors.border};
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: ${(props) =>
+		props.$checked
+			? props.theme.lightMode.colors.accentLight
+			: props.theme.lightMode.colors.background};
+
+	&:hover {
+		border-color: ${(props) => props.theme.lightMode.colors.accent};
+	}
+`;
+
+const Checkbox = styled.input`
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+	accent-color: ${(props) => props.theme.lightMode.colors.accent};
+	margin-top: 2px;
+	flex-shrink: 0;
+`;
+
+const CheckboxContent = styled.div`
+	flex: 1;
+`;
+
+const CheckboxLabel = styled.span`
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	color: ${(props) => props.theme.lightMode.colors.foreground};
+	display: block;
+	margin-bottom: 0.25rem;
+	cursor: pointer;
+`;
+
+const CheckboxDescription = styled.span`
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+	font-size: 0.8125rem;
+	color: ${(props) => props.theme.lightMode.colors.secondary};
+	line-height: 1.5;
+	display: block;
+`;
+
 const Footer = styled.div`
-	padding: 1.5rem 2rem;
+	padding: 1rem 1.5rem;
 	border-top: 1px solid ${(props) => props.theme.lightMode.colors.border};
 	display: flex;
 	justify-content: space-between;
@@ -273,15 +371,14 @@ const Footer = styled.div`
 `;
 
 const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
-	padding: 0.875rem 1.5rem;
+	padding: 0.75rem 1.25rem;
 	border: none;
-	border-radius: 8px;
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+	border-radius: ${(props) => props.theme.lightMode.radii.lg};
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.9375rem;
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	letter-spacing: -0.01em;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -289,13 +386,12 @@ const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
 	${(props) =>
 		props.$variant === "primary"
 			? `
-		background: ${props.theme.lightMode.colors.foreground};
-		color: ${props.theme.lightMode.colors.background};
+		background: ${props.theme.lightMode.colors.primary};
+		color: white;
 		
-		&:hover {
-			background: ${props.theme.lightMode.colors.gray800};
+		&:hover:not(:disabled) {
+			background: ${props.theme.lightMode.colors.primaryHover};
 			transform: translateY(-1px);
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 		}
 	`
 			: `
@@ -303,13 +399,13 @@ const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
 		color: ${props.theme.lightMode.colors.secondary};
 		border: 1px solid ${props.theme.lightMode.colors.border};
 		
-		&:hover {
-			background: ${props.theme.lightMode.colors.muted};
+		&:hover:not(:disabled) {
+			background: ${props.theme.lightMode.colors.surface};
 			color: ${props.theme.lightMode.colors.foreground};
 		}
 	`}
 
-	&:active {
+	&:active:not(:disabled) {
 		transform: translateY(0);
 	}
 
@@ -319,20 +415,27 @@ const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
 	}
 
 	svg {
-		width: 18px;
-		height: 18px;
+		width: 16px;
+		height: 16px;
 	}
 `;
 
-const ErrorMessage = styled.p`
-	font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+const ErrorMessage = styled.div`
+	font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 	font-size: 0.875rem;
-	color: ${(props) => props.theme.lightMode.colors.secondary};
-	margin: 0;
+	color: ${(props) => props.theme.lightMode.colors.primary};
 	padding: 0.75rem 1rem;
-	background: ${(props) => props.theme.lightMode.colors.muted};
-	border-radius: 8px;
-	border-left: 3px solid ${(props) => props.theme.lightMode.colors.foreground};
+	background: ${(props) => props.theme.lightMode.colors.primaryLight};
+	border-radius: ${(props) => props.theme.lightMode.radii.md};
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+
+	svg {
+		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
+	}
 `;
 
 const currencies = [
@@ -453,7 +556,6 @@ export default function CreateExchangeWizard({
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen && !loading) {
-			// Reset form when closing
 			setStep(1);
 			setName("");
 			setSpendingLimit(25);
@@ -470,7 +572,12 @@ export default function CreateExchangeWizard({
 			<Overlay />
 			<Content>
 				<Header>
-					<Title>Create Gift Exchange</Title>
+					<HeaderContent>
+						<HeaderIcon>
+							<Gift />
+						</HeaderIcon>
+						<Title>Create Exchange</Title>
+					</HeaderContent>
 					<CloseButton asChild>
 						<button>
 							<X />
@@ -478,30 +585,31 @@ export default function CreateExchangeWizard({
 					</CloseButton>
 				</Header>
 
-				<ProgressBar>
-					<ProgressFill $progress={progress} />
-				</ProgressBar>
-
-				<StepIndicator>
-					{Array.from({ length: totalSteps }).map((_, index) => (
-						<StepDot
-							key={index}
-							$active={step === index + 1}
-							$completed={step > index + 1}
-						/>
-					))}
-				</StepIndicator>
+				<ProgressSection>
+					<ProgressBar>
+						<ProgressFill $progress={progress} />
+					</ProgressBar>
+					<StepIndicator>
+						{Array.from({ length: totalSteps }).map((_, index) => (
+							<StepDot
+								key={index}
+								$active={step === index + 1}
+								$completed={step > index + 1}
+							/>
+						))}
+					</StepIndicator>
+				</ProgressSection>
 
 				<FormContent>
 					<StepContent>
 						{step === 1 && (
 							<>
-								<div>
-									<StepTitle>What&apos;s the name of your gift exchange?</StepTitle>
+								<StepHeader>
+									<StepTitle>Name your exchange</StepTitle>
 									<StepDescription>
 										Choose a memorable name that participants will recognize.
 									</StepDescription>
-								</div>
+								</StepHeader>
 								<FormGroup>
 									<Label htmlFor="name">Exchange Name</Label>
 									<Input
@@ -521,12 +629,12 @@ export default function CreateExchangeWizard({
 
 						{step === 2 && (
 							<>
-								<div>
-									<StepTitle>What&apos;s the spending limit?</StepTitle>
+								<StepHeader>
+									<StepTitle>Set your budget</StepTitle>
 									<StepDescription>
-										Set a budget that works for everyone. Amounts must be in increments of $5.
+										Amounts must be in increments of $5.
 									</StepDescription>
-								</div>
+								</StepHeader>
 								<FormGroup>
 									<Label htmlFor="spendingLimit">Spending Limit</Label>
 									<Input
@@ -549,7 +657,11 @@ export default function CreateExchangeWizard({
 								</FormGroup>
 								<FormGroup>
 									<Label htmlFor="currency">Currency</Label>
-									<SelectRoot value={currency} onValueChange={setCurrency} defaultValue="USD">
+									<SelectRoot
+										value={currency}
+										onValueChange={setCurrency}
+										defaultValue="USD"
+									>
 										<SelectTrigger id="currency" aria-label="Currency">
 											<SelectValue />
 											<Select.Icon>
@@ -587,84 +699,67 @@ export default function CreateExchangeWizard({
 
 						{step === 3 && (
 							<>
-								<div>
-								<StepTitle>What&apos;s your magic word?</StepTitle>
-								<StepDescription>
-									Participants will use this word along with your last name to join the exchange.
-									The combination of your last name and magic word must be unique. Choose something memorable but not too obvious.
-								</StepDescription>
-							</div>
-							<FormGroup>
-								<Label htmlFor="magicWord">Magic Word</Label>
-								<Input
-									id="magicWord"
-									type="text"
-									placeholder="e.g., Snowflake"
-									value={magicWord}
-									onChange={(e) => {
-										setMagicWord(e.target.value);
-										setError(null);
-									}}
-									autoFocus
-								/>
+								<StepHeader>
+									<StepTitle>Choose a magic word</StepTitle>
+									<StepDescription>
+										Participants use this with your last name to join.
+									</StepDescription>
+								</StepHeader>
+								<FormGroup>
+									<Label htmlFor="magicWord">Magic Word</Label>
+									<Input
+										id="magicWord"
+										type="text"
+										placeholder="e.g., Snowflake"
+										value={magicWord}
+										onChange={(e) => {
+											setMagicWord(e.target.value);
+											setError(null);
+										}}
+										autoFocus
+									/>
 								</FormGroup>
 							</>
 						)}
 
 						{step === 4 && (
 							<>
-								<div>
-									<StepTitle>Anonymity Settings</StepTitle>
+								<StepHeader>
+									<StepTitle>Privacy settings</StepTitle>
 									<StepDescription>
-										By default, participants won&apos;t see who they&apos;re buying gifts for until the exchange ends. Enable this option to show recipient names immediately after the exchange starts.
+										Choose who sees what during the exchange.
 									</StepDescription>
-								</div>
+								</StepHeader>
 								<FormGroup>
-									<div style={{ 
-										display: "flex", 
-										alignItems: "flex-start", 
-										gap: "0.75rem",
-										padding: "1rem",
-										border: "1px solid",
-										borderColor: "inherit",
-										borderRadius: "8px",
-										cursor: "pointer",
-										transition: "all 0.2s ease",
-										background: showRecipientNames ? "rgba(0, 0, 0, 0.03)" : "transparent"
-									}}
-									onClick={() => setShowRecipientNames(!showRecipientNames)}
+									<CheckboxWrapper
+										$checked={showRecipientNames}
+										onClick={() => setShowRecipientNames(!showRecipientNames)}
 									>
-										<input
+										<Checkbox
 											type="checkbox"
 											id="showRecipientNames"
 											checked={showRecipientNames}
 											onChange={(e) => setShowRecipientNames(e.target.checked)}
-											style={{
-												width: "20px",
-												height: "20px",
-												cursor: "pointer",
-												marginTop: "2px"
-											}}
+											onClick={(e) => e.stopPropagation()}
 										/>
-										<div style={{ flex: 1, cursor: "pointer" }}>
-											<Label htmlFor="showRecipientNames" style={{ cursor: "pointer", display: "block", marginBottom: "0.25rem" }}>
-												Show recipient names to participants
-											</Label>
-											<div style={{
-												fontSize: "0.875rem",
-												color: "inherit",
-												opacity: 0.7,
-												lineHeight: "1.5"
-											}}>
-												When enabled, participants will see the name of who they&apos;re buying gifts for as soon as the exchange starts. When the exchange ends, they&apos;ll also see who was buying gifts for them.
-											</div>
-										</div>
-									</div>
+										<CheckboxContent>
+											<CheckboxLabel>Show recipient names</CheckboxLabel>
+											<CheckboxDescription>
+												Participants see who they&apos;re buying for
+												immediately. Otherwise, it&apos;s revealed at the end.
+											</CheckboxDescription>
+										</CheckboxContent>
+									</CheckboxWrapper>
 								</FormGroup>
 							</>
 						)}
 
-						{error && <ErrorMessage>{error}</ErrorMessage>}
+						{error && (
+							<ErrorMessage>
+								<AlertCircle />
+								{error}
+							</ErrorMessage>
+						)}
 					</StepContent>
 				</FormContent>
 
@@ -679,12 +774,22 @@ export default function CreateExchangeWizard({
 						Back
 					</Button>
 					{step < totalSteps ? (
-						<Button type="button" $variant="primary" onClick={handleNext} disabled={loading}>
+						<Button
+							type="button"
+							$variant="primary"
+							onClick={handleNext}
+							disabled={loading}
+						>
 							Next
 							<ArrowRight />
 						</Button>
 					) : (
-						<Button type="button" $variant="primary" onClick={handleSubmit} disabled={loading}>
+						<Button
+							type="button"
+							$variant="primary"
+							onClick={handleSubmit}
+							disabled={loading}
+						>
 							{loading ? "Creating..." : "Create Exchange"}
 						</Button>
 					)}
@@ -693,4 +798,3 @@ export default function CreateExchangeWizard({
 		</Dialog.Root>
 	);
 }
-

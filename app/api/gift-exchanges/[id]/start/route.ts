@@ -19,17 +19,14 @@ function shuffle<T>(array: T[]): T[] {
 
 export async function POST(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Get the current session
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		const { id } = await params;
@@ -41,15 +38,15 @@ export async function POST(
 			.where(
 				and(
 					eq(giftExchanges.id, id),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -57,7 +54,7 @@ export async function POST(
 		if (exchange.status !== "active") {
 			return NextResponse.json(
 				{ error: `Exchange has already been ${exchange.status}` },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -72,7 +69,7 @@ export async function POST(
 		if (participantsList.length < 2) {
 			return NextResponse.json(
 				{ error: "Need at least 2 participants to start the exchange" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -86,7 +83,7 @@ export async function POST(
 		if (existingAssignments.length > 0) {
 			return NextResponse.json(
 				{ error: "Exchange has already been started" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -108,7 +105,8 @@ export async function POST(
 			// participant[0] → participant[1] → participant[2] → ... → participant[n] → participant[0]
 			for (let i = 0; i < shuffledParticipants.length; i++) {
 				const giver = shuffledParticipants[i];
-				const receiver = shuffledParticipants[(i + 1) % shuffledParticipants.length];
+				const receiver =
+					shuffledParticipants[(i + 1) % shuffledParticipants.length];
 
 				assignmentRecords.push({
 					id: crypto.randomUUID(),
@@ -124,7 +122,8 @@ export async function POST(
 			// participant[0] → participant[1] → participant[2] → ... → participant[n] → participant[0]
 			for (let i = 0; i < shuffledParticipants.length; i++) {
 				const giver = shuffledParticipants[i];
-				const receiver = shuffledParticipants[(i + 1) % shuffledParticipants.length];
+				const receiver =
+					shuffledParticipants[(i + 1) % shuffledParticipants.length];
 
 				assignmentRecords.push({
 					id: crypto.randomUUID(),
@@ -167,8 +166,7 @@ export async function POST(
 		console.error("Error starting exchange:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

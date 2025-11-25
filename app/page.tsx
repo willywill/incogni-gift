@@ -17,7 +17,8 @@ export default function Home() {
 				if (element) {
 					const headerOffset = 80; // Account for sticky navbar
 					const elementPosition = element.getBoundingClientRect().top;
-					const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+					const offsetPosition =
+						elementPosition + window.pageYOffset - headerOffset;
 
 					window.scrollTo({
 						top: offsetPosition,

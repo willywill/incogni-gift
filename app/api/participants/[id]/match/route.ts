@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/db";
-import { participants, assignments, wishlistItems, giftExchanges } from "@/app/db/schema";
+import {
+	participants,
+	assignments,
+	wishlistItems,
+	giftExchanges,
+} from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function GET(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id: participantId } = await params;
@@ -24,18 +29,19 @@ export async function GET(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		// Optional: validate visitor ID matches if provided and participant has one stored
 		// Only deny access if both visitorId (from query) and participant.visitorId exist and don't match
 		// This allows users who found themselves by name to access even without matching visitor ID
-		if (visitorId && participant.visitorId && participant.visitorId !== visitorId) {
-			return NextResponse.json(
-				{ error: "Access denied" },
-				{ status: 403 }
-			);
+		if (
+			visitorId &&
+			participant.visitorId &&
+			participant.visitorId !== visitorId
+		) {
+			return NextResponse.json({ error: "Access denied" }, { status: 403 });
 		}
 
 		// Verify the exchange has started
@@ -48,7 +54,7 @@ export async function GET(
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -75,8 +81,8 @@ export async function GET(
 			.where(
 				and(
 					eq(assignments.exchangeId, participant.exchangeId),
-					eq(assignments.participantId, participantId)
-				)
+					eq(assignments.participantId, participantId),
+				),
 			)
 			.limit(1);
 
@@ -91,15 +97,21 @@ export async function GET(
 			if (existingAssignments.length > 0) {
 				// Assignments exist but this participant doesn't have one
 				return NextResponse.json(
-					{ error: "You are not assigned in this exchange. Please contact the organizer." },
-					{ status: 404 }
+					{
+						error:
+							"You are not assigned in this exchange. Please contact the organizer.",
+					},
+					{ status: 404 },
 				);
 			}
 
 			// No assignments exist for this exchange at all
 			return NextResponse.json(
-				{ error: "Assignment not found. Exchange may not have been started yet." },
-				{ status: 404 }
+				{
+					error:
+						"Assignment not found. Exchange may not have been started yet.",
+				},
+				{ status: 404 },
 			);
 		}
 
@@ -107,7 +119,9 @@ export async function GET(
 		const wishlistItemsList = await db
 			.select()
 			.from(wishlistItems)
-			.where(eq(wishlistItems.participantId, assignment.assignedToParticipantId))
+			.where(
+				eq(wishlistItems.participantId, assignment.assignedToParticipantId),
+			)
 			.orderBy(wishlistItems.createdAt);
 
 		// If exchange is ended OR showRecipientNames is enabled, get the matched participant's name
@@ -120,7 +134,8 @@ export async function GET(
 				.limit(1);
 
 			if (matchedParticipant) {
-				matchedParticipantName = `${matchedParticipant.firstName} ${matchedParticipant.lastName || ""}`.trim();
+				matchedParticipantName =
+					`${matchedParticipant.firstName} ${matchedParticipant.lastName || ""}`.trim();
 			}
 		}
 
@@ -133,8 +148,8 @@ export async function GET(
 				.where(
 					and(
 						eq(assignments.exchangeId, participant.exchangeId),
-						eq(assignments.assignedToParticipantId, participantId)
-					)
+						eq(assignments.assignedToParticipantId, participantId),
+					),
 				)
 				.limit(1);
 
@@ -146,7 +161,8 @@ export async function GET(
 					.limit(1);
 
 				if (buyingParticipant) {
-					buyingForYouName = `${buyingParticipant.firstName} ${buyingParticipant.lastName || ""}`.trim();
+					buyingForYouName =
+						`${buyingParticipant.firstName} ${buyingParticipant.lastName || ""}`.trim();
 				}
 			}
 		}
@@ -179,8 +195,7 @@ export async function GET(
 		console.error("Error fetching participant match:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

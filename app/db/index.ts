@@ -20,4 +20,3 @@ export const db = drizzle(pool, { schema });
 
 // Export the schema for use in other files
 export * from "./schema";
-

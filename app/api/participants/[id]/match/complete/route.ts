@@ -5,7 +5,7 @@ import { eq, and } from "drizzle-orm";
 
 export async function POST(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id: participantId } = await params;
@@ -18,14 +18,14 @@ export async function POST(
 		if (!wishlistItemId || typeof wishlistItemId !== "string") {
 			return NextResponse.json(
 				{ error: "Wishlist item ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
 		if (typeof completed !== "boolean") {
 			return NextResponse.json(
 				{ error: "Completed status must be a boolean" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -39,7 +39,7 @@ export async function POST(
 		if (!participant) {
 			return NextResponse.json(
 				{ error: "Participant not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -50,15 +50,18 @@ export async function POST(
 			.where(
 				and(
 					eq(assignments.exchangeId, participant.exchangeId),
-					eq(assignments.participantId, participantId)
-				)
+					eq(assignments.participantId, participantId),
+				),
 			)
 			.limit(1);
 
 		if (!assignment) {
 			return NextResponse.json(
-				{ error: "Assignment not found. Exchange may not have been started yet." },
-				{ status: 404 }
+				{
+					error:
+						"Assignment not found. Exchange may not have been started yet.",
+				},
+				{ status: 404 },
 			);
 		}
 
@@ -72,15 +75,12 @@ export async function POST(
 		if (!item) {
 			return NextResponse.json(
 				{ error: "Wishlist item not found" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
 		if (item.participantId !== assignment.assignedToParticipantId) {
-			return NextResponse.json(
-				{ error: "Access denied" },
-				{ status: 403 }
-			);
+			return NextResponse.json({ error: "Access denied" }, { status: 403 });
 		}
 
 		// Update the wishlist item
@@ -107,8 +107,7 @@ export async function POST(
 		console.error("Error updating wishlist item completion:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

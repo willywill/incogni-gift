@@ -10,20 +10,21 @@ export async function GET(request: Request) {
 		const session = await getSession({ headers: request.headers });
 
 		if (!session?.user) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 }
-			);
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
 		// Parse query parameters
 		const { searchParams } = new URL(request.url);
 		const exchangeId = searchParams.get("exchangeId");
 
-		if (!exchangeId || typeof exchangeId !== "string" || exchangeId.trim().length === 0) {
+		if (
+			!exchangeId ||
+			typeof exchangeId !== "string" ||
+			exchangeId.trim().length === 0
+		) {
 			return NextResponse.json(
 				{ error: "Exchange ID is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -34,15 +35,15 @@ export async function GET(request: Request) {
 			.where(
 				and(
 					eq(giftExchanges.id, exchangeId),
-					eq(giftExchanges.createdBy, session.user.id)
-				)
+					eq(giftExchanges.createdBy, session.user.id),
+				),
 			)
 			.limit(1);
 
 		if (!exchange) {
 			return NextResponse.json(
 				{ error: "Exchange not found or access denied" },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -56,26 +57,26 @@ export async function GET(request: Request) {
 				giverLastName: participants.lastName,
 			})
 			.from(assignments)
-			.innerJoin(
-				participants,
-				eq(assignments.participantId, participants.id)
-			)
+			.innerJoin(participants, eq(assignments.participantId, participants.id))
 			.where(eq(assignments.exchangeId, exchangeId));
 
 		// Get receiver names
 		const receiverIds = assignmentsList.map((a) => a.assignedToParticipantId);
-		const receivers = receiverIds.length > 0 ? await db
-			.select({
-				id: participants.id,
-				firstName: participants.firstName,
-				lastName: participants.lastName,
-			})
-			.from(participants)
-			.where(inArray(participants.id, receiverIds)) : [];
+		const receivers =
+			receiverIds.length > 0
+				? await db
+						.select({
+							id: participants.id,
+							firstName: participants.firstName,
+							lastName: participants.lastName,
+						})
+						.from(participants)
+						.where(inArray(participants.id, receiverIds))
+				: [];
 
 		// Create a map of receiver IDs to names
 		const receiverMap = new Map(
-			receivers.map((r) => [r.id, `${r.firstName} ${r.lastName || ""}`.trim()])
+			receivers.map((r) => [r.id, `${r.firstName} ${r.lastName || ""}`.trim()]),
 		);
 
 		// Combine with receiver names
@@ -83,8 +84,10 @@ export async function GET(request: Request) {
 			id: assignment.id,
 			participantId: assignment.participantId,
 			assignedToParticipantId: assignment.assignedToParticipantId,
-			giverName: `${assignment.giverFirstName} ${assignment.giverLastName || ""}`.trim(),
-			receiverName: receiverMap.get(assignment.assignedToParticipantId) || "Unknown",
+			giverName:
+				`${assignment.giverFirstName} ${assignment.giverLastName || ""}`.trim(),
+			receiverName:
+				receiverMap.get(assignment.assignedToParticipantId) || "Unknown",
 		}));
 
 		return NextResponse.json(result);
@@ -92,8 +95,7 @@ export async function GET(request: Request) {
 		console.error("Error fetching assignments:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-

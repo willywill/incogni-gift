@@ -19,10 +19,10 @@ export async function getVisitorId(): Promise<string> {
 		try {
 			// Initialize the FingerprintJS agent
 			const fp = await FingerprintJS.load();
-			
+
 			// Get the visitor ID
 			const result = await fp.get();
-			
+
 			return result.visitorId;
 		} catch (error) {
 			console.error("Error getting visitor ID:", error);
@@ -34,4 +34,3 @@ export async function getVisitorId(): Promise<string> {
 
 	return visitorIdPromise;
 }
-

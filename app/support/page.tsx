@@ -17,7 +17,7 @@ const SupportSection = styled.section`
 `;
 
 const PageTitle = styled.h1`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -33,7 +33,7 @@ const PageTitle = styled.h1`
 `;
 
 const PageSubtitle = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(1.125rem, 2vw, 1.375rem);
   text-align: center;
   color: ${(props) => props.theme.lightMode.colors.secondary};
@@ -65,7 +65,7 @@ const ContactSection = styled.div`
 `;
 
 const ContactTitle = styled.h2`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -96,7 +96,7 @@ const ContactTitle = styled.h2`
 `;
 
 const ContactText = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.0625rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   line-height: 1.8;
@@ -106,7 +106,7 @@ const ContactText = styled.p`
 `;
 
 const EmailLink = styled.a`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.25rem;
   font-weight: 600;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -141,7 +141,7 @@ const FAQSection = styled.div`
 `;
 
 const FAQTitle = styled.h2`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -208,7 +208,7 @@ const FAQButton = styled.button<{ $isOpen: boolean }>`
 `;
 
 const FAQQuestion = styled.h3`
-  font-family: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-playfair), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
   color: ${(props) => props.theme.lightMode.colors.foreground};
@@ -240,7 +240,7 @@ const FAQAnswer = styled.div<{ $isOpen: boolean }>`
 `;
 
 const FAQAnswerText = styled.p`
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.9375rem;
   color: ${(props) => props.theme.lightMode.colors.secondary};
   line-height: 1.8;
@@ -250,121 +250,129 @@ const FAQAnswerText = styled.p`
 `;
 
 interface FAQ {
-  question: string;
-  answer: string;
+	question: string;
+	answer: string;
 }
 
 const faqs: FAQ[] = [
-  {
-    question: "How does IncogniGift work?",
-    answer:
-      "IncogniGift digitizes the traditional secret gift exchange. Participants join a gift exchange, share their interests and gift preferences, and get anonymously matched with another participant. You'll receive gift suggestions based on your match's preferences while keeping identities secret until the big reveal.",
-  },
-  {
-    question: "Do I need an account to participate?",
-    answer:
-      "Only the gift exchange creator needs an account to set up and manage the exchange. Other participants can join using a simple link or invitation. The creator administers the matching and manages the exchange throughout the process.",
-  },
-  {
-    question: "How do magic links work?",
-    answer:
-      "Magic links are secure, passwordless authentication. When you sign up or sign in, we send a unique link to your email. Click the link to instantly access your account—no password required. Magic links are time-limited and single-use for security.",
-  },
-  {
-    question: "Is my identity really kept secret?",
-    answer:
-      "Yes! IncogniGift is designed to maintain complete anonymity until you choose to reveal yourself. Your match partner will only see your interests and preferences, never your name or personal information. You control when and how to reveal your identity after the gift exchange.",
-  },
-  {
-    question: "How do I create a gift exchange?",
-    answer:
-      "After creating an account, you can start a new gift exchange from your dashboard. You'll set a name for the exchange, add participants, and configure settings like spending limits and reveal dates. Once set up, you can invite participants and start the matching process.",
-  },
-  {
-    question: "Can I participate in multiple gift exchanges?",
-    answer:
-      "Yes! You can create multiple exchanges and join as many as you'd like. Each exchange is independent, so you can have different exchanges for different groups—family, friends, coworkers, etc. All your exchanges are managed from your dashboard.",
-  },
-  {
-    question: "What if I have technical issues?",
-    answer:
-      "If you encounter any technical problems or have questions about using IncogniGift, please reach out to us at help@incognigift.com. We're here to help and typically respond within 24-48 hours.",
-  },
-  {
-    question: "Is IncogniGift free to use?",
-    answer:
-      "IncogniGift is designed to be accessible and easy to use. For details about pricing and features, please check our homepage or contact us at help@incognigift.com for more information.",
-  },
+	{
+		question: "How does IncogniGift work?",
+		answer:
+			"IncogniGift digitizes the traditional secret gift exchange. Participants join a gift exchange, share their interests and gift preferences, and get anonymously matched with another participant. You'll receive gift suggestions based on your match's preferences while keeping identities secret until the big reveal.",
+	},
+	{
+		question: "Do I need an account to participate?",
+		answer:
+			"Only the gift exchange creator needs an account to set up and manage the exchange. Other participants can join using a simple link or invitation. The creator administers the matching and manages the exchange throughout the process.",
+	},
+	{
+		question: "How do magic links work?",
+		answer:
+			"Magic links are secure, passwordless authentication. When you sign up or sign in, we send a unique link to your email. Click the link to instantly access your account—no password required. Magic links are time-limited and single-use for security.",
+	},
+	{
+		question: "Is my identity really kept secret?",
+		answer:
+			"Yes! IncogniGift is designed to maintain complete anonymity until you choose to reveal yourself. Your match partner will only see your interests and preferences, never your name or personal information. You control when and how to reveal your identity after the gift exchange.",
+	},
+	{
+		question: "How do I create a gift exchange?",
+		answer:
+			"After creating an account, you can start a new gift exchange from your dashboard. You'll set a name for the exchange, add participants, and configure settings like spending limits and reveal dates. Once set up, you can invite participants and start the matching process.",
+	},
+	{
+		question: "Can I participate in multiple gift exchanges?",
+		answer:
+			"Yes! You can create multiple exchanges and join as many as you'd like. Each exchange is independent, so you can have different exchanges for different groups—family, friends, coworkers, etc. All your exchanges are managed from your dashboard.",
+	},
+	{
+		question: "What if I have technical issues?",
+		answer:
+			"If you encounter any technical problems or have questions about using IncogniGift, please reach out to us at help@incognigift.com. We're here to help and typically respond within 24-48 hours.",
+	},
+	{
+		question: "Is IncogniGift free to use?",
+		answer:
+			"IncogniGift is designed to be accessible and easy to use. For details about pricing and features, please check our homepage or contact us at help@incognigift.com for more information.",
+	},
 ];
 
-function FAQItemComponent({ faq, isOpen, onClick }: { faq: FAQ; isOpen: boolean; onClick: () => void }) {
-  return (
-    <FAQItem>
-      <FAQButton $isOpen={isOpen} onClick={onClick} type="button">
-        <FAQQuestion>{faq.question}</FAQQuestion>
-        <FAQIcon $isOpen={isOpen}>
-          <ChevronDown />
-        </FAQIcon>
-      </FAQButton>
-      <FAQAnswer $isOpen={isOpen}>
-        <FAQAnswerText>{faq.answer}</FAQAnswerText>
-      </FAQAnswer>
-    </FAQItem>
-  );
+function FAQItemComponent({
+	faq,
+	isOpen,
+	onClick,
+}: {
+	faq: FAQ;
+	isOpen: boolean;
+	onClick: () => void;
+}) {
+	return (
+		<FAQItem>
+			<FAQButton $isOpen={isOpen} onClick={onClick} type="button">
+				<FAQQuestion>{faq.question}</FAQQuestion>
+				<FAQIcon $isOpen={isOpen}>
+					<ChevronDown />
+				</FAQIcon>
+			</FAQButton>
+			<FAQAnswer $isOpen={isOpen}>
+				<FAQAnswerText>{faq.answer}</FAQAnswerText>
+			</FAQAnswer>
+		</FAQItem>
+	);
 }
 
 export default function SupportPage() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+	const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+	const toggleFAQ = (index: number) => {
+		setOpenIndex(openIndex === index ? null : index);
+	};
 
-  return (
-    <main>
-      <Navbar />
-      <SupportSection>
-        <PageTitle>Support & Help</PageTitle>
-        <PageSubtitle>
-          We&apos;re here to help. Find answers to common questions or reach out
-          directly.
-        </PageSubtitle>
+	return (
+		<main>
+			<Navbar />
+			<SupportSection>
+				<PageTitle>Support & Help</PageTitle>
+				<PageSubtitle>
+					We&apos;re here to help. Find answers to common questions or reach out
+					directly.
+				</PageSubtitle>
 
-        <ContentWrapper>
-          <ContactSection>
-            <ContactTitle>
-              <Mail />
-              Get in Touch
-            </ContactTitle>
-            <ContactText>
-              Have a question or need assistance? We&apos;d love to hear from you.
-            </ContactText>
-            <EmailLink href="mailto:help@incognigift.com">
-              <Mail />
-              help@incognigift.com
-            </EmailLink>
-          </ContactSection>
+				<ContentWrapper>
+					<ContactSection>
+						<ContactTitle>
+							<Mail />
+							Get in Touch
+						</ContactTitle>
+						<ContactText>
+							Have a question or need assistance? We&apos;d love to hear from
+							you.
+						</ContactText>
+						<EmailLink href="mailto:help@incognigift.com">
+							<Mail />
+							help@incognigift.com
+						</EmailLink>
+					</ContactSection>
 
-          <FAQSection>
-            <FAQTitle>
-              <HelpCircle />
-              Frequently Asked Questions
-            </FAQTitle>
-            <FAQList>
-              {faqs.map((faq, index) => (
-                <FAQItemComponent
-                  key={index}
-                  faq={faq}
-                  isOpen={openIndex === index}
-                  onClick={() => toggleFAQ(index)}
-                />
-              ))}
-            </FAQList>
-          </FAQSection>
-        </ContentWrapper>
-      </SupportSection>
-      <Footer />
-    </main>
-  );
+					<FAQSection>
+						<FAQTitle>
+							<HelpCircle />
+							Frequently Asked Questions
+						</FAQTitle>
+						<FAQList>
+							{faqs.map((faq, index) => (
+								<FAQItemComponent
+									key={index}
+									faq={faq}
+									isOpen={openIndex === index}
+									onClick={() => toggleFAQ(index)}
+								/>
+							))}
+						</FAQList>
+					</FAQSection>
+				</ContentWrapper>
+			</SupportSection>
+			<Footer />
+		</main>
+	);
 }
-
